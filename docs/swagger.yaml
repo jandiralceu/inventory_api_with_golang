@@ -1,0 +1,20 @@
+basePath: /api/v1
+host: localhost:8080
+info:
+  contact:
+    name: Jandir A. Cutabiala
+    url: https://github.com/jandiralceu/inventory_api_with_golang
+  description: REST API for an Inventory Management System built with Go and Gin.
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+  title: Inventory API
+  version: "1.0"
+paths: {}
+securityDefinitions:
+  Bearer:
+    description: Type "Bearer" followed by a space and JWT token.
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

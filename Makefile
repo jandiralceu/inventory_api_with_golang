@@ -1,4 +1,4 @@
-.PHONY: start help build test test-unit test-integration test-cover clean migration-create migration-up migration-down docker-up docker-up-all docker-stop docker-down generate-keys
+.PHONY: start help build test test-unit test-integration test-cover clean migration-create migration-up migration-down docker-up docker-up-all docker-stop docker-down generate-keys swagger
 
 include .env
 export
@@ -11,7 +11,7 @@ start: ## Start the application
 	@echo "Starting the application..."
 	go run cmd/api/main.go
 
-build: ## Build the application
+build: swagger ## Build the application
 	@echo "Building the application..."
 	@go build -o bin/$(BINARY_NAME) cmd/api/main.go
 
@@ -65,6 +65,10 @@ generate-keys: ## Generate RSA keys for JWT
 	else \
 		echo "Keys already exist, skipping generation."; \
 	fi
+
+swagger: ## Generate swagger documentation
+	@echo "Generating swagger documentation..."
+	swag init -g cmd/api/main.go
 
 help: ## Display all available commands
 	@echo "Available commands:"

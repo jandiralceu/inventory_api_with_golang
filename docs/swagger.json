@@ -1,0 +1,27 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "REST API for an Inventory Management System built with Go and Gin.",
+        "title": "Inventory API",
+        "contact": {
+            "name": "Jandir A. Cutabiala",
+            "url": "https://github.com/jandiralceu/inventory_api_with_golang"
+        },
+        "license": {
+            "name": "MIT",
+            "url": "https://opensource.org/licenses/MIT"
+        },
+        "version": "1.0"
+    },
+    "host": "localhost:8080",
+    "basePath": "/api/v1",
+    "paths": {},
+    "securityDefinitions": {
+        "Bearer": {
+            "description": "Type \"Bearer\" followed by a space and JWT token.",
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header"
+        }
+    }
+}
