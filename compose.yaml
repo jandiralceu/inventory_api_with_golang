@@ -1,0 +1,79 @@
+services:
+  db:
+    container_name: postgres
+    image: postgres:17.0
+    restart: always
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_USER: jandiralceu
+      POSTGRES_PASSWORD: nk6eloPZ1FQk8Ku1
+      POSTGRES_DB: inventory
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U jandiralceu -d inventory"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - inventory-network
+
+  jaeger:
+    container_name: jaeger
+    image: jaegertracing/all-in-one:latest
+    restart: always
+    ports:
+      - 4317:4317   # OTLP gRPC (receives traces from the app)
+      - 16686:16686 # Web UI (http://localhost:16686)
+    environment:
+      COLLECTOR_OTLP_ENABLED: "true"
+    networks:
+      - inventory-network
+
+  redis:
+    container_name: redis
+    image: redis:7-alpine
+    restart: always
+    ports:
+      - 6379:6379
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - inventory-network
+
+  api:
+    container_name: inventory-api
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    profiles:
+      - "all"
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      jaeger:
+        condition: service_started
+    environment:
+      - DB_HOST=db
+      - DB_USER=jandiralceu
+      - DB_PASSWORD=nk6eloPZ1FQk8Ku1
+      - DB_NAME=inventory
+      - DB_PORT=5432
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - OTLP_ENDPOINT=jaeger:4317
+    volumes:
+      - ./private.pem:/app/private.pem:ro
+      - ./public.pem:/app/public.pem:ro
+    networks:
+      - inventory-network
+
+networks:
+  inventory-network:
+    driver: bridge
