@@ -30,7 +30,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/jandiralceu/inventory_api_with_golang/internal/config"
 	"github.com/jandiralceu/inventory_api_with_golang/internal/database"
-	"github.com/jandiralceu/inventory_api_with_golang/internal/platform"
+	pkg "github.com/jandiralceu/inventory_api_with_golang/internal/pkg"
 	"github.com/jandiralceu/inventory_api_with_golang/internal/routes"
 )
 
@@ -43,10 +43,10 @@ func main() {
 	}
 
 	// Initialize structured logger based on environment.
-	platform.InitLogger(cfg.Env)
+	pkg.InitLogger(cfg.Env)
 
 	// Initialize OpenTelemetry tracing.
-	shutdownTracer := platform.InitTracer(ctx, cfg.AppName, cfg.Env, cfg.OTLPEndpoint)
+	shutdownTracer := pkg.InitTracer(ctx, cfg.AppName, cfg.Env, cfg.OTLPEndpoint)
 	defer shutdownTracer(ctx)
 
 	// Load RSA keys and initialize JWT manager.
@@ -60,7 +60,7 @@ func main() {
 		slog.Error("Failed to read public key file", "path", cfg.PublicKeyPath, "error", err)
 		os.Exit(1)
 	}
-	jwtManager, err := platform.NewJWTManager(string(privateKeyPEM), string(publicKeyPEM))
+	jwtManager, err := pkg.NewJWTManager(string(privateKeyPEM), string(publicKeyPEM))
 	if err != nil {
 		slog.Error("Failed to initialize JWT manager", "error", err)
 		os.Exit(1)
@@ -83,7 +83,7 @@ func main() {
 	sqlDB.SetMaxOpenConns(100)
 	sqlDB.SetConnMaxLifetime(time.Hour)
 
-	cacheManager := platform.NewRedisCacheManager(cfg)
+	cacheManager := pkg.NewRedisCacheManager(cfg)
 	defer cacheManager.Close()
 
 	routeConfig := &routes.RouteConfig{}

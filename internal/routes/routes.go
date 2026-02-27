@@ -8,7 +8,7 @@ import (
 	_ "github.com/jandiralceu/inventory_api_with_golang/docs" // imported so swagger can read embedded docs
 	"github.com/jandiralceu/inventory_api_with_golang/internal/config"
 	"github.com/jandiralceu/inventory_api_with_golang/internal/middleware"
-	"github.com/jandiralceu/inventory_api_with_golang/internal/platform"
+	platform "github.com/jandiralceu/inventory_api_with_golang/internal/pkg"
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 	"go.opentelemetry.io/contrib/instrumentation/github.com/gin-gonic/gin/otelgin"

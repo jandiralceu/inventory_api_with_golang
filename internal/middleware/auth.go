@@ -8,7 +8,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/jandiralceu/inventory_api_with_golang/internal/apperrors"
-	"github.com/jandiralceu/inventory_api_with_golang/internal/platform"
+	pkg "github.com/jandiralceu/inventory_api_with_golang/internal/pkg"
 )
 
 const (
@@ -40,7 +40,7 @@ func respondWithUnauthorized(c *gin.Context, detail string) {
 // AuthMiddleware returns a Gin middleware that validates JWT tokens
 // from the Authorization header and injects the user ID into the context.
 // It expects the header in the format: "Bearer <token>".
-func AuthMiddleware(jwtManager *platform.JWTManager) gin.HandlerFunc {
+func AuthMiddleware(jwtManager *pkg.JWTManager) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		authHeader := c.GetHeader("Authorization")
 		if authHeader == "" {

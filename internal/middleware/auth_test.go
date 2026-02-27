@@ -14,7 +14,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/jandiralceu/inventory_api_with_golang/internal/middleware"
-	"github.com/jandiralceu/inventory_api_with_golang/internal/platform"
+	pkg "github.com/jandiralceu/inventory_api_with_golang/internal/pkg"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -43,7 +43,7 @@ func generateMemRSAKeys(t *testing.T) (string, string) {
 	return string(privPEM), string(pubPEM)
 }
 
-func setupTestRouter(jwtManager *platform.JWTManager) *gin.Engine {
+func setupTestRouter(jwtManager *pkg.JWTManager) *gin.Engine {
 	gin.SetMode(gin.TestMode)
 	r := gin.New()
 	r.Use(middleware.TraceIDMiddleware())
@@ -64,7 +64,7 @@ type problemDetails struct {
 
 func TestAuthMiddleware(t *testing.T) {
 	privPEM, pubPEM := generateMemRSAKeys(t)
-	jwtManager, err := platform.NewJWTManager(privPEM, pubPEM)
+	jwtManager, err := pkg.NewJWTManager(privPEM, pubPEM)
 	require.NoError(t, err)
 
 	router := setupTestRouter(jwtManager)
