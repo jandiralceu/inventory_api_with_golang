@@ -1,6 +1,6 @@
 services:
   db:
-    container_name: postgres
+    container_name: inventory-postgres
     image: postgres:17.0
     restart: always
     ports:
@@ -18,7 +18,7 @@ services:
       - inventory-network
 
   jaeger:
-    container_name: jaeger
+    container_name: inventory-jaeger
     image: jaegertracing/all-in-one:latest
     restart: always
     ports:
@@ -30,7 +30,7 @@ services:
       - inventory-network
 
   redis:
-    container_name: redis
+    container_name: inventory-redis
     image: redis:7-alpine
     restart: always
     ports:
