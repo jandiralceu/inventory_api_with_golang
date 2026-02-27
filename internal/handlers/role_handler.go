@@ -11,16 +11,30 @@ import (
 	"github.com/jandiralceu/inventory_api_with_golang/internal/service"
 )
 
+// RoleHandler organizes endpoints for creating and managing roles.
 type RoleHandler struct {
 	roleService service.RoleService
 }
 
+// NewRoleHandler initializes a RoleHandler with its required dependencies.
 func NewRoleHandler(roleService service.RoleService) *RoleHandler {
 	return &RoleHandler{
 		roleService: roleService,
 	}
 }
 
+// CreateRole godoc
+// @Summary      Create a role
+// @Description  Create a new role in the system
+// @Tags         roles
+// @Accept       json
+// @Produce      json
+// @Param        request body dto.CreateRoleRequest true "Role data"
+// @Success      201 {object} models.Role
+// @Failure      400 {object} ProblemDetails "Bad request"
+// @Failure      409 {object} ProblemDetails "Conflict"
+// @Failure      500 {object} ProblemDetails "Internal error"
+// @Router       /roles [post]
 func (h *RoleHandler) CreateRole(c *gin.Context) {
 	var req dto.CreateRoleRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -42,6 +56,17 @@ func (h *RoleHandler) CreateRole(c *gin.Context) {
 	c.JSON(http.StatusCreated, createdRole)
 }
 
+// DeleteRole godoc
+// @Summary      Delete a role
+// @Description  Remove a role by its unique UUID
+// @Tags         roles
+// @Produce      json
+// @Param        id path string true "Role ID (UUID)"
+// @Success      204 "No content"
+// @Failure      400 {object} ProblemDetails "Bad request"
+// @Failure      404 {object} ProblemDetails "Not found"
+// @Failure      500 {object} ProblemDetails "Internal error"
+// @Router       /roles/{id} [delete]
 func (h *RoleHandler) DeleteRole(c *gin.Context) {
 	idStr := c.Param("id")
 	id, err := uuid.Parse(idStr)
@@ -58,6 +83,16 @@ func (h *RoleHandler) DeleteRole(c *gin.Context) {
 	c.Status(http.StatusNoContent)
 }
 
+// FindRoleByID godoc
+// @Summary      Get role by ID
+// @Description  Retrieve a single role by its unique UUID
+// @Tags         roles
+// @Produce      json
+// @Param        id path string true "Role ID (UUID)"
+// @Success      200 {object} models.Role
+// @Failure      400 {object} ProblemDetails "Bad request"
+// @Failure      404 {object} ProblemDetails "Not found"
+// @Router       /roles/{id} [get]
 func (h *RoleHandler) FindRoleByID(c *gin.Context) {
 	idStr := c.Param("id")
 	id, err := uuid.Parse(idStr)
@@ -75,6 +110,14 @@ func (h *RoleHandler) FindRoleByID(c *gin.Context) {
 	c.JSON(http.StatusOK, role)
 }
 
+// FindAllRoles godoc
+// @Summary      Get all roles
+// @Description  Retrieve a list of all roles
+// @Tags         roles
+// @Produce      json
+// @Success      200 {array} models.Role
+// @Failure      500 {object} ProblemDetails "Internal error"
+// @Router       /roles [get]
 func (h *RoleHandler) FindAllRoles(c *gin.Context) {
 	roles, err := h.roleService.FindAll(c.Request.Context())
 	if err != nil {

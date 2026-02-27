@@ -1,4 +1,51 @@
 basePath: /api/v1
+definitions:
+  apperrors.InvalidParam:
+    properties:
+      field:
+        type: string
+      reason:
+        type: string
+    type: object
+  dto.CreateRoleRequest:
+    properties:
+      description:
+        minLength: 3
+        type: string
+      name:
+        maxLength: 50
+        minLength: 3
+        type: string
+    required:
+    - description
+    - name
+    type: object
+  handlers.ProblemDetails:
+    properties:
+      detail:
+        type: string
+      invalid_params:
+        items:
+          $ref: '#/definitions/apperrors.InvalidParam'
+        type: array
+      title:
+        type: string
+      trace_id:
+        type: string
+      type:
+        type: string
+    type: object
+  models.Role:
+    properties:
+      created_at:
+        type: string
+      description:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+    type: object
 host: localhost:8080
 info:
   contact:
@@ -10,7 +57,114 @@ info:
     url: https://opensource.org/licenses/MIT
   title: Inventory API
   version: "1.0"
-paths: {}
+paths:
+  /roles:
+    get:
+      description: Retrieve a list of all roles
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Role'
+            type: array
+        "500":
+          description: Internal error
+          schema:
+            $ref: '#/definitions/handlers.ProblemDetails'
+      summary: Get all roles
+      tags:
+      - roles
+    post:
+      consumes:
+      - application/json
+      description: Create a new role in the system
+      parameters:
+      - description: Role data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.CreateRoleRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.Role'
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/handlers.ProblemDetails'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/handlers.ProblemDetails'
+        "500":
+          description: Internal error
+          schema:
+            $ref: '#/definitions/handlers.ProblemDetails'
+      summary: Create a role
+      tags:
+      - roles
+  /roles/{id}:
+    delete:
+      description: Remove a role by its unique UUID
+      parameters:
+      - description: Role ID (UUID)
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No content
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/handlers.ProblemDetails'
+        "404":
+          description: Not found
+          schema:
+            $ref: '#/definitions/handlers.ProblemDetails'
+        "500":
+          description: Internal error
+          schema:
+            $ref: '#/definitions/handlers.ProblemDetails'
+      summary: Delete a role
+      tags:
+      - roles
+    get:
+      description: Retrieve a single role by its unique UUID
+      parameters:
+      - description: Role ID (UUID)
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Role'
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/handlers.ProblemDetails'
+        "404":
+          description: Not found
+          schema:
+            $ref: '#/definitions/handlers.ProblemDetails'
+      summary: Get role by ID
+      tags:
+      - roles
 securityDefinitions:
   Bearer:
     description: Type "Bearer" followed by a space and JWT token.

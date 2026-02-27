@@ -7,6 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 	_ "github.com/jandiralceu/inventory_api_with_golang/docs" // imported so swagger can read embedded docs
 	"github.com/jandiralceu/inventory_api_with_golang/internal/config"
+	"github.com/jandiralceu/inventory_api_with_golang/internal/handlers"
 	"github.com/jandiralceu/inventory_api_with_golang/internal/middleware"
 	platform "github.com/jandiralceu/inventory_api_with_golang/internal/pkg"
 	swaggerFiles "github.com/swaggo/files"
@@ -15,7 +16,9 @@ import (
 )
 
 // RouteConfig holds all handler dependencies required to register API routes.
-type RouteConfig struct{}
+type RouteConfig struct {
+	RoleHandler *handlers.RoleHandler
+}
 
 // Setup creates a configured [gin.Engine] with global middleware, public and
 // protected route groups, and the Swagger UI endpoint.
@@ -43,6 +46,17 @@ func Setup(routeConfig *RouteConfig, config *config.Config, jwtManager *platform
 	router.SetTrustedProxies(nil)
 
 	router.Use(otelgin.Middleware(config.AppName))
+
+	api := router.Group("/api/v1")
+	{
+		roles := api.Group("/roles")
+		{
+			roles.GET("", routeConfig.RoleHandler.FindAllRoles)
+			roles.GET("/:id", routeConfig.RoleHandler.FindRoleByID)
+			roles.POST("", routeConfig.RoleHandler.CreateRole)
+			roles.DELETE("/:id", routeConfig.RoleHandler.DeleteRole)
+		}
+	}
 
 	// Swagger UI route.
 	router.GET("/docs/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))

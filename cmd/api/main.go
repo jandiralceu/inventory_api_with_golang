@@ -30,8 +30,11 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/jandiralceu/inventory_api_with_golang/internal/config"
 	"github.com/jandiralceu/inventory_api_with_golang/internal/database"
+	"github.com/jandiralceu/inventory_api_with_golang/internal/handlers"
 	pkg "github.com/jandiralceu/inventory_api_with_golang/internal/pkg"
+	"github.com/jandiralceu/inventory_api_with_golang/internal/repository"
 	"github.com/jandiralceu/inventory_api_with_golang/internal/routes"
+	"github.com/jandiralceu/inventory_api_with_golang/internal/service"
 )
 
 func main() {
@@ -86,7 +89,13 @@ func main() {
 	cacheManager := pkg.NewRedisCacheManager(cfg)
 	defer cacheManager.Close()
 
-	routeConfig := &routes.RouteConfig{}
+	roleRepository := repository.NewRoleRepository(db)
+	roleService := service.NewRoleService(roleRepository, cacheManager)
+	roleHandler := handlers.NewRoleHandler(roleService)
+
+	routeConfig := &routes.RouteConfig{
+		RoleHandler: roleHandler,
+	}
 
 	r := routes.Setup(routeConfig, cfg, jwtManager)
 
