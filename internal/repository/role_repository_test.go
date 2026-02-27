@@ -35,7 +35,7 @@ func TestRoleRepositoryCreateSuccess(t *testing.T) {
 	mock.ExpectBegin()
 	mock.ExpectQuery(regexp.QuoteMeta(
 		`INSERT INTO "roles" ("name","description") VALUES ($1,$2) RETURNING "id","created_at"`)).
-		WithArgs(role.Name, role.Description).
+		WithArgs("admin", role.Description).
 		WillReturnRows(sqlmock.NewRows([]string{"id", "created_at"}).
 			AddRow(roleID, now))
 	mock.ExpectCommit()
