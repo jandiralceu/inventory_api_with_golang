@@ -19,6 +19,10 @@ func mapDatabaseError(err error) error {
 		return apperrors.ErrNotFound
 	}
 
+	if errors.Is(err, gorm.ErrDuplicatedKey) {
+		return apperrors.ErrConflict
+	}
+
 	var pgErr *pgconn.PgError
 	if errors.As(err, &pgErr) {
 		// Postgres error code 23505 represents a unique constraint violation.
