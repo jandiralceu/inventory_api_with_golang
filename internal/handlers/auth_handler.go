@@ -39,15 +39,15 @@ func NewAuthHandler(userService service.UserService, jwtManager *pkg.JWTManager,
 
 // Register godoc
 // @Summary      Register a new user
-// @Description  Creates a new user account with name, email and password
+// @Description  Creates a new user account with name, email, password and assigned role.
 // @Tags         auth
 // @Accept       json
 // @Produce      json
-// @Param        request body dto.RegisterRequest true "Sign Up data"
-// @Success      204
-// @Failure      400 {object} ProblemDetails "Bad request"
-// @Failure      409 {object} ProblemDetails "Conflict"
-// @Failure      500 {object} ProblemDetails "Internal error"
+// @Param        request body dto.RegisterRequest true "User registration data"
+// @Success      204 "User registered successfully"
+// @Failure      400 {object} ProblemDetails "Invalid input or validation error"
+// @Failure      409 {object} ProblemDetails "Email already in use"
+// @Failure      500 {object} ProblemDetails "Internal server error"
 // @Router       /auth/register [post]
 func (h *AuthHandler) Register(c *gin.Context) {
 	var req dto.RegisterRequest
@@ -79,16 +79,16 @@ func (h *AuthHandler) Register(c *gin.Context) {
 }
 
 // SignIn godoc
-// @Summary      Login with email and password
-// @Description  Authenticates a user and returns an access and refresh token
+// @Summary      Authenticate user
+// @Description  Logs in a user with email and password, returning access and refresh tokens.
 // @Tags         auth
 // @Accept       json
 // @Produce      json
-// @Param        request body dto.SignInRequest true "Sign In credentials"
-// @Success      200 {object} dto.SignInResponse
-// @Failure      400 {object} ProblemDetails "Bad request"
-// @Failure      401 {object} ProblemDetails "Unauthorized"
-// @Failure      500 {object} ProblemDetails "Internal error"
+// @Param        request body dto.SignInRequest true "Login credentials"
+// @Success      200 {object} dto.SignInResponse "Tokens generated successfully"
+// @Failure      400 {object} ProblemDetails "Invalid request format"
+// @Failure      401 {object} ProblemDetails "Invalid email or password"
+// @Failure      500 {object} ProblemDetails "Internal server error"
 // @Router       /auth/signin [post]
 func (h *AuthHandler) SignIn(c *gin.Context) {
 	var req dto.SignInRequest
@@ -138,15 +138,15 @@ func (h *AuthHandler) SignIn(c *gin.Context) {
 }
 
 // SignOut godoc
-// @Summary      Logout
-// @Description  Logs out the user by invalidating the refresh token
+// @Summary      User logout
+// @Description  Invalidates the session by deleting the refresh token from the server-side cache.
 // @Tags         auth
 // @Accept       json
 // @Produce      json
-// @Param        request body dto.SignOutRequest true "Sign out request"
-// @Success      204
-// @Failure      400 {object} ProblemDetails "Bad request"
-// @Failure      401 {object} ProblemDetails "Unauthorized"
+// @Param        request body dto.SignOutRequest true "Token to invalidate"
+// @Success      204 "Successfully logged out"
+// @Failure      400 {object} ProblemDetails "Invalid request format"
+// @Failure      401 {object} ProblemDetails "Invalid or expired refresh token"
 // @Router       /auth/signout [post]
 func (h *AuthHandler) SignOut(c *gin.Context) {
 	var req dto.SignOutRequest
@@ -168,16 +168,16 @@ func (h *AuthHandler) SignOut(c *gin.Context) {
 }
 
 // RefreshToken godoc
-// @Summary      Refresh access token
-// @Description  Issues a new access and refresh token pair using an existing refresh token
+// @Summary      Refresh session
+// @Description  Rotates the session by issuing a new access and refresh token pair using a valid refresh token.
 // @Tags         auth
 // @Accept       json
 // @Produce      json
 // @Param        request body dto.RefreshTokenRequest true "Refresh token"
-// @Success      200 {object} dto.RefreshTokenResponse
-// @Failure      400 {object} ProblemDetails "Bad request"
-// @Failure      401 {object} ProblemDetails "Unauthorized"
-// @Failure      500 {object} ProblemDetails "Internal error"
+// @Success      200 {object} dto.RefreshTokenResponse "New tokens generated successfully"
+// @Failure      400 {object} ProblemDetails "Invalid request format"
+// @Failure      401 {object} ProblemDetails "Invalid, expired or already used refresh token"
+// @Failure      500 {object} ProblemDetails "Internal server error"
 // @Router       /auth/refresh [post]
 func (h *AuthHandler) RefreshToken(c *gin.Context) {
 	var req dto.RefreshTokenRequest
