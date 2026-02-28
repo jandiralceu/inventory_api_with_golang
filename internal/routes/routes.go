@@ -9,7 +9,7 @@ import (
 	"github.com/jandiralceu/inventory_api_with_golang/internal/config"
 	"github.com/jandiralceu/inventory_api_with_golang/internal/handlers"
 	"github.com/jandiralceu/inventory_api_with_golang/internal/middleware"
-	platform "github.com/jandiralceu/inventory_api_with_golang/internal/pkg"
+	"github.com/jandiralceu/inventory_api_with_golang/internal/pkg"
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 	"go.opentelemetry.io/contrib/instrumentation/github.com/gin-gonic/gin/otelgin"
@@ -17,17 +17,14 @@ import (
 
 // RouteConfig holds all handler dependencies required to register API routes.
 type RouteConfig struct {
+	AuthHandler *handlers.AuthHandler
 	RoleHandler *handlers.RoleHandler
 }
 
 // Setup creates a configured [gin.Engine] with global middleware, public and
 // protected route groups, and the Swagger UI endpoint.
-func Setup(routeConfig *RouteConfig, config *config.Config, jwtManager *platform.JWTManager) *gin.Engine {
+func Setup(routeConfig *RouteConfig, config *config.Config, jwtManager *pkg.JWTManager) *gin.Engine {
 	gin.ForceConsoleColor()
-
-	if config.Env != "development" {
-		gin.SetMode(gin.ReleaseMode)
-	}
 
 	router := gin.New()
 	router.Use(middleware.TraceIDMiddleware())
@@ -49,12 +46,26 @@ func Setup(routeConfig *RouteConfig, config *config.Config, jwtManager *platform
 
 	api := router.Group("/api/v1")
 	{
-		roles := api.Group("/roles")
+		// Public routes (no authentication required).
+		auth := api.Group("/auth")
 		{
-			roles.GET("", routeConfig.RoleHandler.FindAllRoles)
-			roles.GET("/:id", routeConfig.RoleHandler.FindRoleByID)
-			roles.POST("", routeConfig.RoleHandler.CreateRole)
-			roles.DELETE("/:id", routeConfig.RoleHandler.DeleteRole)
+			auth.POST("/signin", routeConfig.AuthHandler.SignIn)
+			auth.POST("/register", routeConfig.AuthHandler.Register)
+			auth.POST("/refresh", routeConfig.AuthHandler.RefreshToken)
+			auth.POST("/signout", routeConfig.AuthHandler.SignOut)
+		}
+
+		// Protected routes (authentication required).
+		protected := api.Group("")
+		protected.Use(middleware.AuthMiddleware(jwtManager))
+		{
+			roles := protected.Group("/roles")
+			{
+				roles.GET("", routeConfig.RoleHandler.FindAllRoles)
+				roles.GET("/:id", routeConfig.RoleHandler.FindRoleByID)
+				roles.POST("", routeConfig.RoleHandler.CreateRole)
+				roles.DELETE("/:id", routeConfig.RoleHandler.DeleteRole)
+			}
 		}
 	}
 

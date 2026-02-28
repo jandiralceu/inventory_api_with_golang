@@ -14,7 +14,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/jandiralceu/inventory_api_with_golang/internal/middleware"
-	pkg "github.com/jandiralceu/inventory_api_with_golang/internal/pkg"
+	"github.com/jandiralceu/inventory_api_with_golang/internal/pkg"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
