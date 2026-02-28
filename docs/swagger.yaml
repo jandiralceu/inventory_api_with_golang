@@ -20,6 +20,64 @@ definitions:
     - description
     - name
     type: object
+  dto.RefreshTokenRequest:
+    properties:
+      refreshToken:
+        type: string
+    required:
+    - refreshToken
+    type: object
+  dto.RefreshTokenResponse:
+    properties:
+      accessToken:
+        type: string
+      refreshToken:
+        type: string
+    type: object
+  dto.RegisterRequest:
+    properties:
+      email:
+        maxLength: 255
+        type: string
+      name:
+        maxLength: 100
+        minLength: 3
+        type: string
+      password:
+        minLength: 8
+        type: string
+      roleId:
+        type: string
+    required:
+    - email
+    - name
+    - password
+    - roleId
+    type: object
+  dto.SignInRequest:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+    required:
+    - email
+    - password
+    type: object
+  dto.SignInResponse:
+    properties:
+      accessToken:
+        type: string
+      refreshToken:
+        type: string
+    type: object
+  dto.SignOutRequest:
+    properties:
+      refreshToken:
+        type: string
+    required:
+    - refreshToken
+    type: object
   handlers.ProblemDetails:
     properties:
       detail:
@@ -58,6 +116,138 @@ info:
   title: Inventory API
   version: "1.0"
 paths:
+  /auth/refresh:
+    post:
+      consumes:
+      - application/json
+      description: Rotates the session by issuing a new access and refresh token pair
+        using a valid refresh token.
+      parameters:
+      - description: Refresh token
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.RefreshTokenRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: New tokens generated successfully
+          schema:
+            $ref: '#/definitions/dto.RefreshTokenResponse'
+        "400":
+          description: Invalid request format
+          schema:
+            $ref: '#/definitions/handlers.ProblemDetails'
+        "401":
+          description: Invalid, expired or already used refresh token
+          schema:
+            $ref: '#/definitions/handlers.ProblemDetails'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/handlers.ProblemDetails'
+      summary: Refresh session
+      tags:
+      - auth
+  /auth/register:
+    post:
+      consumes:
+      - application/json
+      description: Creates a new user account with name, email, password and assigned
+        role.
+      parameters:
+      - description: User registration data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.RegisterRequest'
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: User registered successfully
+        "400":
+          description: Invalid input or validation error
+          schema:
+            $ref: '#/definitions/handlers.ProblemDetails'
+        "409":
+          description: Email already in use
+          schema:
+            $ref: '#/definitions/handlers.ProblemDetails'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/handlers.ProblemDetails'
+      summary: Register a new user
+      tags:
+      - auth
+  /auth/signin:
+    post:
+      consumes:
+      - application/json
+      description: Logs in a user with email and password, returning access and refresh
+        tokens.
+      parameters:
+      - description: Login credentials
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.SignInRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Tokens generated successfully
+          schema:
+            $ref: '#/definitions/dto.SignInResponse'
+        "400":
+          description: Invalid request format
+          schema:
+            $ref: '#/definitions/handlers.ProblemDetails'
+        "401":
+          description: Invalid email or password
+          schema:
+            $ref: '#/definitions/handlers.ProblemDetails'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/handlers.ProblemDetails'
+      summary: Authenticate user
+      tags:
+      - auth
+  /auth/signout:
+    post:
+      consumes:
+      - application/json
+      description: Invalidates the session by deleting the refresh token from the
+        server-side cache.
+      parameters:
+      - description: Token to invalidate
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.SignOutRequest'
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: Successfully logged out
+        "400":
+          description: Invalid request format
+          schema:
+            $ref: '#/definitions/handlers.ProblemDetails'
+        "401":
+          description: Invalid or expired refresh token
+          schema:
+            $ref: '#/definitions/handlers.ProblemDetails'
+      summary: User logout
+      tags:
+      - auth
   /roles:
     get:
       description: Retrieve a list of all roles
