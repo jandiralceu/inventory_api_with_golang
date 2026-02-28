@@ -31,7 +31,7 @@ import (
 	"github.com/jandiralceu/inventory_api_with_golang/internal/config"
 	"github.com/jandiralceu/inventory_api_with_golang/internal/database"
 	"github.com/jandiralceu/inventory_api_with_golang/internal/handlers"
-	pkg "github.com/jandiralceu/inventory_api_with_golang/internal/pkg"
+	"github.com/jandiralceu/inventory_api_with_golang/internal/pkg"
 	"github.com/jandiralceu/inventory_api_with_golang/internal/repository"
 	"github.com/jandiralceu/inventory_api_with_golang/internal/routes"
 	"github.com/jandiralceu/inventory_api_with_golang/internal/service"
@@ -89,11 +89,18 @@ func main() {
 	cacheManager := pkg.NewRedisCacheManager(cfg)
 	defer cacheManager.Close()
 
+	hasher := pkg.NewArgon2PasswordHasher()
+
 	roleRepository := repository.NewRoleRepository(db)
 	roleService := service.NewRoleService(roleRepository, cacheManager)
 	roleHandler := handlers.NewRoleHandler(roleService)
 
+	userRepository := repository.NewUserRepository(db)
+	userService := service.NewUserService(userRepository, hasher)
+	authHandler := handlers.NewAuthHandler(userService, jwtManager, cacheManager, hasher)
+
 	routeConfig := &routes.RouteConfig{
+		AuthHandler: authHandler,
 		RoleHandler: roleHandler,
 	}
 
