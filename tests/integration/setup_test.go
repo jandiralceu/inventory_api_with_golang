@@ -130,15 +130,20 @@ func setupAppCustom(t *testing.T, modifyConfig func(*config.Config)) (*httptest.
 	authHandler := handlers.NewAuthHandler(userService, jwtManager, cacheManager, hasher)
 	userHandler := handlers.NewUserHandler(userService)
 
+	categoryRepository := repository.NewCategoryRepository(db)
+	categoryService := service.NewCategoryService(categoryRepository, cacheManager)
+	categoryHandler := handlers.NewCategoryHandler(categoryService)
+
 	// Initialize Casbin Enforcer for RBAC.
 	// We need to point to the files in the project root.
 	enforcer, err := casbin.NewEnforcer("../../model.conf", "../../policy.csv")
 	require.NoError(t, err, "Failed to initialize Casbin enforcer")
 
 	routeConfig := &routes.RouteConfig{
-		AuthHandler: authHandler,
-		RoleHandler: roleHandler,
-		UserHandler: userHandler,
+		AuthHandler:     authHandler,
+		RoleHandler:     roleHandler,
+		UserHandler:     userHandler,
+		CategoryHandler: categoryHandler,
 	}
 
 	// Suppress Gin debug output during tests.

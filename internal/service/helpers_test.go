@@ -109,3 +109,47 @@ func (m *MockPasswordHasher) Verify(password, hash string) (bool, error) {
 	args := m.Called(password, hash)
 	return args.Bool(0), args.Error(1)
 }
+
+// MockCategoryRepository is a mock implementation of repository.CategoryRepository.
+type MockCategoryRepository struct {
+	mock.Mock
+}
+
+func (m *MockCategoryRepository) Create(ctx context.Context, category *models.Category) error {
+	args := m.Called(ctx, category)
+	return args.Error(0)
+}
+
+func (m *MockCategoryRepository) Update(ctx context.Context, category *models.Category) error {
+	args := m.Called(ctx, category)
+	return args.Error(0)
+}
+
+func (m *MockCategoryRepository) Delete(ctx context.Context, id uuid.UUID) error {
+	args := m.Called(ctx, id)
+	return args.Error(0)
+}
+
+func (m *MockCategoryRepository) FindByID(ctx context.Context, id uuid.UUID) (*models.Category, error) {
+	args := m.Called(ctx, id)
+	if args.Get(0) == nil {
+		return nil, args.Error(1)
+	}
+	return args.Get(0).(*models.Category), args.Error(1)
+}
+
+func (m *MockCategoryRepository) FindBySlug(ctx context.Context, slug string) (*models.Category, error) {
+	args := m.Called(ctx, slug)
+	if args.Get(0) == nil {
+		return nil, args.Error(1)
+	}
+	return args.Get(0).(*models.Category), args.Error(1)
+}
+
+func (m *MockCategoryRepository) FindAll(ctx context.Context, filter repository.CategoryListFilter) ([]models.Category, int64, error) {
+	args := m.Called(ctx, filter)
+	if args.Get(0) == nil {
+		return nil, args.Get(1).(int64), args.Error(2)
+	}
+	return args.Get(0).([]models.Category), args.Get(1).(int64), args.Error(2)
+}
