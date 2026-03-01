@@ -220,6 +220,11 @@ const docTemplate = `{
         },
         "/roles": {
             "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
                 "description": "Retrieve a list of all roles",
                 "produces": [
                     "application/json"
@@ -238,6 +243,18 @@ const docTemplate = `{
                             }
                         }
                     },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ProblemDetails"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ProblemDetails"
+                        }
+                    },
                     "500": {
                         "description": "Internal error",
                         "schema": {
@@ -247,6 +264,11 @@ const docTemplate = `{
                 }
             },
             "post": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
                 "description": "Create a new role in the system",
                 "consumes": [
                     "application/json"
@@ -282,6 +304,18 @@ const docTemplate = `{
                             "$ref": "#/definitions/handlers.ProblemDetails"
                         }
                     },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ProblemDetails"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ProblemDetails"
+                        }
+                    },
                     "409": {
                         "description": "Conflict",
                         "schema": {
@@ -299,6 +333,11 @@ const docTemplate = `{
         },
         "/roles/{id}": {
             "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
                 "description": "Retrieve a single role by its unique UUID",
                 "produces": [
                     "application/json"
@@ -329,6 +368,18 @@ const docTemplate = `{
                             "$ref": "#/definitions/handlers.ProblemDetails"
                         }
                     },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ProblemDetails"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ProblemDetails"
+                        }
+                    },
                     "404": {
                         "description": "Not found",
                         "schema": {
@@ -338,6 +389,11 @@ const docTemplate = `{
                 }
             },
             "delete": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
                 "description": "Remove a role by its unique UUID",
                 "produces": [
                     "application/json"
@@ -365,6 +421,18 @@ const docTemplate = `{
                             "$ref": "#/definitions/handlers.ProblemDetails"
                         }
                     },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ProblemDetails"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ProblemDetails"
+                        }
+                    },
                     "404": {
                         "description": "Not found",
                         "schema": {
@@ -382,6 +450,11 @@ const docTemplate = `{
         },
         "/users": {
             "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
                 "description": "Get a paginated list of users. Supports filtering by name, email, and role.",
                 "consumes": [
                     "application/json"
@@ -434,6 +507,18 @@ const docTemplate = `{
                     },
                     "400": {
                         "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ProblemDetails"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ProblemDetails"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
                         "schema": {
                             "$ref": "#/definitions/handlers.ProblemDetails"
                         }
@@ -492,6 +577,12 @@ const docTemplate = `{
                             "$ref": "#/definitions/handlers.ProblemDetails"
                         }
                     },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ProblemDetails"
+                        }
+                    },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
@@ -503,6 +594,11 @@ const docTemplate = `{
         },
         "/users/change-role": {
             "patch": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
                 "description": "Updates a user's assigned role. Typically an administrative task.",
                 "consumes": [
                     "application/json"
@@ -541,6 +637,12 @@ const docTemplate = `{
                             "$ref": "#/definitions/handlers.ProblemDetails"
                         }
                     },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ProblemDetails"
+                        }
+                    },
                     "404": {
                         "description": "Not Found",
                         "schema": {
@@ -558,6 +660,11 @@ const docTemplate = `{
         },
         "/users/{id}": {
             "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
                 "description": "Retrieve details for a single user using their unique ID.",
                 "consumes": [
                     "application/json"
@@ -591,6 +698,18 @@ const docTemplate = `{
                             "$ref": "#/definitions/handlers.ProblemDetails"
                         }
                     },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ProblemDetails"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ProblemDetails"
+                        }
+                    },
                     "404": {
                         "description": "Not Found",
                         "schema": {
@@ -600,6 +719,11 @@ const docTemplate = `{
                 }
             },
             "delete": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
                 "description": "Permanently remove a user from the system by their unique ID.",
                 "consumes": [
                     "application/json"
@@ -626,6 +750,18 @@ const docTemplate = `{
                     },
                     "400": {
                         "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ProblemDetails"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ProblemDetails"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
                         "schema": {
                             "$ref": "#/definitions/handlers.ProblemDetails"
                         }

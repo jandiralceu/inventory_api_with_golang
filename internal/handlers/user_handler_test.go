@@ -181,12 +181,12 @@ func TestChangePasswordSuccess(t *testing.T) {
 	mockService.On("ChangePassword", mock.Anything, userID, req).Return(nil)
 
 	router := setupRouter()
-	router.POST("/users/change-password", func(c *gin.Context) {
+	router.PATCH("/users/change-password", func(c *gin.Context) {
 		c.Set(middleware.UserIDKey, userID)
 		handler.ChangePassword(c)
 	})
 
-	w := performRequest(router, "POST", "/users/change-password", req)
+	w := performRequest(router, "PATCH", "/users/change-password", req)
 
 	assert.Equal(t, http.StatusNoContent, w.Code)
 	mockService.AssertExpectations(t)
@@ -197,14 +197,14 @@ func TestChangePasswordUnauthorized(t *testing.T) {
 	handler := NewUserHandler(mockService)
 
 	router := setupRouter()
-	router.POST("/users/change-password", handler.ChangePassword)
+	router.PATCH("/users/change-password", handler.ChangePassword)
 
 	req := dto.ChangePasswordRequest{
 		OldPassword: "old-password",
 		NewPassword: "new-password",
 	}
 
-	w := performRequest(router, "POST", "/users/change-password", req)
+	w := performRequest(router, "PATCH", "/users/change-password", req)
 
 	assert.Equal(t, http.StatusUnauthorized, w.Code)
 }
@@ -214,14 +214,14 @@ func TestChangePasswordBadRequest(t *testing.T) {
 	handler := NewUserHandler(mockService)
 
 	router := setupRouter()
-	router.POST("/users/change-password", handler.ChangePassword)
+	router.PATCH("/users/change-password", handler.ChangePassword)
 
 	// Missing required fields
 	req := map[string]string{
 		"oldPassword": "old",
 	}
 
-	w := performRequest(router, "POST", "/users/change-password", req)
+	w := performRequest(router, "PATCH", "/users/change-password", req)
 
 	assert.Equal(t, http.StatusBadRequest, w.Code)
 }

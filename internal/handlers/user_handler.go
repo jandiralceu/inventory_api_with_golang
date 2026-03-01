@@ -38,7 +38,10 @@ func NewUserHandler(userService service.UserService) *UserHandler {
 // @Param        roleId  query  string  false  "Filter by role UUID"
 // @Success      200     {object}  dto.UserListResponse
 // @Failure      400     {object}  ProblemDetails
+// @Failure      401     {object}  ProblemDetails
+// @Failure      403     {object}  ProblemDetails
 // @Failure      500     {object}  ProblemDetails
+// @Security     Bearer
 // @Router       /users [get]
 func (h *UserHandler) FindAllUsers(c *gin.Context) {
 	var req dto.GetUserListRequest
@@ -65,7 +68,10 @@ func (h *UserHandler) FindAllUsers(c *gin.Context) {
 // @Param        id   path      string  true  "User UUID"
 // @Success      200  {object}  models.User
 // @Failure      400  {object}  ProblemDetails
+// @Failure      401  {object}  ProblemDetails
+// @Failure      403  {object}  ProblemDetails
 // @Failure      404  {object}  ProblemDetails
+// @Security     Bearer
 // @Router       /users/{id} [get]
 func (h *UserHandler) FindUserByID(c *gin.Context) {
 	idStr := c.Param("id")
@@ -93,8 +99,11 @@ func (h *UserHandler) FindUserByID(c *gin.Context) {
 // @Param        id   path      string  true  "User UUID"
 // @Success      204  "No Content"
 // @Failure      400  {object}  ProblemDetails
+// @Failure      401  {object}  ProblemDetails
+// @Failure      403  {object}  ProblemDetails
 // @Failure      404  {object}  ProblemDetails
 // @Failure      500  {object}  ProblemDetails
+// @Security     Bearer
 // @Router       /users/{id} [delete]
 func (h *UserHandler) DeleteUser(c *gin.Context) {
 	idStr := c.Param("id")
@@ -122,8 +131,9 @@ func (h *UserHandler) DeleteUser(c *gin.Context) {
 // @Success      204 "No Content"
 // @Failure      400  {object}  ProblemDetails
 // @Failure      401  {object}  ProblemDetails
+// @Failure      403  {object}  ProblemDetails
 // @Failure      500  {object}  ProblemDetails
-// @Security Bearer
+// @Security     Bearer
 // @Router       /users/change-password [patch]
 func (h *UserHandler) ChangePassword(c *gin.Context) {
 	var req dto.ChangePasswordRequest
@@ -156,8 +166,10 @@ func (h *UserHandler) ChangePassword(c *gin.Context) {
 // @Success      204 "No Content"
 // @Failure      400  {object}  ProblemDetails
 // @Failure      401  {object}  ProblemDetails
+// @Failure      403  {object}  ProblemDetails
 // @Failure      404  {object}  ProblemDetails
 // @Failure      500  {object}  ProblemDetails
+// @Security     Bearer
 // @Router       /users/change-role [patch]
 func (h *UserHandler) ChangeRole(c *gin.Context) {
 	var req dto.ChangeRoleRequest

@@ -32,8 +32,11 @@ func NewRoleHandler(roleService service.RoleService) *RoleHandler {
 // @Param        request body dto.CreateRoleRequest true "Role data"
 // @Success      201 {object} models.Role
 // @Failure      400 {object} ProblemDetails "Bad request"
+// @Failure      401 {object} ProblemDetails "Unauthorized"
+// @Failure      403 {object} ProblemDetails "Forbidden"
 // @Failure      409 {object} ProblemDetails "Conflict"
 // @Failure      500 {object} ProblemDetails "Internal error"
+// @Security     Bearer
 // @Router       /roles [post]
 func (h *RoleHandler) CreateRole(c *gin.Context) {
 	var req dto.CreateRoleRequest
@@ -64,8 +67,11 @@ func (h *RoleHandler) CreateRole(c *gin.Context) {
 // @Param        id path string true "Role ID (UUID)"
 // @Success      204 "No content"
 // @Failure      400 {object} ProblemDetails "Bad request"
+// @Failure      401 {object} ProblemDetails "Unauthorized"
+// @Failure      403 {object} ProblemDetails "Forbidden"
 // @Failure      404 {object} ProblemDetails "Not found"
 // @Failure      500 {object} ProblemDetails "Internal error"
+// @Security     Bearer
 // @Router       /roles/{id} [delete]
 func (h *RoleHandler) DeleteRole(c *gin.Context) {
 	idStr := c.Param("id")
@@ -91,7 +97,10 @@ func (h *RoleHandler) DeleteRole(c *gin.Context) {
 // @Param        id path string true "Role ID (UUID)"
 // @Success      200 {object} models.Role
 // @Failure      400 {object} ProblemDetails "Bad request"
+// @Failure      401 {object} ProblemDetails "Unauthorized"
+// @Failure      403 {object} ProblemDetails "Forbidden"
 // @Failure      404 {object} ProblemDetails "Not found"
+// @Security     Bearer
 // @Router       /roles/{id} [get]
 func (h *RoleHandler) FindRoleByID(c *gin.Context) {
 	idStr := c.Param("id")
@@ -116,7 +125,10 @@ func (h *RoleHandler) FindRoleByID(c *gin.Context) {
 // @Tags         roles
 // @Produce      json
 // @Success      200 {array} models.Role
+// @Failure      401 {object} ProblemDetails "Unauthorized"
+// @Failure      403 {object} ProblemDetails "Forbidden"
 // @Failure      500 {object} ProblemDetails "Internal error"
+// @Security     Bearer
 // @Router       /roles [get]
 func (h *RoleHandler) FindAllRoles(c *gin.Context) {
 	roles, err := h.roleService.FindAll(c.Request.Context())
