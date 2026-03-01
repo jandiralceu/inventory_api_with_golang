@@ -153,3 +153,47 @@ func (m *MockCategoryRepository) FindAll(ctx context.Context, filter repository.
 	}
 	return args.Get(0).([]models.Category), args.Get(1).(int64), args.Error(2)
 }
+
+// MockSupplierRepository is a mock implementation of repository.SupplierRepository.
+type MockSupplierRepository struct {
+	mock.Mock
+}
+
+func (m *MockSupplierRepository) Create(ctx context.Context, supplier *models.Supplier) error {
+	args := m.Called(ctx, supplier)
+	return args.Error(0)
+}
+
+func (m *MockSupplierRepository) Update(ctx context.Context, supplier *models.Supplier) error {
+	args := m.Called(ctx, supplier)
+	return args.Error(0)
+}
+
+func (m *MockSupplierRepository) Delete(ctx context.Context, id uuid.UUID) error {
+	args := m.Called(ctx, id)
+	return args.Error(0)
+}
+
+func (m *MockSupplierRepository) FindByID(ctx context.Context, id uuid.UUID) (*models.Supplier, error) {
+	args := m.Called(ctx, id)
+	if args.Get(0) == nil {
+		return nil, args.Error(1)
+	}
+	return args.Get(0).(*models.Supplier), args.Error(1)
+}
+
+func (m *MockSupplierRepository) FindBySlug(ctx context.Context, slug string) (*models.Supplier, error) {
+	args := m.Called(ctx, slug)
+	if args.Get(0) == nil {
+		return nil, args.Error(1)
+	}
+	return args.Get(0).(*models.Supplier), args.Error(1)
+}
+
+func (m *MockSupplierRepository) FindAll(ctx context.Context, filter repository.SupplierListFilter) ([]models.Supplier, int64, error) {
+	args := m.Called(ctx, filter)
+	if args.Get(0) == nil {
+		return nil, args.Get(1).(int64), args.Error(2)
+	}
+	return args.Get(0).([]models.Supplier), args.Get(1).(int64), args.Error(2)
+}

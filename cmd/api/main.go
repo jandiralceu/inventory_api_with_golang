@@ -105,6 +105,10 @@ func main() {
 	categoryService := service.NewCategoryService(categoryRepository, cacheManager)
 	categoryHandler := handlers.NewCategoryHandler(categoryService)
 
+	supplierRepository := repository.NewSupplierRepository(db)
+	supplierService := service.NewSupplierService(supplierRepository, cacheManager)
+	supplierHandler := handlers.NewSupplierHandler(supplierService)
+
 	// Initialize Casbin Enforcer for RBAC.
 	enforcer, err := casbin.NewEnforcer("model.conf", "policy.csv")
 	if err != nil {
@@ -117,6 +121,7 @@ func main() {
 		RoleHandler:     roleHandler,
 		UserHandler:     userHandler,
 		CategoryHandler: categoryHandler,
+		SupplierHandler: supplierHandler,
 	}
 
 	r := routes.Setup(routeConfig, cfg, jwtManager, enforcer, cacheManager)

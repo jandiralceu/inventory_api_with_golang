@@ -68,6 +68,31 @@ definitions:
     - description
     - name
     type: object
+  dto.CreateSupplierRequest:
+    properties:
+      address:
+        $ref: '#/definitions/dto.SupplierAddress'
+      contactPerson:
+        type: string
+      description:
+        type: string
+      email:
+        type: string
+      name:
+        maxLength: 100
+        minLength: 3
+        type: string
+      phone:
+        type: string
+      taxId:
+        maxLength: 50
+        minLength: 5
+        type: string
+    required:
+    - address
+    - name
+    - taxId
+    type: object
   dto.RefreshTokenRequest:
     properties:
       refreshToken:
@@ -126,6 +151,46 @@ definitions:
     required:
     - refreshToken
     type: object
+  dto.SupplierAddress:
+    properties:
+      city:
+        type: string
+      complement:
+        type: string
+      country:
+        type: string
+      number:
+        type: string
+      state:
+        type: string
+      street:
+        minLength: 3
+        type: string
+      zipCode:
+        type: string
+    required:
+    - city
+    - country
+    - number
+    - state
+    - street
+    - zipCode
+    type: object
+  dto.SupplierListResponse:
+    properties:
+      data:
+        items:
+          $ref: '#/definitions/models.Supplier'
+        type: array
+      limit:
+        type: integer
+      page:
+        type: integer
+      total:
+        type: integer
+      totalPages:
+        type: integer
+    type: object
   dto.UpdateCategoryRequest:
     properties:
       description:
@@ -141,6 +206,34 @@ definitions:
     required:
     - isActive
     - name
+    type: object
+  dto.UpdateSupplierRequest:
+    properties:
+      address:
+        $ref: '#/definitions/dto.SupplierAddress'
+      contactPerson:
+        type: string
+      description:
+        type: string
+      email:
+        type: string
+      isActive:
+        type: boolean
+      name:
+        maxLength: 100
+        minLength: 3
+        type: string
+      phone:
+        type: string
+      taxId:
+        maxLength: 50
+        minLength: 5
+        type: string
+    required:
+    - address
+    - isActive
+    - name
+    - taxId
     type: object
   dto.UserListResponse:
     properties:
@@ -170,6 +263,23 @@ definitions:
       trace_id:
         type: string
       type:
+        type: string
+    type: object
+  models.Address:
+    properties:
+      city:
+        type: string
+      complement:
+        type: string
+      country:
+        type: string
+      number:
+        type: string
+      state:
+        type: string
+      street:
+        type: string
+      zip_code:
         type: string
     type: object
   models.Category:
@@ -213,6 +323,49 @@ definitions:
         type: string
       name:
         description: Name is the name of the role across the system.
+        type: string
+    type: object
+  models.Supplier:
+    properties:
+      address:
+        allOf:
+        - $ref: '#/definitions/models.Address'
+        description: Address is a flexible JSONB field containing location details.
+      contact_person:
+        description: ContactPerson is the name of the primary representative at the
+          supplier.
+        type: string
+      created_at:
+        description: CreatedAt is the timestamp when the supplier was registered.
+        type: string
+      description:
+        description: Description provides additional context about the supplier.
+        type: string
+      email:
+        description: Email is the main contact email for the supplier.
+        type: string
+      id:
+        description: ID is the unique identifier for the supplier.
+        type: string
+      is_active:
+        description: IsActive determines if the supplier is currently enabled for
+          operations.
+        type: boolean
+      name:
+        description: Name is the display name of the supplier.
+        type: string
+      phone:
+        description: Phone is the primary contact phone number.
+        type: string
+      slug:
+        description: Slug is the URL-friendly name used for queries.
+        type: string
+      tax_id:
+        description: TaxID is the fiscal identification (e.g., CNPJ, CPF, EIN).
+        type: string
+      updated_at:
+        description: UpdatedAt is the timestamp for the last update to the supplier
+          record.
         type: string
     type: object
   models.User:
@@ -765,6 +918,208 @@ paths:
       summary: Get role by ID
       tags:
       - roles
+  /suppliers:
+    get:
+      description: Retrieve a paginated list of suppliers with optional filters.
+      parameters:
+      - description: Filter by name (partial match)
+        in: query
+        name: name
+        type: string
+      - description: Filter by exact Tax ID
+        in: query
+        name: taxId
+        type: string
+      - description: Filter by email
+        in: query
+        name: email
+        type: string
+      - description: Filter by active status
+        in: query
+        name: isActive
+        type: boolean
+      - description: Page number
+        in: query
+        name: page
+        type: integer
+      - description: Items per page
+        in: query
+        name: limit
+        type: integer
+      - description: Sort field
+        in: query
+        name: sort
+        type: string
+      - description: Sort order (asc/desc)
+        in: query
+        name: order
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.SupplierListResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handlers.ProblemDetails'
+        "429":
+          description: Too many requests
+          schema:
+            $ref: '#/definitions/handlers.ProblemDetails'
+      security:
+      - Bearer: []
+      summary: List suppliers
+      tags:
+      - suppliers
+    post:
+      consumes:
+      - application/json
+      description: Register a new supplier in the system.
+      parameters:
+      - description: Supplier data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.CreateSupplierRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.Supplier'
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/handlers.ProblemDetails'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handlers.ProblemDetails'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/handlers.ProblemDetails'
+        "429":
+          description: Too many requests
+          schema:
+            $ref: '#/definitions/handlers.ProblemDetails'
+      security:
+      - Bearer: []
+      summary: Create a supplier
+      tags:
+      - suppliers
+  /suppliers/{id}:
+    delete:
+      description: Remove a supplier from the system by its ID.
+      parameters:
+      - description: Supplier ID (UUID)
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No content
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/handlers.ProblemDetails'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handlers.ProblemDetails'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/handlers.ProblemDetails'
+        "404":
+          description: Not found
+          schema:
+            $ref: '#/definitions/handlers.ProblemDetails'
+      security:
+      - Bearer: []
+      summary: Delete a supplier
+      tags:
+      - suppliers
+    get:
+      description: Retrieve a single supplier by its unique ID.
+      parameters:
+      - description: Supplier ID (UUID)
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Supplier'
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/handlers.ProblemDetails'
+        "404":
+          description: Not found
+          schema:
+            $ref: '#/definitions/handlers.ProblemDetails'
+      security:
+      - Bearer: []
+      summary: Get supplier by ID
+      tags:
+      - suppliers
+    put:
+      consumes:
+      - application/json
+      description: Modify an existing supplier details by ID.
+      parameters:
+      - description: Supplier ID (UUID)
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Supplier update data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UpdateSupplierRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Supplier'
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/handlers.ProblemDetails'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handlers.ProblemDetails'
+        "404":
+          description: Not found
+          schema:
+            $ref: '#/definitions/handlers.ProblemDetails'
+        "429":
+          description: Too many requests
+          schema:
+            $ref: '#/definitions/handlers.ProblemDetails'
+      security:
+      - Bearer: []
+      summary: Update a supplier
+      tags:
+      - suppliers
   /users:
     get:
       consumes:

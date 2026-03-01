@@ -22,6 +22,7 @@ type RouteConfig struct {
 	RoleHandler     *handlers.RoleHandler
 	UserHandler     *handlers.UserHandler
 	CategoryHandler *handlers.CategoryHandler
+	SupplierHandler *handlers.SupplierHandler
 }
 
 // Setup creates a configured [gin.Engine] with global middleware, public and
@@ -94,6 +95,15 @@ func Setup(routeConfig *RouteConfig, config *config.Config, jwtManager *pkg.JWTM
 				categories.POST("", routeConfig.CategoryHandler.CreateCategory)
 				categories.PUT("/:id", routeConfig.CategoryHandler.UpdateCategory)
 				categories.DELETE("/:id", routeConfig.CategoryHandler.DeleteCategory)
+			}
+
+			suppliers := protected.Group("/suppliers")
+			{
+				suppliers.GET("", routeConfig.SupplierHandler.FindAllSuppliers)
+				suppliers.GET("/:id", routeConfig.SupplierHandler.FindSupplierByID)
+				suppliers.POST("", routeConfig.SupplierHandler.CreateSupplier)
+				suppliers.PUT("/:id", routeConfig.SupplierHandler.UpdateSupplier)
+				suppliers.DELETE("/:id", routeConfig.SupplierHandler.DeleteSupplier)
 			}
 		}
 	}
