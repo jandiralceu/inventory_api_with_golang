@@ -18,9 +18,10 @@ import (
 
 // RouteConfig holds all handler dependencies required to register API routes.
 type RouteConfig struct {
-	AuthHandler *handlers.AuthHandler
-	RoleHandler *handlers.RoleHandler
-	UserHandler *handlers.UserHandler
+	AuthHandler     *handlers.AuthHandler
+	RoleHandler     *handlers.RoleHandler
+	UserHandler     *handlers.UserHandler
+	CategoryHandler *handlers.CategoryHandler
 }
 
 // Setup creates a configured [gin.Engine] with global middleware, public and
@@ -84,6 +85,15 @@ func Setup(routeConfig *RouteConfig, config *config.Config, jwtManager *pkg.JWTM
 				users.PATCH("/change-password", middleware.RateLimiter(cacheManager, "pass-change", config.RateLimitAuth), routeConfig.UserHandler.ChangePassword)
 				users.PATCH("/change-role", routeConfig.UserHandler.ChangeRole)
 				users.DELETE("/:id", routeConfig.UserHandler.DeleteUser)
+			}
+
+			categories := protected.Group("/categories")
+			{
+				categories.GET("", routeConfig.CategoryHandler.FindAllCategories)
+				categories.GET("/:id", routeConfig.CategoryHandler.FindCategoryByID)
+				categories.POST("", routeConfig.CategoryHandler.CreateCategory)
+				categories.PUT("/:id", routeConfig.CategoryHandler.UpdateCategory)
+				categories.DELETE("/:id", routeConfig.CategoryHandler.DeleteCategory)
 			}
 		}
 	}

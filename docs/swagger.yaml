@@ -7,6 +7,21 @@ definitions:
       reason:
         type: string
     type: object
+  dto.CategoryListResponse:
+    properties:
+      data:
+        items:
+          $ref: '#/definitions/models.Category'
+        type: array
+      limit:
+        type: integer
+      page:
+        type: integer
+      total:
+        type: integer
+      totalPages:
+        type: integer
+    type: object
   dto.ChangePasswordRequest:
     properties:
       newPassword:
@@ -26,6 +41,19 @@ definitions:
     required:
     - roleId
     - userId
+    type: object
+  dto.CreateCategoryRequest:
+    properties:
+      description:
+        type: string
+      name:
+        maxLength: 100
+        minLength: 3
+        type: string
+      parentId:
+        type: string
+    required:
+    - name
     type: object
   dto.CreateRoleRequest:
     properties:
@@ -98,6 +126,22 @@ definitions:
     required:
     - refreshToken
     type: object
+  dto.UpdateCategoryRequest:
+    properties:
+      description:
+        type: string
+      isActive:
+        type: boolean
+      name:
+        maxLength: 100
+        minLength: 3
+        type: string
+      parentId:
+        type: string
+    required:
+    - isActive
+    - name
+    type: object
   dto.UserListResponse:
     properties:
       data:
@@ -128,32 +172,72 @@ definitions:
       type:
         type: string
     type: object
+  models.Category:
+    properties:
+      created_at:
+        description: CreatedAt is the timestamp when the category was persistent.
+        type: string
+      description:
+        description: Description provides additional context about the category.
+        type: string
+      id:
+        description: ID is the unique identifier for the category.
+        type: string
+      is_active:
+        description: IsActive determines if the category is visible in the frontend.
+        type: boolean
+      name:
+        description: Name is the display name of the category (e.g., "Electronics").
+        type: string
+      parent_id:
+        description: ParentID links to the parent category for hierarchical grouping.
+        type: string
+      slug:
+        description: Slug is the URL-friendly name used for queries (e.g., "electronics").
+        type: string
+      updated_at:
+        description: UpdatedAt is the timestamp for the last update to the category
+          record.
+        type: string
+    type: object
   models.Role:
     properties:
       created_at:
+        description: CreatedAt is the timestamp when the role was created.
         type: string
       description:
+        description: Description is a brief description of the role's purpose.
         type: string
       id:
+        description: ID is the unique identifier for the role.
         type: string
       name:
+        description: Name is the name of the role across the system.
         type: string
     type: object
   models.User:
     properties:
       created_at:
+        description: CreatedAt is the timestamp when the user account was created.
         type: string
       email:
+        description: Email is the unique email address of the user.
         type: string
       id:
+        description: ID is the unique identifier for the user.
         type: string
       name:
+        description: Name is the full name of the user.
         type: string
       role:
-        $ref: '#/definitions/models.Role'
+        allOf:
+        - $ref: '#/definitions/models.Role'
+        description: Role is the hydrated role model representing the user's permissions.
       role_id:
+        description: RoleID is the foreign key linking the user to a role.
         type: string
       updated_at:
+        description: UpdatedAt is the timestamp for the last update to the user profile.
         type: string
     type: object
 host: localhost:8080
@@ -316,6 +400,208 @@ paths:
       summary: User logout
       tags:
       - auth
+  /categories:
+    get:
+      description: Retrieve a paginated list of categories with optional filters.
+      parameters:
+      - description: Filter by name (partial match)
+        in: query
+        name: name
+        type: string
+      - description: Filter by exact slug
+        in: query
+        name: slug
+        type: string
+      - description: Filter by parent category ID
+        in: query
+        name: parentId
+        type: string
+      - description: Filter by active status
+        in: query
+        name: isActive
+        type: boolean
+      - description: Page number
+        in: query
+        name: page
+        type: integer
+      - description: Items per page
+        in: query
+        name: limit
+        type: integer
+      - description: Sort field
+        in: query
+        name: sort
+        type: string
+      - description: Sort order (asc/desc)
+        in: query
+        name: order
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.CategoryListResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handlers.ProblemDetails'
+        "429":
+          description: Too many requests
+          schema:
+            $ref: '#/definitions/handlers.ProblemDetails'
+      security:
+      - Bearer: []
+      summary: List categories
+      tags:
+      - categories
+    post:
+      consumes:
+      - application/json
+      description: Register a new product category in the system.
+      parameters:
+      - description: Category data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.CreateCategoryRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.Category'
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/handlers.ProblemDetails'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handlers.ProblemDetails'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/handlers.ProblemDetails'
+        "429":
+          description: Too many requests
+          schema:
+            $ref: '#/definitions/handlers.ProblemDetails'
+      security:
+      - Bearer: []
+      summary: Create a category
+      tags:
+      - categories
+  /categories/{id}:
+    delete:
+      description: Remove a category from the system by its ID.
+      parameters:
+      - description: Category ID (UUID)
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No content
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/handlers.ProblemDetails'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handlers.ProblemDetails'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/handlers.ProblemDetails'
+        "404":
+          description: Not found
+          schema:
+            $ref: '#/definitions/handlers.ProblemDetails'
+      security:
+      - Bearer: []
+      summary: Delete a category
+      tags:
+      - categories
+    get:
+      description: Retrieve a single category by its unique ID.
+      parameters:
+      - description: Category ID (UUID)
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Category'
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/handlers.ProblemDetails'
+        "404":
+          description: Not found
+          schema:
+            $ref: '#/definitions/handlers.ProblemDetails'
+      security:
+      - Bearer: []
+      summary: Get category by ID
+      tags:
+      - categories
+    put:
+      consumes:
+      - application/json
+      description: Modify an existing category details by ID.
+      parameters:
+      - description: Category ID (UUID)
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Category update data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UpdateCategoryRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Category'
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/handlers.ProblemDetails'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handlers.ProblemDetails'
+        "404":
+          description: Not found
+          schema:
+            $ref: '#/definitions/handlers.ProblemDetails'
+        "429":
+          description: Too many requests
+          schema:
+            $ref: '#/definitions/handlers.ProblemDetails'
+      security:
+      - Bearer: []
+      summary: Update a category
+      tags:
+      - categories
   /roles:
     get:
       description: Retrieve a list of all roles

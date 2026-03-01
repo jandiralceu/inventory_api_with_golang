@@ -1,3 +1,7 @@
 p, admin, /api/v1/*, *
 p, manager, /api/v1/roles, GET
+p, manager, /api/v1/categories/*, *
+p, operator, /api/v1/categories, GET
+p, operator, /api/v1/categories/:id, GET
 p, manager, /api/v1/users/change-password, PATCH
+

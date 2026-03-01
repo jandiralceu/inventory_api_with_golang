@@ -45,5 +45,13 @@ func main() {
 		os.Exit(1)
 	}
 
+	// Initialize cache and clear roles cache
+	cacheManager := pkg.NewRedisCacheManager(cfg)
+	defer cacheManager.Close()
+	if err := cacheManager.DeletePrefix(ctx, "role:"); err != nil {
+		slog.Warn("Failed to clear role cache", "error", err)
+	}
+
 	slog.Info("Database seeding completed successfully.")
+
 }
