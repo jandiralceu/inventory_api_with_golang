@@ -197,3 +197,55 @@ func (m *MockSupplierRepository) FindAll(ctx context.Context, filter repository.
 	}
 	return args.Get(0).([]models.Supplier), args.Get(1).(int64), args.Error(2)
 }
+
+// MockWarehouseRepository is a mock implementation of repository.WarehouseRepository.
+type MockWarehouseRepository struct {
+	mock.Mock
+}
+
+func (m *MockWarehouseRepository) Create(ctx context.Context, warehouse *models.Warehouse) error {
+	args := m.Called(ctx, warehouse)
+	return args.Error(0)
+}
+
+func (m *MockWarehouseRepository) Update(ctx context.Context, warehouse *models.Warehouse) error {
+	args := m.Called(ctx, warehouse)
+	return args.Error(0)
+}
+
+func (m *MockWarehouseRepository) Delete(ctx context.Context, id uuid.UUID) error {
+	args := m.Called(ctx, id)
+	return args.Error(0)
+}
+
+func (m *MockWarehouseRepository) FindByID(ctx context.Context, id uuid.UUID) (*models.Warehouse, error) {
+	args := m.Called(ctx, id)
+	if args.Get(0) == nil {
+		return nil, args.Error(1)
+	}
+	return args.Get(0).(*models.Warehouse), args.Error(1)
+}
+
+func (m *MockWarehouseRepository) FindBySlug(ctx context.Context, slug string) (*models.Warehouse, error) {
+	args := m.Called(ctx, slug)
+	if args.Get(0) == nil {
+		return nil, args.Error(1)
+	}
+	return args.Get(0).(*models.Warehouse), args.Error(1)
+}
+
+func (m *MockWarehouseRepository) FindByCode(ctx context.Context, code string) (*models.Warehouse, error) {
+	args := m.Called(ctx, code)
+	if args.Get(0) == nil {
+		return nil, args.Error(1)
+	}
+	return args.Get(0).(*models.Warehouse), args.Error(1)
+}
+
+func (m *MockWarehouseRepository) FindAll(ctx context.Context, filter repository.WarehouseListFilter) ([]models.Warehouse, int64, error) {
+	args := m.Called(ctx, filter)
+	if args.Get(0) == nil {
+		return nil, args.Get(1).(int64), args.Error(2)
+	}
+	return args.Get(0).([]models.Warehouse), args.Get(1).(int64), args.Error(2)
+}

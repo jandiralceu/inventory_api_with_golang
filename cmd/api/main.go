@@ -109,6 +109,10 @@ func main() {
 	supplierService := service.NewSupplierService(supplierRepository, cacheManager)
 	supplierHandler := handlers.NewSupplierHandler(supplierService)
 
+	warehouseRepository := repository.NewWarehouseRepository(db)
+	warehouseService := service.NewWarehouseService(warehouseRepository, cacheManager)
+	warehouseHandler := handlers.NewWarehouseHandler(warehouseService)
+
 	// Initialize Casbin Enforcer for RBAC.
 	enforcer, err := casbin.NewEnforcer("model.conf", "policy.csv")
 	if err != nil {
@@ -117,11 +121,12 @@ func main() {
 	}
 
 	routeConfig := &routes.RouteConfig{
-		AuthHandler:     authHandler,
-		RoleHandler:     roleHandler,
-		UserHandler:     userHandler,
-		CategoryHandler: categoryHandler,
-		SupplierHandler: supplierHandler,
+		AuthHandler:      authHandler,
+		RoleHandler:      roleHandler,
+		UserHandler:      userHandler,
+		CategoryHandler:  categoryHandler,
+		SupplierHandler:  supplierHandler,
+		WarehouseHandler: warehouseHandler,
 	}
 
 	r := routes.Setup(routeConfig, cfg, jwtManager, enforcer, cacheManager)

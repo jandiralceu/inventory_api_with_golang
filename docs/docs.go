@@ -1488,6 +1488,315 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/warehouses": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Retrieve a paginated list of warehouses with optional filters.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "warehouses"
+                ],
+                "summary": "List warehouses",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Filter by name (partial match)",
+                        "name": "name",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Filter by exact code",
+                        "name": "code",
+                        "in": "query"
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "Filter by active status",
+                        "name": "isActive",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Page number",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Items per page",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Sort field",
+                        "name": "sort",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Sort order (asc/desc)",
+                        "name": "order",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.WarehouseListResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ProblemDetails"
+                        }
+                    },
+                    "429": {
+                        "description": "Too many requests",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ProblemDetails"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Register a new warehouse in the system.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "warehouses"
+                ],
+                "summary": "Create a warehouse",
+                "parameters": [
+                    {
+                        "description": "Warehouse data",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.CreateWarehouseRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/models.Warehouse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ProblemDetails"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ProblemDetails"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ProblemDetails"
+                        }
+                    },
+                    "429": {
+                        "description": "Too many requests",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ProblemDetails"
+                        }
+                    }
+                }
+            }
+        },
+        "/warehouses/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Retrieve a single warehouse by its unique ID.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "warehouses"
+                ],
+                "summary": "Get warehouse by ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Warehouse ID (UUID)",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.Warehouse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ProblemDetails"
+                        }
+                    },
+                    "404": {
+                        "description": "Not found",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ProblemDetails"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Modify an existing warehouse details by ID.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "warehouses"
+                ],
+                "summary": "Update a warehouse",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Warehouse ID (UUID)",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Warehouse update data",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.UpdateWarehouseRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.Warehouse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ProblemDetails"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ProblemDetails"
+                        }
+                    },
+                    "404": {
+                        "description": "Not found",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ProblemDetails"
+                        }
+                    },
+                    "429": {
+                        "description": "Too many requests",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ProblemDetails"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Remove a warehouse from the system by its ID.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "warehouses"
+                ],
+                "summary": "Delete a warehouse",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Warehouse ID (UUID)",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No content"
+                    },
+                    "400": {
+                        "description": "Bad request",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ProblemDetails"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ProblemDetails"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ProblemDetails"
+                        }
+                    },
+                    "404": {
+                        "description": "Not found",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ProblemDetails"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -1624,6 +1933,44 @@ const docTemplate = `{
                     "type": "string",
                     "maxLength": 50,
                     "minLength": 5
+                }
+            }
+        },
+        "dto.CreateWarehouseRequest": {
+            "type": "object",
+            "required": [
+                "address",
+                "code",
+                "name"
+            ],
+            "properties": {
+                "address": {
+                    "$ref": "#/definitions/dto.WarehouseAddress"
+                },
+                "code": {
+                    "type": "string",
+                    "maxLength": 50,
+                    "minLength": 2
+                },
+                "description": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "managerName": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string",
+                    "maxLength": 100,
+                    "minLength": 3
+                },
+                "notes": {
+                    "type": "string"
+                },
+                "phone": {
+                    "type": "string"
                 }
             }
         },
@@ -1833,6 +2180,48 @@ const docTemplate = `{
                 }
             }
         },
+        "dto.UpdateWarehouseRequest": {
+            "type": "object",
+            "required": [
+                "address",
+                "code",
+                "isActive",
+                "name"
+            ],
+            "properties": {
+                "address": {
+                    "$ref": "#/definitions/dto.WarehouseAddress"
+                },
+                "code": {
+                    "type": "string",
+                    "maxLength": 50,
+                    "minLength": 2
+                },
+                "description": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "isActive": {
+                    "type": "boolean"
+                },
+                "managerName": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string",
+                    "maxLength": 100,
+                    "minLength": 3
+                },
+                "notes": {
+                    "type": "string"
+                },
+                "phone": {
+                    "type": "string"
+                }
+            }
+        },
         "dto.UserListResponse": {
             "type": "object",
             "properties": {
@@ -1840,6 +2229,64 @@ const docTemplate = `{
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/models.User"
+                    }
+                },
+                "limit": {
+                    "type": "integer"
+                },
+                "page": {
+                    "type": "integer"
+                },
+                "total": {
+                    "type": "integer"
+                },
+                "totalPages": {
+                    "type": "integer"
+                }
+            }
+        },
+        "dto.WarehouseAddress": {
+            "type": "object",
+            "required": [
+                "city",
+                "country",
+                "number",
+                "state",
+                "street",
+                "zipCode"
+            ],
+            "properties": {
+                "city": {
+                    "type": "string"
+                },
+                "complement": {
+                    "type": "string"
+                },
+                "country": {
+                    "type": "string"
+                },
+                "number": {
+                    "type": "string"
+                },
+                "state": {
+                    "type": "string"
+                },
+                "street": {
+                    "type": "string",
+                    "minLength": 3
+                },
+                "zipCode": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.WarehouseListResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Warehouse"
                     }
                 },
                 "limit": {
@@ -2053,6 +2500,67 @@ const docTemplate = `{
                 },
                 "updated_at": {
                     "description": "UpdatedAt is the timestamp for the last update to the user profile.",
+                    "type": "string"
+                }
+            }
+        },
+        "models.Warehouse": {
+            "type": "object",
+            "properties": {
+                "address": {
+                    "description": "Address is a flexible JSONB field containing location details.\nReuses the Address struct defined in supplier.go",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.Address"
+                        }
+                    ]
+                },
+                "code": {
+                    "description": "Code is the internal reference code for the warehouse (e.g., 'WH01', 'SP01').",
+                    "type": "string"
+                },
+                "created_at": {
+                    "description": "CreatedAt is the timestamp when the warehouse was registered.",
+                    "type": "string"
+                },
+                "description": {
+                    "description": "Description provides additional context about the warehouse.",
+                    "type": "string"
+                },
+                "email": {
+                    "description": "Email is the contact email for the warehouse.",
+                    "type": "string"
+                },
+                "id": {
+                    "description": "ID is the unique identifier for the warehouse.",
+                    "type": "string"
+                },
+                "is_active": {
+                    "description": "IsActive determines if the warehouse is currently enabled for operations.",
+                    "type": "boolean"
+                },
+                "manager_name": {
+                    "description": "ManagerName is the name of the person responsible for the warehouse.",
+                    "type": "string"
+                },
+                "name": {
+                    "description": "Name is the display name of the warehouse.",
+                    "type": "string"
+                },
+                "notes": {
+                    "description": "Notes contains any extra information about the warehouse.",
+                    "type": "string"
+                },
+                "phone": {
+                    "description": "Phone is the contact phone number for the warehouse.",
+                    "type": "string"
+                },
+                "slug": {
+                    "description": "Slug is the URL-friendly name used for queries.",
+                    "type": "string"
+                },
+                "updated_at": {
+                    "description": "UpdatedAt is the timestamp for the last update to the warehouse record.",
                     "type": "string"
                 }
             }

@@ -13,13 +13,13 @@ CREATE TABLE IF NOT EXISTS suppliers (
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
--- Index para o slug pois e comum filtrarmos por slug
+-- Index for slug as we commonly filter by slug
 CREATE INDEX IF NOT EXISTS idx_suppliers_slug ON suppliers(slug);
 
--- Index GIN para buscas eficientes dentro do JSONB de endereço
+-- GIN index for efficient searches within the address JSONB
 CREATE INDEX IF NOT EXISTS idx_suppliers_address ON suppliers USING GIN (address);
 
--- Trigger para atualizar o campo updated_at automaticamente
+-- Trigger to automatically update the updated_at field
 CREATE TRIGGER update_suppliers_updated_at
     BEFORE UPDATE ON suppliers
     FOR EACH ROW

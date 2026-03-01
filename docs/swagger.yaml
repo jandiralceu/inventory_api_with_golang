@@ -93,6 +93,33 @@ definitions:
     - name
     - taxId
     type: object
+  dto.CreateWarehouseRequest:
+    properties:
+      address:
+        $ref: '#/definitions/dto.WarehouseAddress'
+      code:
+        maxLength: 50
+        minLength: 2
+        type: string
+      description:
+        type: string
+      email:
+        type: string
+      managerName:
+        type: string
+      name:
+        maxLength: 100
+        minLength: 3
+        type: string
+      notes:
+        type: string
+      phone:
+        type: string
+    required:
+    - address
+    - code
+    - name
+    type: object
   dto.RefreshTokenRequest:
     properties:
       refreshToken:
@@ -235,11 +262,81 @@ definitions:
     - name
     - taxId
     type: object
+  dto.UpdateWarehouseRequest:
+    properties:
+      address:
+        $ref: '#/definitions/dto.WarehouseAddress'
+      code:
+        maxLength: 50
+        minLength: 2
+        type: string
+      description:
+        type: string
+      email:
+        type: string
+      isActive:
+        type: boolean
+      managerName:
+        type: string
+      name:
+        maxLength: 100
+        minLength: 3
+        type: string
+      notes:
+        type: string
+      phone:
+        type: string
+    required:
+    - address
+    - code
+    - isActive
+    - name
+    type: object
   dto.UserListResponse:
     properties:
       data:
         items:
           $ref: '#/definitions/models.User'
+        type: array
+      limit:
+        type: integer
+      page:
+        type: integer
+      total:
+        type: integer
+      totalPages:
+        type: integer
+    type: object
+  dto.WarehouseAddress:
+    properties:
+      city:
+        type: string
+      complement:
+        type: string
+      country:
+        type: string
+      number:
+        type: string
+      state:
+        type: string
+      street:
+        minLength: 3
+        type: string
+      zipCode:
+        type: string
+    required:
+    - city
+    - country
+    - number
+    - state
+    - street
+    - zipCode
+    type: object
+  dto.WarehouseListResponse:
+    properties:
+      data:
+        items:
+          $ref: '#/definitions/models.Warehouse'
         type: array
       limit:
         type: integer
@@ -391,6 +488,54 @@ definitions:
         type: string
       updated_at:
         description: UpdatedAt is the timestamp for the last update to the user profile.
+        type: string
+    type: object
+  models.Warehouse:
+    properties:
+      address:
+        allOf:
+        - $ref: '#/definitions/models.Address'
+        description: |-
+          Address is a flexible JSONB field containing location details.
+          Reuses the Address struct defined in supplier.go
+      code:
+        description: Code is the internal reference code for the warehouse (e.g.,
+          'WH01', 'SP01').
+        type: string
+      created_at:
+        description: CreatedAt is the timestamp when the warehouse was registered.
+        type: string
+      description:
+        description: Description provides additional context about the warehouse.
+        type: string
+      email:
+        description: Email is the contact email for the warehouse.
+        type: string
+      id:
+        description: ID is the unique identifier for the warehouse.
+        type: string
+      is_active:
+        description: IsActive determines if the warehouse is currently enabled for
+          operations.
+        type: boolean
+      manager_name:
+        description: ManagerName is the name of the person responsible for the warehouse.
+        type: string
+      name:
+        description: Name is the display name of the warehouse.
+        type: string
+      notes:
+        description: Notes contains any extra information about the warehouse.
+        type: string
+      phone:
+        description: Phone is the contact phone number for the warehouse.
+        type: string
+      slug:
+        description: Slug is the URL-friendly name used for queries.
+        type: string
+      updated_at:
+        description: UpdatedAt is the timestamp for the last update to the warehouse
+          record.
         type: string
     type: object
 host: localhost:8080
@@ -1355,6 +1500,204 @@ paths:
       summary: Change user role
       tags:
       - users
+  /warehouses:
+    get:
+      description: Retrieve a paginated list of warehouses with optional filters.
+      parameters:
+      - description: Filter by name (partial match)
+        in: query
+        name: name
+        type: string
+      - description: Filter by exact code
+        in: query
+        name: code
+        type: string
+      - description: Filter by active status
+        in: query
+        name: isActive
+        type: boolean
+      - description: Page number
+        in: query
+        name: page
+        type: integer
+      - description: Items per page
+        in: query
+        name: limit
+        type: integer
+      - description: Sort field
+        in: query
+        name: sort
+        type: string
+      - description: Sort order (asc/desc)
+        in: query
+        name: order
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.WarehouseListResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handlers.ProblemDetails'
+        "429":
+          description: Too many requests
+          schema:
+            $ref: '#/definitions/handlers.ProblemDetails'
+      security:
+      - Bearer: []
+      summary: List warehouses
+      tags:
+      - warehouses
+    post:
+      consumes:
+      - application/json
+      description: Register a new warehouse in the system.
+      parameters:
+      - description: Warehouse data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.CreateWarehouseRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.Warehouse'
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/handlers.ProblemDetails'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handlers.ProblemDetails'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/handlers.ProblemDetails'
+        "429":
+          description: Too many requests
+          schema:
+            $ref: '#/definitions/handlers.ProblemDetails'
+      security:
+      - Bearer: []
+      summary: Create a warehouse
+      tags:
+      - warehouses
+  /warehouses/{id}:
+    delete:
+      description: Remove a warehouse from the system by its ID.
+      parameters:
+      - description: Warehouse ID (UUID)
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No content
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/handlers.ProblemDetails'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handlers.ProblemDetails'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/handlers.ProblemDetails'
+        "404":
+          description: Not found
+          schema:
+            $ref: '#/definitions/handlers.ProblemDetails'
+      security:
+      - Bearer: []
+      summary: Delete a warehouse
+      tags:
+      - warehouses
+    get:
+      description: Retrieve a single warehouse by its unique ID.
+      parameters:
+      - description: Warehouse ID (UUID)
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Warehouse'
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/handlers.ProblemDetails'
+        "404":
+          description: Not found
+          schema:
+            $ref: '#/definitions/handlers.ProblemDetails'
+      security:
+      - Bearer: []
+      summary: Get warehouse by ID
+      tags:
+      - warehouses
+    put:
+      consumes:
+      - application/json
+      description: Modify an existing warehouse details by ID.
+      parameters:
+      - description: Warehouse ID (UUID)
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Warehouse update data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UpdateWarehouseRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Warehouse'
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/handlers.ProblemDetails'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handlers.ProblemDetails'
+        "404":
+          description: Not found
+          schema:
+            $ref: '#/definitions/handlers.ProblemDetails'
+        "429":
+          description: Too many requests
+          schema:
+            $ref: '#/definitions/handlers.ProblemDetails'
+      security:
+      - Bearer: []
+      summary: Update a warehouse
+      tags:
+      - warehouses
 securityDefinitions:
   Bearer:
     description: Type "Bearer" followed by a space and JWT token.

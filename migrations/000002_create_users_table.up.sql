@@ -8,7 +8,7 @@ CREATE TABLE IF NOT EXISTS users (
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
--- Trigger para atualizar o campo updated_at automaticamente
+-- Trigger to automatically update the updated_at field
 CREATE OR REPLACE FUNCTION update_updated_at_column()
 RETURNS TRIGGER AS $$
 BEGIN

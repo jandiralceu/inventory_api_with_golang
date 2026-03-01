@@ -18,11 +18,12 @@ import (
 
 // RouteConfig holds all handler dependencies required to register API routes.
 type RouteConfig struct {
-	AuthHandler     *handlers.AuthHandler
-	RoleHandler     *handlers.RoleHandler
-	UserHandler     *handlers.UserHandler
-	CategoryHandler *handlers.CategoryHandler
-	SupplierHandler *handlers.SupplierHandler
+	AuthHandler      *handlers.AuthHandler
+	RoleHandler      *handlers.RoleHandler
+	UserHandler      *handlers.UserHandler
+	CategoryHandler  *handlers.CategoryHandler
+	SupplierHandler  *handlers.SupplierHandler
+	WarehouseHandler *handlers.WarehouseHandler
 }
 
 // Setup creates a configured [gin.Engine] with global middleware, public and
@@ -104,6 +105,15 @@ func Setup(routeConfig *RouteConfig, config *config.Config, jwtManager *pkg.JWTM
 				suppliers.POST("", routeConfig.SupplierHandler.CreateSupplier)
 				suppliers.PUT("/:id", routeConfig.SupplierHandler.UpdateSupplier)
 				suppliers.DELETE("/:id", routeConfig.SupplierHandler.DeleteSupplier)
+			}
+
+			warehouses := protected.Group("/warehouses")
+			{
+				warehouses.GET("", routeConfig.WarehouseHandler.FindAllWarehouses)
+				warehouses.GET("/:id", routeConfig.WarehouseHandler.FindWarehouseByID)
+				warehouses.POST("", routeConfig.WarehouseHandler.CreateWarehouse)
+				warehouses.PUT("/:id", routeConfig.WarehouseHandler.UpdateWarehouse)
+				warehouses.DELETE("/:id", routeConfig.WarehouseHandler.DeleteWarehouse)
 			}
 		}
 	}

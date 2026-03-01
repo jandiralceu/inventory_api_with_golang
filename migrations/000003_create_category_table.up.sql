@@ -9,14 +9,14 @@ CREATE TABLE IF NOT EXISTS categories (
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
--- Index para o slug pois e comum filtrarmos produtos por slug de categoria
+-- Index for slug as we commonly filter products by category slug
 CREATE INDEX IF NOT EXISTS idx_categories_slug ON categories(slug);
 
--- Index para o parent_id para otimizar a busca de subcategorias
+-- Index for parent_id to optimize subcategory search
 CREATE INDEX IF NOT EXISTS idx_categories_parent_id ON categories(parent_id);
 
--- Trigger para atualizar o campo updated_at automaticamente
--- A funcao update_updated_at_column() ja foi criada na migration 000002
+-- Trigger to automatically update the updated_at field
+-- The update_updated_at_column() function was already created in migration 000002
 CREATE TRIGGER update_categories_updated_at
     BEFORE UPDATE ON categories
     FOR EACH ROW
