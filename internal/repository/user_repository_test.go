@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"errors"
 	"regexp"
 	"testing"
 	"time"
@@ -321,5 +322,94 @@ func TestUserRepositoryFindAllEmpty(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Len(t, users, 0)
 	assert.Equal(t, int64(0), total)
-	assert.NoError(t, mock.ExpectationsWereMet())
+	mock.ExpectationsWereMet()
+}
+
+// =====================
+// ChangePassword Tests
+// =====================
+
+func TestUserRepositoryChangePasswordSuccess(t *testing.T) {
+	db, mock, sqlDB := setupTestDB(t)
+	defer sqlDB.Close()
+
+	repo := NewUserRepository(db)
+	ctx := context.Background()
+	userID := uuid.New()
+	newHash := "new-hashed-password"
+
+	mock.ExpectBegin()
+	mock.ExpectExec(regexp.QuoteMeta(`UPDATE "users" SET "password_hash"=$1,"updated_at"=$2 WHERE id = $3`)).
+		WithArgs(newHash, sqlmock.AnyArg(), userID).
+		WillReturnResult(sqlmock.NewResult(1, 1))
+	mock.ExpectCommit()
+
+	err := repo.ChangePassword(ctx, userID, newHash)
+	assert.NoError(t, err)
+	mock.ExpectationsWereMet()
+}
+
+func TestUserRepositoryChangePasswordNotFound(t *testing.T) {
+	db, mock, sqlDB := setupTestDB(t)
+	defer sqlDB.Close()
+
+	repo := NewUserRepository(db)
+	ctx := context.Background()
+	userID := uuid.New()
+
+	mock.ExpectBegin()
+	mock.ExpectExec(regexp.QuoteMeta(`UPDATE "users" SET "password_hash"=$1,"updated_at"=$2 WHERE id = $3`)).
+		WithArgs("hash", sqlmock.AnyArg(), userID).
+		WillReturnResult(sqlmock.NewResult(0, 0))
+	mock.ExpectCommit()
+
+	err := repo.ChangePassword(ctx, userID, "hash")
+	assert.Error(t, err)
+	assert.True(t, errors.Is(err, apperrors.ErrNotFound))
+	mock.ExpectationsWereMet()
+}
+
+// =====================
+// ChangeRole Tests
+// =====================
+
+func TestUserRepositoryChangeRoleSuccess(t *testing.T) {
+	db, mock, sqlDB := setupTestDB(t)
+	defer sqlDB.Close()
+
+	repo := NewUserRepository(db)
+	ctx := context.Background()
+	userID := uuid.New()
+	roleID := uuid.New()
+
+	mock.ExpectBegin()
+	mock.ExpectExec(regexp.QuoteMeta(`UPDATE "users" SET "role_id"=$1,"updated_at"=$2 WHERE id = $3`)).
+		WithArgs(roleID, sqlmock.AnyArg(), userID).
+		WillReturnResult(sqlmock.NewResult(1, 1))
+	mock.ExpectCommit()
+
+	err := repo.ChangeRole(ctx, userID, roleID)
+	assert.NoError(t, err)
+	mock.ExpectationsWereMet()
+}
+
+func TestUserRepositoryChangeRoleNotFound(t *testing.T) {
+	db, mock, sqlDB := setupTestDB(t)
+	defer sqlDB.Close()
+
+	repo := NewUserRepository(db)
+	ctx := context.Background()
+	userID := uuid.New()
+	roleID := uuid.New()
+
+	mock.ExpectBegin()
+	mock.ExpectExec(regexp.QuoteMeta(`UPDATE "users" SET "role_id"=$1,"updated_at"=$2 WHERE id = $3`)).
+		WithArgs(roleID, sqlmock.AnyArg(), userID).
+		WillReturnResult(sqlmock.NewResult(0, 0))
+	mock.ExpectCommit()
+
+	err := repo.ChangeRole(ctx, userID, roleID)
+	assert.Error(t, err)
+	assert.True(t, errors.Is(err, apperrors.ErrNotFound))
+	mock.ExpectationsWereMet()
 }

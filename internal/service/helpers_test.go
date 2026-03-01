@@ -4,6 +4,9 @@ import (
 	"context"
 	"time"
 
+	"github.com/google/uuid"
+	"github.com/jandiralceu/inventory_api_with_golang/internal/models"
+	"github.com/jandiralceu/inventory_api_with_golang/internal/repository"
 	"github.com/stretchr/testify/mock"
 )
 
@@ -35,4 +38,65 @@ func (m *MockCacheManager) DeletePrefix(ctx context.Context, prefix string) erro
 func (m *MockCacheManager) Close() error {
 	args := m.Called()
 	return args.Error(0)
+}
+
+// MockUserRepository is a mock implementation of repository.UserRepository.
+type MockUserRepository struct {
+	mock.Mock
+}
+
+func (m *MockUserRepository) Create(ctx context.Context, user *models.User) error {
+	args := m.Called(ctx, user)
+	return args.Error(0)
+}
+
+func (m *MockUserRepository) FindAll(ctx context.Context, filter repository.UserListFilter) ([]models.User, int64, error) {
+	args := m.Called(ctx, filter)
+	return args.Get(0).([]models.User), args.Get(1).(int64), args.Error(2)
+}
+
+func (m *MockUserRepository) FindByID(ctx context.Context, userID uuid.UUID) (*models.User, error) {
+	args := m.Called(ctx, userID)
+	if args.Get(0) == nil {
+		return nil, args.Error(1)
+	}
+	return args.Get(0).(*models.User), args.Error(1)
+}
+
+func (m *MockUserRepository) FindByEmail(ctx context.Context, email string) (*models.User, error) {
+	args := m.Called(ctx, email)
+	if args.Get(0) == nil {
+		return nil, args.Error(1)
+	}
+	return args.Get(0).(*models.User), args.Error(1)
+}
+
+func (m *MockUserRepository) ChangePassword(ctx context.Context, userID uuid.UUID, newHashedPassword string) error {
+	args := m.Called(ctx, userID, newHashedPassword)
+	return args.Error(0)
+}
+
+func (m *MockUserRepository) ChangeRole(ctx context.Context, userID uuid.UUID, newRoleID uuid.UUID) error {
+	args := m.Called(ctx, userID, newRoleID)
+	return args.Error(0)
+}
+
+func (m *MockUserRepository) Delete(ctx context.Context, userID uuid.UUID) error {
+	args := m.Called(ctx, userID)
+	return args.Error(0)
+}
+
+// MockPasswordHasher is a mock implementation of pkg.PasswordHasher.
+type MockPasswordHasher struct {
+	mock.Mock
+}
+
+func (m *MockPasswordHasher) Hash(password string) (string, error) {
+	args := m.Called(password)
+	return args.String(0), args.Error(1)
+}
+
+func (m *MockPasswordHasher) Verify(password, hash string) (bool, error) {
+	args := m.Called(password, hash)
+	return args.Bool(0), args.Error(1)
 }
