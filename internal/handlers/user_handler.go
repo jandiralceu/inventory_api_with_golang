@@ -40,6 +40,7 @@ func NewUserHandler(userService service.UserService) *UserHandler {
 // @Failure      400     {object}  ProblemDetails
 // @Failure      401     {object}  ProblemDetails
 // @Failure      403     {object}  ProblemDetails
+// @Failure      429     {object}  ProblemDetails
 // @Failure      500     {object}  ProblemDetails
 // @Security     Bearer
 // @Router       /users [get]
@@ -71,6 +72,7 @@ func (h *UserHandler) FindAllUsers(c *gin.Context) {
 // @Failure      401  {object}  ProblemDetails
 // @Failure      403  {object}  ProblemDetails
 // @Failure      404  {object}  ProblemDetails
+// @Failure      429  {object}  ProblemDetails
 // @Security     Bearer
 // @Router       /users/{id} [get]
 func (h *UserHandler) FindUserByID(c *gin.Context) {
@@ -103,6 +105,7 @@ func (h *UserHandler) FindUserByID(c *gin.Context) {
 // @Failure      403  {object}  ProblemDetails
 // @Failure      404  {object}  ProblemDetails
 // @Failure      500  {object}  ProblemDetails
+// @Failure      429  {object}  ProblemDetails
 // @Security     Bearer
 // @Router       /users/{id} [delete]
 func (h *UserHandler) DeleteUser(c *gin.Context) {
@@ -133,6 +136,7 @@ func (h *UserHandler) DeleteUser(c *gin.Context) {
 // @Failure      401  {object}  ProblemDetails
 // @Failure      403  {object}  ProblemDetails
 // @Failure      500  {object}  ProblemDetails
+// @Failure      429  {object}  ProblemDetails
 // @Security     Bearer
 // @Router       /users/change-password [patch]
 func (h *UserHandler) ChangePassword(c *gin.Context) {
@@ -169,6 +173,7 @@ func (h *UserHandler) ChangePassword(c *gin.Context) {
 // @Failure      403  {object}  ProblemDetails
 // @Failure      404  {object}  ProblemDetails
 // @Failure      500  {object}  ProblemDetails
+// @Failure      429  {object}  ProblemDetails
 // @Security     Bearer
 // @Router       /users/change-role [patch]
 func (h *UserHandler) ChangeRole(c *gin.Context) {

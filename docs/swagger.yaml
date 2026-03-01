@@ -196,6 +196,10 @@ paths:
           description: Invalid, expired or already used refresh token
           schema:
             $ref: '#/definitions/handlers.ProblemDetails'
+        "429":
+          description: Too many requests
+          schema:
+            $ref: '#/definitions/handlers.ProblemDetails'
         "500":
           description: Internal server error
           schema:
@@ -227,6 +231,10 @@ paths:
             $ref: '#/definitions/handlers.ProblemDetails'
         "409":
           description: Email already in use
+          schema:
+            $ref: '#/definitions/handlers.ProblemDetails'
+        "429":
+          description: Too many requests
           schema:
             $ref: '#/definitions/handlers.ProblemDetails'
         "500":
@@ -264,6 +272,10 @@ paths:
           description: Invalid email or password
           schema:
             $ref: '#/definitions/handlers.ProblemDetails'
+        "429":
+          description: Too many requests
+          schema:
+            $ref: '#/definitions/handlers.ProblemDetails'
         "500":
           description: Internal server error
           schema:
@@ -297,6 +309,10 @@ paths:
           description: Invalid or expired refresh token
           schema:
             $ref: '#/definitions/handlers.ProblemDetails'
+        "429":
+          description: Too many requests
+          schema:
+            $ref: '#/definitions/handlers.ProblemDetails'
       summary: User logout
       tags:
       - auth
@@ -318,6 +334,10 @@ paths:
             $ref: '#/definitions/handlers.ProblemDetails'
         "403":
           description: Forbidden
+          schema:
+            $ref: '#/definitions/handlers.ProblemDetails'
+        "429":
+          description: Too many requests
           schema:
             $ref: '#/definitions/handlers.ProblemDetails'
         "500":
@@ -363,6 +383,10 @@ paths:
           description: Conflict
           schema:
             $ref: '#/definitions/handlers.ProblemDetails'
+        "429":
+          description: Too many requests
+          schema:
+            $ref: '#/definitions/handlers.ProblemDetails'
         "500":
           description: Internal error
           schema:
@@ -400,6 +424,10 @@ paths:
             $ref: '#/definitions/handlers.ProblemDetails'
         "404":
           description: Not found
+          schema:
+            $ref: '#/definitions/handlers.ProblemDetails'
+        "429":
+          description: Too many requests
           schema:
             $ref: '#/definitions/handlers.ProblemDetails'
         "500":
@@ -440,6 +468,10 @@ paths:
             $ref: '#/definitions/handlers.ProblemDetails'
         "404":
           description: Not found
+          schema:
+            $ref: '#/definitions/handlers.ProblemDetails'
+        "429":
+          description: Too many requests
           schema:
             $ref: '#/definitions/handlers.ProblemDetails'
       security:
@@ -493,6 +525,10 @@ paths:
           description: Forbidden
           schema:
             $ref: '#/definitions/handlers.ProblemDetails'
+        "429":
+          description: Too Many Requests
+          schema:
+            $ref: '#/definitions/handlers.ProblemDetails'
         "500":
           description: Internal Server Error
           schema:
@@ -532,6 +568,10 @@ paths:
             $ref: '#/definitions/handlers.ProblemDetails'
         "404":
           description: Not Found
+          schema:
+            $ref: '#/definitions/handlers.ProblemDetails'
+        "429":
+          description: Too Many Requests
           schema:
             $ref: '#/definitions/handlers.ProblemDetails'
         "500":
@@ -576,6 +616,10 @@ paths:
           description: Not Found
           schema:
             $ref: '#/definitions/handlers.ProblemDetails'
+        "429":
+          description: Too Many Requests
+          schema:
+            $ref: '#/definitions/handlers.ProblemDetails'
       security:
       - Bearer: []
       summary: Get user by ID
@@ -609,6 +653,10 @@ paths:
             $ref: '#/definitions/handlers.ProblemDetails'
         "403":
           description: Forbidden
+          schema:
+            $ref: '#/definitions/handlers.ProblemDetails'
+        "429":
+          description: Too Many Requests
           schema:
             $ref: '#/definitions/handlers.ProblemDetails'
         "500":
@@ -651,6 +699,10 @@ paths:
             $ref: '#/definitions/handlers.ProblemDetails'
         "404":
           description: Not Found
+          schema:
+            $ref: '#/definitions/handlers.ProblemDetails'
+        "429":
+          description: Too Many Requests
           schema:
             $ref: '#/definitions/handlers.ProblemDetails'
         "500":

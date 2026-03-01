@@ -47,6 +47,7 @@ func NewAuthHandler(userService service.UserService, jwtManager *pkg.JWTManager,
 // @Success      204 "User registered successfully"
 // @Failure      400 {object} ProblemDetails "Invalid input or validation error"
 // @Failure      409 {object} ProblemDetails "Email already in use"
+// @Failure      429 {object} ProblemDetails "Too many requests"
 // @Failure      500 {object} ProblemDetails "Internal server error"
 // @Router       /auth/register [post]
 func (h *AuthHandler) Register(c *gin.Context) {
@@ -88,6 +89,7 @@ func (h *AuthHandler) Register(c *gin.Context) {
 // @Success      200 {object} dto.SignInResponse "Tokens generated successfully"
 // @Failure      400 {object} ProblemDetails "Invalid request format"
 // @Failure      401 {object} ProblemDetails "Invalid email or password"
+// @Failure      429 {object} ProblemDetails "Too many requests"
 // @Failure      500 {object} ProblemDetails "Internal server error"
 // @Router       /auth/signin [post]
 func (h *AuthHandler) SignIn(c *gin.Context) {
@@ -147,6 +149,7 @@ func (h *AuthHandler) SignIn(c *gin.Context) {
 // @Success      204 "Successfully logged out"
 // @Failure      400 {object} ProblemDetails "Invalid request format"
 // @Failure      401 {object} ProblemDetails "Invalid or expired refresh token"
+// @Failure      429 {object} ProblemDetails "Too many requests"
 // @Router       /auth/signout [post]
 func (h *AuthHandler) SignOut(c *gin.Context) {
 	var req dto.SignOutRequest
@@ -177,6 +180,7 @@ func (h *AuthHandler) SignOut(c *gin.Context) {
 // @Success      200 {object} dto.RefreshTokenResponse "New tokens generated successfully"
 // @Failure      400 {object} ProblemDetails "Invalid request format"
 // @Failure      401 {object} ProblemDetails "Invalid, expired or already used refresh token"
+// @Failure      429 {object} ProblemDetails "Too many requests"
 // @Failure      500 {object} ProblemDetails "Internal server error"
 // @Router       /auth/refresh [post]
 func (h *AuthHandler) RefreshToken(c *gin.Context) {

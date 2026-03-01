@@ -65,6 +65,12 @@ const docTemplate = `{
                             "$ref": "#/definitions/handlers.ProblemDetails"
                         }
                     },
+                    "429": {
+                        "description": "Too many requests",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ProblemDetails"
+                        }
+                    },
                     "500": {
                         "description": "Internal server error",
                         "schema": {
@@ -110,6 +116,12 @@ const docTemplate = `{
                     },
                     "409": {
                         "description": "Email already in use",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ProblemDetails"
+                        }
+                    },
+                    "429": {
+                        "description": "Too many requests",
                         "schema": {
                             "$ref": "#/definitions/handlers.ProblemDetails"
                         }
@@ -166,6 +178,12 @@ const docTemplate = `{
                             "$ref": "#/definitions/handlers.ProblemDetails"
                         }
                     },
+                    "429": {
+                        "description": "Too many requests",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ProblemDetails"
+                        }
+                    },
                     "500": {
                         "description": "Internal server error",
                         "schema": {
@@ -214,6 +232,12 @@ const docTemplate = `{
                         "schema": {
                             "$ref": "#/definitions/handlers.ProblemDetails"
                         }
+                    },
+                    "429": {
+                        "description": "Too many requests",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ProblemDetails"
+                        }
                     }
                 }
             }
@@ -251,6 +275,12 @@ const docTemplate = `{
                     },
                     "403": {
                         "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ProblemDetails"
+                        }
+                    },
+                    "429": {
+                        "description": "Too many requests",
                         "schema": {
                             "$ref": "#/definitions/handlers.ProblemDetails"
                         }
@@ -322,6 +352,12 @@ const docTemplate = `{
                             "$ref": "#/definitions/handlers.ProblemDetails"
                         }
                     },
+                    "429": {
+                        "description": "Too many requests",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ProblemDetails"
+                        }
+                    },
                     "500": {
                         "description": "Internal error",
                         "schema": {
@@ -385,6 +421,12 @@ const docTemplate = `{
                         "schema": {
                             "$ref": "#/definitions/handlers.ProblemDetails"
                         }
+                    },
+                    "429": {
+                        "description": "Too many requests",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ProblemDetails"
+                        }
                     }
                 }
             },
@@ -435,6 +477,12 @@ const docTemplate = `{
                     },
                     "404": {
                         "description": "Not found",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ProblemDetails"
+                        }
+                    },
+                    "429": {
+                        "description": "Too many requests",
                         "schema": {
                             "$ref": "#/definitions/handlers.ProblemDetails"
                         }
@@ -523,6 +571,12 @@ const docTemplate = `{
                             "$ref": "#/definitions/handlers.ProblemDetails"
                         }
                     },
+                    "429": {
+                        "description": "Too Many Requests",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ProblemDetails"
+                        }
+                    },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
@@ -579,6 +633,12 @@ const docTemplate = `{
                     },
                     "403": {
                         "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ProblemDetails"
+                        }
+                    },
+                    "429": {
+                        "description": "Too Many Requests",
                         "schema": {
                             "$ref": "#/definitions/handlers.ProblemDetails"
                         }
@@ -649,6 +709,12 @@ const docTemplate = `{
                             "$ref": "#/definitions/handlers.ProblemDetails"
                         }
                     },
+                    "429": {
+                        "description": "Too Many Requests",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ProblemDetails"
+                        }
+                    },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
@@ -715,6 +781,12 @@ const docTemplate = `{
                         "schema": {
                             "$ref": "#/definitions/handlers.ProblemDetails"
                         }
+                    },
+                    "429": {
+                        "description": "Too Many Requests",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ProblemDetails"
+                        }
                     }
                 }
             },
@@ -768,6 +840,12 @@ const docTemplate = `{
                     },
                     "404": {
                         "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ProblemDetails"
+                        }
+                    },
+                    "429": {
+                        "description": "Too Many Requests",
                         "schema": {
                             "$ref": "#/definitions/handlers.ProblemDetails"
                         }

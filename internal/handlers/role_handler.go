@@ -35,6 +35,7 @@ func NewRoleHandler(roleService service.RoleService) *RoleHandler {
 // @Failure      401 {object} ProblemDetails "Unauthorized"
 // @Failure      403 {object} ProblemDetails "Forbidden"
 // @Failure      409 {object} ProblemDetails "Conflict"
+// @Failure      429 {object} ProblemDetails "Too many requests"
 // @Failure      500 {object} ProblemDetails "Internal error"
 // @Security     Bearer
 // @Router       /roles [post]
@@ -70,6 +71,7 @@ func (h *RoleHandler) CreateRole(c *gin.Context) {
 // @Failure      401 {object} ProblemDetails "Unauthorized"
 // @Failure      403 {object} ProblemDetails "Forbidden"
 // @Failure      404 {object} ProblemDetails "Not found"
+// @Failure      429 {object} ProblemDetails "Too many requests"
 // @Failure      500 {object} ProblemDetails "Internal error"
 // @Security     Bearer
 // @Router       /roles/{id} [delete]
@@ -100,6 +102,7 @@ func (h *RoleHandler) DeleteRole(c *gin.Context) {
 // @Failure      401 {object} ProblemDetails "Unauthorized"
 // @Failure      403 {object} ProblemDetails "Forbidden"
 // @Failure      404 {object} ProblemDetails "Not found"
+// @Failure      429 {object} ProblemDetails "Too many requests"
 // @Security     Bearer
 // @Router       /roles/{id} [get]
 func (h *RoleHandler) FindRoleByID(c *gin.Context) {
@@ -127,6 +130,7 @@ func (h *RoleHandler) FindRoleByID(c *gin.Context) {
 // @Success      200 {array} models.Role
 // @Failure      401 {object} ProblemDetails "Unauthorized"
 // @Failure      403 {object} ProblemDetails "Forbidden"
+// @Failure      429 {object} ProblemDetails "Too many requests"
 // @Failure      500 {object} ProblemDetails "Internal error"
 // @Security     Bearer
 // @Router       /roles [get]

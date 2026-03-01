@@ -59,6 +59,12 @@
                             "$ref": "#/definitions/handlers.ProblemDetails"
                         }
                     },
+                    "429": {
+                        "description": "Too many requests",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ProblemDetails"
+                        }
+                    },
                     "500": {
                         "description": "Internal server error",
                         "schema": {
@@ -104,6 +110,12 @@
                     },
                     "409": {
                         "description": "Email already in use",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ProblemDetails"
+                        }
+                    },
+                    "429": {
+                        "description": "Too many requests",
                         "schema": {
                             "$ref": "#/definitions/handlers.ProblemDetails"
                         }
@@ -160,6 +172,12 @@
                             "$ref": "#/definitions/handlers.ProblemDetails"
                         }
                     },
+                    "429": {
+                        "description": "Too many requests",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ProblemDetails"
+                        }
+                    },
                     "500": {
                         "description": "Internal server error",
                         "schema": {
@@ -208,6 +226,12 @@
                         "schema": {
                             "$ref": "#/definitions/handlers.ProblemDetails"
                         }
+                    },
+                    "429": {
+                        "description": "Too many requests",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ProblemDetails"
+                        }
                     }
                 }
             }
@@ -245,6 +269,12 @@
                     },
                     "403": {
                         "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ProblemDetails"
+                        }
+                    },
+                    "429": {
+                        "description": "Too many requests",
                         "schema": {
                             "$ref": "#/definitions/handlers.ProblemDetails"
                         }
@@ -316,6 +346,12 @@
                             "$ref": "#/definitions/handlers.ProblemDetails"
                         }
                     },
+                    "429": {
+                        "description": "Too many requests",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ProblemDetails"
+                        }
+                    },
                     "500": {
                         "description": "Internal error",
                         "schema": {
@@ -379,6 +415,12 @@
                         "schema": {
                             "$ref": "#/definitions/handlers.ProblemDetails"
                         }
+                    },
+                    "429": {
+                        "description": "Too many requests",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ProblemDetails"
+                        }
                     }
                 }
             },
@@ -429,6 +471,12 @@
                     },
                     "404": {
                         "description": "Not found",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ProblemDetails"
+                        }
+                    },
+                    "429": {
+                        "description": "Too many requests",
                         "schema": {
                             "$ref": "#/definitions/handlers.ProblemDetails"
                         }
@@ -517,6 +565,12 @@
                             "$ref": "#/definitions/handlers.ProblemDetails"
                         }
                     },
+                    "429": {
+                        "description": "Too Many Requests",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ProblemDetails"
+                        }
+                    },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
@@ -573,6 +627,12 @@
                     },
                     "403": {
                         "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ProblemDetails"
+                        }
+                    },
+                    "429": {
+                        "description": "Too Many Requests",
                         "schema": {
                             "$ref": "#/definitions/handlers.ProblemDetails"
                         }
@@ -643,6 +703,12 @@
                             "$ref": "#/definitions/handlers.ProblemDetails"
                         }
                     },
+                    "429": {
+                        "description": "Too Many Requests",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ProblemDetails"
+                        }
+                    },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
@@ -709,6 +775,12 @@
                         "schema": {
                             "$ref": "#/definitions/handlers.ProblemDetails"
                         }
+                    },
+                    "429": {
+                        "description": "Too Many Requests",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ProblemDetails"
+                        }
                     }
                 }
             },
@@ -762,6 +834,12 @@
                     },
                     "404": {
                         "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ProblemDetails"
+                        }
+                    },
+                    "429": {
+                        "description": "Too Many Requests",
                         "schema": {
                             "$ref": "#/definitions/handlers.ProblemDetails"
                         }
