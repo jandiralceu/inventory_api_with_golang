@@ -1,4 +1,4 @@
-.PHONY: start help build test test-unit test-integration test-cover clean migration-create migration-up migration-down docker-up docker-up-all docker-stop docker-down generate-keys swagger
+.PHONY: start seed help build test test-unit test-integration test-cover clean migration-create migration-up migration-down docker-up docker-up-all docker-stop docker-down generate-keys swagger
 
 include .env
 export
@@ -10,6 +10,10 @@ DB_URL = postgres://$(DB_USER):$(DB_PASSWORD)@$(DB_HOST):$(DB_PORT)/$(DB_NAME)?s
 start: ## Start the application
 	@echo "Starting the application..."
 	go run cmd/api/main.go
+
+seed: ## Seed individual roles into the database (idempotent)
+	@echo "Seeding database..."
+	go run cmd/seed/main.go
 
 build: swagger ## Build the application
 	@echo "Building the application..."
