@@ -512,7 +512,7 @@ paths:
       tags:
       - users
   /users/change-password:
-    post:
+    patch:
       consumes:
       - application/json
       description: Updates the authenticated user's password. Requires the old password
@@ -541,6 +541,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/handlers.ProblemDetails'
+      security:
+      - Bearer: []
       summary: Change own password
       tags:
       - users

@@ -448,7 +448,12 @@ const docTemplate = `{
             }
         },
         "/users/change-password": {
-            "post": {
+            "patch": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
                 "description": "Updates the authenticated user's password. Requires the old password for verification.",
                 "consumes": [
                     "application/json"

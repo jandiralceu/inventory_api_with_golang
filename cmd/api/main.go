@@ -27,6 +27,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/casbin/casbin/v3"
 	"github.com/gin-gonic/gin"
 	"github.com/jandiralceu/inventory_api_with_golang/internal/config"
 	"github.com/jandiralceu/inventory_api_with_golang/internal/database"
@@ -100,13 +101,20 @@ func main() {
 	authHandler := handlers.NewAuthHandler(userService, jwtManager, cacheManager, hasher)
 	userHandler := handlers.NewUserHandler(userService)
 
+	// Initialize Casbin Enforcer for RBAC.
+	enforcer, err := casbin.NewEnforcer("model.conf", "policy.csv")
+	if err != nil {
+		slog.Error("Failed to initialize Casbin enforcer", "error", err)
+		os.Exit(1)
+	}
+
 	routeConfig := &routes.RouteConfig{
 		AuthHandler: authHandler,
 		RoleHandler: roleHandler,
 		UserHandler: userHandler,
 	}
 
-	r := routes.Setup(routeConfig, cfg, jwtManager)
+	r := routes.Setup(routeConfig, cfg, jwtManager, enforcer)
 
 	// Health check endpoint for monitoring and load balancer probes.
 	r.GET("/health", func(ctx *gin.Context) {

@@ -123,7 +123,8 @@ func (h *UserHandler) DeleteUser(c *gin.Context) {
 // @Failure      400  {object}  ProblemDetails
 // @Failure      401  {object}  ProblemDetails
 // @Failure      500  {object}  ProblemDetails
-// @Router       /users/change-password [post]
+// @Security Bearer
+// @Router       /users/change-password [patch]
 func (h *UserHandler) ChangePassword(c *gin.Context) {
 	var req dto.ChangePasswordRequest
 	if err := c.ShouldBindJSON(&req); err != nil {

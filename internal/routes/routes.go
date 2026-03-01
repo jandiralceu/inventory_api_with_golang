@@ -3,6 +3,7 @@
 package routes
 
 import (
+	"github.com/casbin/casbin/v3"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	_ "github.com/jandiralceu/inventory_api_with_golang/docs" // imported so swagger can read embedded docs
@@ -24,7 +25,7 @@ type RouteConfig struct {
 
 // Setup creates a configured [gin.Engine] with global middleware, public and
 // protected route groups, and the Swagger UI endpoint.
-func Setup(routeConfig *RouteConfig, config *config.Config, jwtManager *pkg.JWTManager) *gin.Engine {
+func Setup(routeConfig *RouteConfig, config *config.Config, jwtManager *pkg.JWTManager, enforcer *casbin.Enforcer) *gin.Engine {
 	gin.ForceConsoleColor()
 
 	router := gin.New()
@@ -59,6 +60,7 @@ func Setup(routeConfig *RouteConfig, config *config.Config, jwtManager *pkg.JWTM
 		// Protected routes (authentication required).
 		protected := api.Group("")
 		protected.Use(middleware.AuthMiddleware(jwtManager))
+		protected.Use(middleware.CasbinMiddleware(enforcer))
 		{
 			roles := protected.Group("/roles")
 			{
@@ -72,7 +74,7 @@ func Setup(routeConfig *RouteConfig, config *config.Config, jwtManager *pkg.JWTM
 			{
 				users.GET("", routeConfig.UserHandler.FindAllUsers)
 				users.GET("/:id", routeConfig.UserHandler.FindUserByID)
-				users.POST("/change-password", routeConfig.UserHandler.ChangePassword)
+				users.PATCH("/change-password", routeConfig.UserHandler.ChangePassword)
 				users.PATCH("/change-role", routeConfig.UserHandler.ChangeRole)
 				users.DELETE("/:id", routeConfig.UserHandler.DeleteUser)
 			}
