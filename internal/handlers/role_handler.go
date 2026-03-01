@@ -16,14 +16,14 @@ type RoleHandler struct {
 	roleService service.RoleService
 }
 
-// NewRoleHandler initializes a RoleHandler with its required dependencies.
+// NewRoleHandler initializes a RoleHandler with its required service dependency for role management.
 func NewRoleHandler(roleService service.RoleService) *RoleHandler {
 	return &RoleHandler{
 		roleService: roleService,
 	}
 }
 
-// CreateRole godoc
+// CreateRole Godoc
 // @Summary      Create a role
 // @Description  Create a new role in the system
 // @Tags         roles
@@ -60,7 +60,7 @@ func (h *RoleHandler) CreateRole(c *gin.Context) {
 	c.JSON(http.StatusCreated, createdRole)
 }
 
-// DeleteRole godoc
+// DeleteRole Godoc
 // @Summary      Delete a role
 // @Description  Remove a role by its unique UUID
 // @Tags         roles
@@ -91,7 +91,7 @@ func (h *RoleHandler) DeleteRole(c *gin.Context) {
 	c.Status(http.StatusNoContent)
 }
 
-// FindRoleByID godoc
+// FindRoleByID Godoc
 // @Summary      Get role by ID
 // @Description  Retrieve a single role by its unique UUID
 // @Tags         roles
@@ -122,7 +122,7 @@ func (h *RoleHandler) FindRoleByID(c *gin.Context) {
 	c.JSON(http.StatusOK, role)
 }
 
-// FindAllRoles godoc
+// FindAllRoles Godoc
 // @Summary      Get all roles
 // @Description  Retrieve a list of all roles
 // @Tags         roles

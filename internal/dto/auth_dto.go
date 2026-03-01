@@ -2,10 +2,12 @@ package dto
 
 import "github.com/jandiralceu/inventory_api_with_golang/internal/models"
 
+// RegisterRequest defines the input data for new user registration.
 type RegisterRequest struct {
 	CreateUserRequest
 }
 
+// RegisterResponse represents the response sent back after a successful user registration.
 type RegisterResponse struct {
 	models.User
 }

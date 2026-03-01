@@ -447,7 +447,7 @@ func TestSignOut_Success(t *testing.T) {
 	handler, _, mockCache, _, jwtManager := setupAuthHandlerWithMockHasher(t)
 
 	userID := uuid.New()
-	validRefreshToken, _ := jwtManager.GenerateToken(userID, "admin", refreshTokenExpiration)
+	validRefreshToken, _ := jwtManager.GenerateToken(userID, "admin", _refreshTokenExpiration)
 	refreshKey := fmt.Sprintf("refresh_token:%s:%s", userID.String(), validRefreshToken)
 
 	mockCache.On("Delete", mock.Anything, refreshKey).Return(nil)
@@ -508,7 +508,7 @@ func TestRefreshToken_Success(t *testing.T) {
 
 	userID := uuid.New()
 
-	validRefreshToken, err := jwtManager.GenerateToken(userID, "admin", refreshTokenExpiration)
+	validRefreshToken, err := jwtManager.GenerateToken(userID, "admin", _refreshTokenExpiration)
 	assert.NoError(t, err)
 
 	mockService.On("FindByID", mock.Anything, userID).
@@ -576,7 +576,7 @@ func TestRefreshToken_Unauthorized_TokenNotInCache(t *testing.T) {
 
 	userID := uuid.New()
 
-	validRefreshToken, err := jwtManager.GenerateToken(userID, "admin", refreshTokenExpiration)
+	validRefreshToken, err := jwtManager.GenerateToken(userID, "admin", _refreshTokenExpiration)
 	assert.NoError(t, err)
 
 	mockCache.On("Get", mock.Anything, mock.Anything, mock.Anything).
@@ -604,7 +604,7 @@ func TestRefreshToken_Unauthorized_UserNotFound(t *testing.T) {
 
 	userID := uuid.New()
 
-	validRefreshToken, err := jwtManager.GenerateToken(userID, "admin", refreshTokenExpiration)
+	validRefreshToken, err := jwtManager.GenerateToken(userID, "admin", _refreshTokenExpiration)
 	assert.NoError(t, err)
 
 	mockService.On("FindByID", mock.Anything, userID).
@@ -635,7 +635,7 @@ func TestRefreshToken_InternalServerError_FailedToSaveNewToken(t *testing.T) {
 
 	userID := uuid.New()
 
-	validRefreshToken, err := jwtManager.GenerateToken(userID, "admin", refreshTokenExpiration)
+	validRefreshToken, err := jwtManager.GenerateToken(userID, "admin", _refreshTokenExpiration)
 	assert.NoError(t, err)
 
 	mockService.On("FindByID", mock.Anything, userID).

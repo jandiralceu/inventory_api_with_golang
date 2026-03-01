@@ -53,7 +53,7 @@ func (s *userService) Create(ctx context.Context, user *models.User) error {
 	return s.userRepo.Create(ctx, user)
 }
 
-// FindAll delegates the retrieval of the user list to the repository.
+// FindAll orchestrates the retrieval of a paginated list of users by translating the request DTO into a repository filter.
 func (s *userService) FindAll(ctx context.Context, req dto.GetUserListRequest) (dto.PaginatedResponse[models.User], error) {
 	filter := repository.UserListFilter{
 		Name:   req.Name,
@@ -75,21 +75,22 @@ func (s *userService) FindAll(ctx context.Context, req dto.GetUserListRequest) (
 	return dto.NewPaginatedResponse(users, total, filter.Pagination.Page, filter.Pagination.Limit), nil
 }
 
-// FindByID retrieves a user by their primary key from the repository.
+// FindByID retrieves a user by their unique record identifier.
 func (s *userService) FindByID(ctx context.Context, userID uuid.UUID) (*models.User, error) {
 	return s.userRepo.FindByID(ctx, userID)
 }
 
-// FindByEmail retrieves a user by their email address for authentication or identification purposes.
+// FindByEmail retrieves a user using their email address, commonly used during authentication flows.
 func (s *userService) FindByEmail(ctx context.Context, email string) (*models.User, error) {
 	return s.userRepo.FindByEmail(ctx, email)
 }
 
-// Delete removes the user record identified by the unique ID.
+// Delete removes the user record identified by the unique ID via the repository.
 func (s *userService) Delete(ctx context.Context, userID uuid.UUID) error {
 	return s.userRepo.Delete(ctx, userID)
 }
 
+// ChangePassword verifies the old password matches before hashing and updating the database with the new password.
 func (s *userService) ChangePassword(ctx context.Context, userID uuid.UUID, req dto.ChangePasswordRequest) error {
 	user, err := s.userRepo.FindByID(ctx, userID)
 	if err != nil {
@@ -113,6 +114,7 @@ func (s *userService) ChangePassword(ctx context.Context, userID uuid.UUID, req 
 	return s.userRepo.ChangePassword(ctx, userID, newHashedPassword)
 }
 
+// ChangeRole updates the role assigned to a user via the repository.
 func (s *userService) ChangeRole(ctx context.Context, userID uuid.UUID, req dto.ChangeRoleRequest) error {
 	return s.userRepo.ChangeRole(ctx, userID, req.RoleID)
 }

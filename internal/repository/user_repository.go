@@ -9,13 +9,21 @@ import (
 	"gorm.io/gorm"
 )
 
+// UserRepository defines the persistence contract for user-related data operations.
 type UserRepository interface {
+	// Create persists a new user record in the database.
 	Create(ctx context.Context, user *models.User) error
+	// FindAll retrieves a list of users filtered by the provided criteria and supports pagination.
 	FindAll(ctx context.Context, filter UserListFilter) (users []models.User, total int64, err error)
+	// FindByID retrieves a single user along with their associated role by their unique ID.
 	FindByID(ctx context.Context, userID uuid.UUID) (*models.User, error)
+	// FindByEmail locates a user and their role by their unique email address.
 	FindByEmail(ctx context.Context, email string) (*models.User, error)
+	// ChangePassword updates the password hash for the specified user record.
 	ChangePassword(ctx context.Context, userID uuid.UUID, newHashedPassword string) error
+	// ChangeRole updates the assigned role ID for a specific user.
 	ChangeRole(ctx context.Context, userID uuid.UUID, newRoleID uuid.UUID) error
+	// Delete removes a user record from the database using their unique ID.
 	Delete(ctx context.Context, userID uuid.UUID) error
 }
 
@@ -25,10 +33,12 @@ type userRepository struct {
 
 var _ UserRepository = (*userRepository)(nil)
 
+// NewUserRepository initializes a GORM-based implementation of UserRepository.
 func NewUserRepository(db *gorm.DB) UserRepository {
 	return &userRepository{db: db}
 }
 
+// UserListFilter encapsulates search and pagination parameters for user listing operations.
 type UserListFilter struct {
 	Name       string
 	Email      string
@@ -40,6 +50,7 @@ const (
 	userIDQuery = "id = ?"
 )
 
+// Create inserts a new user record into the database, mapping any database errors.
 func (r *userRepository) Create(ctx context.Context, user *models.User) error {
 	if err := r.db.WithContext(ctx).Create(user).Error; err != nil {
 		return mapDatabaseError(err)
@@ -47,6 +58,7 @@ func (r *userRepository) Create(ctx context.Context, user *models.User) error {
 	return nil
 }
 
+// Delete removes a user record and returns [apperrors.ErrNotFound] if no record was deleted.
 func (r *userRepository) Delete(ctx context.Context, userID uuid.UUID) error {
 	result := r.db.WithContext(ctx).Delete(&models.User{}, userIDQuery, userID)
 	if result.Error != nil {
@@ -58,6 +70,7 @@ func (r *userRepository) Delete(ctx context.Context, userID uuid.UUID) error {
 	return nil
 }
 
+// FindByID retrieves a user by ID and preloads the associated role.
 func (r *userRepository) FindByID(ctx context.Context, userID uuid.UUID) (*models.User, error) {
 	var user models.User
 	if err := r.db.WithContext(ctx).Preload("Role").First(&user, userIDQuery, userID).Error; err != nil {
@@ -66,6 +79,7 @@ func (r *userRepository) FindByID(ctx context.Context, userID uuid.UUID) (*model
 	return &user, nil
 }
 
+// FindByEmail retrieves a user by their email address and preloads the associated role.
 func (r *userRepository) FindByEmail(ctx context.Context, email string) (*models.User, error) {
 	var user models.User
 	if err := r.db.WithContext(ctx).Preload("Role").Where("email = ?", email).First(&user).Error; err != nil {
@@ -74,6 +88,7 @@ func (r *userRepository) FindByEmail(ctx context.Context, email string) (*models
 	return &user, nil
 }
 
+// FindAll executes a listing query with dynamic filtering, count calculation, and pagination.
 func (r *userRepository) FindAll(ctx context.Context, filter UserListFilter) ([]models.User, int64, error) {
 	var users []models.User
 	var total int64
@@ -107,6 +122,7 @@ func (r *userRepository) FindAll(ctx context.Context, filter UserListFilter) ([]
 	return users, total, nil
 }
 
+// ChangePassword updates the password_hash field for the target user.
 func (r *userRepository) ChangePassword(ctx context.Context, userID uuid.UUID, newHashedPassword string) error {
 	result := r.db.WithContext(ctx).
 		Model(&models.User{}).
@@ -124,6 +140,7 @@ func (r *userRepository) ChangePassword(ctx context.Context, userID uuid.UUID, n
 	return nil
 }
 
+// ChangeRole updates the role_id field for the target user.
 func (r *userRepository) ChangeRole(ctx context.Context, userID uuid.UUID, newRoleID uuid.UUID) error {
 	result := r.db.WithContext(ctx).
 		Model(&models.User{}).

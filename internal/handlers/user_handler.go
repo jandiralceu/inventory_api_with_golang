@@ -18,14 +18,14 @@ type UserHandler struct {
 	_           *models.User
 }
 
-// NewUserHandler creates a new instance of UserHandler with the specified service.
+// NewUserHandler creates a new instance of UserHandler with the specified service for user operations.
 func NewUserHandler(userService service.UserService) *UserHandler {
 	return &UserHandler{
 		userService: userService,
 	}
 }
 
-// FindAllUsers godoc
+// FindAllUsers Godoc
 // @Summary      List all users
 // @Description  Get a paginated list of users. Supports filtering by name, email, and role.
 // @Tags         users
@@ -60,7 +60,7 @@ func (h *UserHandler) FindAllUsers(c *gin.Context) {
 	c.JSON(http.StatusOK, users)
 }
 
-// FindUserByID godoc
+// FindUserByID Godoc
 // @Summary      Get user by ID
 // @Description  Retrieve details for a single user using their unique ID.
 // @Tags         users
@@ -92,7 +92,7 @@ func (h *UserHandler) FindUserByID(c *gin.Context) {
 	c.JSON(http.StatusOK, user)
 }
 
-// DeleteUser godoc
+// DeleteUser Godoc
 // @Summary      Delete user
 // @Description  Permanently remove a user from the system by their unique ID.
 // @Tags         users
@@ -124,7 +124,7 @@ func (h *UserHandler) DeleteUser(c *gin.Context) {
 	c.Status(http.StatusNoContent)
 }
 
-// ChangePassword godoc
+// ChangePassword Godoc
 // @Summary      Change own password
 // @Description  Updates the authenticated user's password. Requires the old password for verification.
 // @Tags         users
@@ -160,7 +160,7 @@ func (h *UserHandler) ChangePassword(c *gin.Context) {
 	c.Status(http.StatusNoContent)
 }
 
-// ChangeRole godoc
+// ChangeRole Godoc
 // @Summary      Change user role
 // @Description  Updates a user's assigned role. Typically an administrative task.
 // @Tags         users
