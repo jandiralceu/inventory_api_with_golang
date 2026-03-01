@@ -123,3 +123,42 @@ func TestJWTManager_ValidateToken_InvalidSignature(t *testing.T) {
 	require.Error(t, err)
 	assert.Nil(t, claims)
 }
+
+func BenchmarkGenerateToken(b *testing.B) {
+	privPEM, pubPEM := generateMemRSAKeysBenchmark(b)
+	manager, _ := NewJWTManager(privPEM, pubPEM)
+	userID := uuid.New()
+
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		_, _ = manager.GenerateToken(userID, "admin", time.Hour)
+	}
+}
+
+func BenchmarkValidateToken(b *testing.B) {
+	privPEM, pubPEM := generateMemRSAKeysBenchmark(b)
+	manager, _ := NewJWTManager(privPEM, pubPEM)
+	userID := uuid.New()
+	token, _ := manager.GenerateToken(userID, "admin", time.Hour)
+
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		_, _ = manager.ValidateToken(token)
+	}
+}
+
+// generateMemRSAKeysBenchmark is a helper for benchmarks
+func generateMemRSAKeysBenchmark(b *testing.B) (string, string) {
+	privateKey, err := rsa.GenerateKey(rand.Reader, 2048)
+	if err != nil {
+		b.Fatal(err)
+	}
+
+	privBytes, _ := x509.MarshalPKCS8PrivateKey(privateKey)
+	privPEM := pem.EncodeToMemory(&pem.Block{Type: "PRIVATE KEY", Bytes: privBytes})
+
+	pubBytes, _ := x509.MarshalPKIXPublicKey(&privateKey.PublicKey)
+	pubPEM := pem.EncodeToMemory(&pem.Block{Type: "PUBLIC KEY", Bytes: pubBytes})
+
+	return string(privPEM), string(pubPEM)
+}

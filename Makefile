@@ -1,4 +1,4 @@
-.PHONY: start seed help build test test-unit test-integration test-cover clean migration-create migration-up migration-down docker-up docker-up-all docker-stop docker-down generate-keys swagger
+.PHONY: start seed help build test test-unit test-integration test-bench test-cover clean migration-create migration-up migration-down docker-up docker-up-all docker-stop docker-down generate-keys swagger
 
 include .env
 export
@@ -28,6 +28,9 @@ test-unit: ## Run unit tests
 
 test-integration: ## Run integration tests
 	go test -tags=integration ./tests/integration/... -v
+
+test-bench: ## Run benchmarks
+	go test -bench=. -benchmem ./internal/...
 
 test-cover: ## Generate test coverage report
 	go test ./... -coverprofile=coverage.out

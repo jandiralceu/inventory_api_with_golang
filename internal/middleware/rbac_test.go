@@ -132,3 +132,39 @@ func TestCasbinMiddleware(t *testing.T) {
 		})
 	}
 }
+
+func BenchmarkCasbinMiddleware_Authorized(b *testing.B) {
+	rootPath := getRootPath()
+	modelPath := filepath.Join(rootPath, "model.conf")
+	policyPath := filepath.Join(rootPath, "policy.csv")
+
+	enforcer, _ := casbin.NewEnforcer(modelPath, policyPath)
+	router := setupCasbinRouter(enforcer)
+
+	req, _ := http.NewRequest(http.MethodGet, "/api/v1/roles", nil)
+	req.Header.Set("X-Test-Role", "admin")
+
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		resp := httptest.NewRecorder()
+		router.ServeHTTP(resp, req)
+	}
+}
+
+func BenchmarkCasbinMiddleware_Forbidden(b *testing.B) {
+	rootPath := getRootPath()
+	modelPath := filepath.Join(rootPath, "model.conf")
+	policyPath := filepath.Join(rootPath, "policy.csv")
+
+	enforcer, _ := casbin.NewEnforcer(modelPath, policyPath)
+	router := setupCasbinRouter(enforcer)
+
+	req, _ := http.NewRequest(http.MethodDelete, "/api/v1/users/123", nil)
+	req.Header.Set("X-Test-Role", "manager")
+
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		resp := httptest.NewRecorder()
+		router.ServeHTTP(resp, req)
+	}
+}
