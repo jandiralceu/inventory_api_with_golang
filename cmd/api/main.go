@@ -114,7 +114,7 @@ func main() {
 		UserHandler: userHandler,
 	}
 
-	r := routes.Setup(routeConfig, cfg, jwtManager, enforcer)
+	r := routes.Setup(routeConfig, cfg, jwtManager, enforcer, cacheManager)
 
 	// Health check endpoint for monitoring and load balancer probes.
 	r.GET("/health", func(ctx *gin.Context) {

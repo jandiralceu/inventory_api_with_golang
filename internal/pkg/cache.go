@@ -24,6 +24,8 @@ type CacheManager interface {
 	DeletePrefix(ctx context.Context, prefix string) error
 	// Close releases the underlying connection resources.
 	Close() error
+	// GetClient returns the underlying redis client.
+	GetClient() *redis.Client
 }
 
 type redisCacheManager struct {
@@ -104,4 +106,8 @@ func (m *redisCacheManager) DeletePrefix(ctx context.Context, prefix string) err
 
 func (m *redisCacheManager) Close() error {
 	return m.client.Close()
+}
+
+func (m *redisCacheManager) GetClient() *redis.Client {
+	return m.client
 }

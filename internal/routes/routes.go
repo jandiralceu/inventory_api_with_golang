@@ -25,11 +25,15 @@ type RouteConfig struct {
 
 // Setup creates a configured [gin.Engine] with global middleware, public and
 // protected route groups, and the Swagger UI endpoint.
-func Setup(routeConfig *RouteConfig, config *config.Config, jwtManager *pkg.JWTManager, enforcer *casbin.Enforcer) *gin.Engine {
+func Setup(routeConfig *RouteConfig, config *config.Config, jwtManager *pkg.JWTManager, enforcer *casbin.Enforcer, cacheManager pkg.CacheManager) *gin.Engine {
 	gin.ForceConsoleColor()
 
 	router := gin.New()
 	router.Use(middleware.TraceIDMiddleware())
+
+	// Global Rate Limit per IP/User
+	router.Use(middleware.RateLimiter(cacheManager, "global", config.RateLimitGlobal))
+
 	router.Use(gin.Logger())
 	router.Use(gin.Recovery())
 
@@ -50,6 +54,8 @@ func Setup(routeConfig *RouteConfig, config *config.Config, jwtManager *pkg.JWTM
 	{
 		// Public routes (no authentication required).
 		auth := api.Group("/auth")
+		// Strict limit for auth
+		auth.Use(middleware.RateLimiter(cacheManager, "auth", config.RateLimitAuth))
 		{
 			auth.POST("/signin", routeConfig.AuthHandler.SignIn)
 			auth.POST("/register", routeConfig.AuthHandler.Register)
@@ -74,7 +80,8 @@ func Setup(routeConfig *RouteConfig, config *config.Config, jwtManager *pkg.JWTM
 			{
 				users.GET("", routeConfig.UserHandler.FindAllUsers)
 				users.GET("/:id", routeConfig.UserHandler.FindUserByID)
-				users.PATCH("/change-password", routeConfig.UserHandler.ChangePassword)
+				// Moderate limit for password changes
+				users.PATCH("/change-password", middleware.RateLimiter(cacheManager, "pass-change", config.RateLimitAuth), routeConfig.UserHandler.ChangePassword)
 				users.PATCH("/change-role", routeConfig.UserHandler.ChangeRole)
 				users.DELETE("/:id", routeConfig.UserHandler.DeleteUser)
 			}

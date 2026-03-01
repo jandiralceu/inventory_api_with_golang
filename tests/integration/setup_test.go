@@ -56,6 +56,10 @@ func generateIntegrationRSAKeys() (privateKeyPEM string, publicKeyPEM string, er
 
 // setupApp boots the entire application stack using real Postgres + Redis containers.
 func setupApp(t *testing.T) (*httptest.Server, *gorm.DB, func()) {
+	return setupAppCustom(t, nil)
+}
+
+func setupAppCustom(t *testing.T, modifyConfig func(*config.Config)) (*httptest.Server, *gorm.DB, func()) {
 	t.Helper()
 
 	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Minute)
@@ -74,17 +78,23 @@ func setupApp(t *testing.T) (*httptest.Server, *gorm.DB, func()) {
 
 	// Build config from container info.
 	cfg := &config.Config{
-		DBHost:       pgContainer.Host,
-		DBPort:       pgContainer.Port,
-		DBUser:       pgContainer.User,
-		DBPassword:   pgContainer.Password,
-		DBName:       pgContainer.DBName,
-		AppPort:      "0",
-		Env:          "test",
-		AppName:      "inventory-api-test",
-		RedisHost:    redisContainer.Host,
-		RedisPort:    redisContainer.Port,
-		OTLPEndpoint: "localhost:4317", // Won't be used in test but needs to be string
+		DBHost:          pgContainer.Host,
+		DBPort:          pgContainer.Port,
+		DBUser:          pgContainer.User,
+		DBPassword:      pgContainer.Password,
+		DBName:          pgContainer.DBName,
+		AppPort:         "0",
+		Env:             "test",
+		AppName:         "inventory-api-test",
+		RedisHost:       redisContainer.Host,
+		RedisPort:       redisContainer.Port,
+		OTLPEndpoint:    "localhost:4317",
+		RateLimitGlobal: "1000-M",
+		RateLimitAuth:   "1000-M",
+	}
+
+	if modifyConfig != nil {
+		modifyConfig(cfg)
 	}
 
 	// Initialize database (run migrations if needed, but testhelpers already does it)
@@ -133,7 +143,7 @@ func setupApp(t *testing.T) (*httptest.Server, *gorm.DB, func()) {
 
 	// Suppress Gin debug output during tests.
 	gin.SetMode(gin.TestMode)
-	r := routes.Setup(routeConfig, cfg, jwtManager, enforcer)
+	r := routes.Setup(routeConfig, cfg, jwtManager, enforcer, cacheManager)
 
 	// Health check (same as main.go).
 	r.GET("/health", func(c *gin.Context) {

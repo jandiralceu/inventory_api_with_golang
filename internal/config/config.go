@@ -16,21 +16,23 @@ import (
 // Config holds every environment-driven setting the application needs.
 // Struct tags define the variable name and optional default value.
 type Config struct {
-	DBHost         string `env:"DB_HOST"`
-	DBUser         string `env:"DB_USER"`
-	DBPassword     string `env:"DB_PASSWORD"`
-	DBName         string `env:"DB_NAME"`
-	DBPort         string `env:"DB_PORT"`
-	DBSSLMode      string `env:"DB_SSL_MODE" envDefault:"disable"`
-	AppPort        string `env:"APP_PORT" envDefault:"8080"`
-	Env            string `env:"ENV" envDefault:"development"`
-	AppName        string `env:"APP_NAME" envDefault:"cms-api"`
-	PrivateKeyPath string `env:"PRIVATE_KEY_PATH" envDefault:"private.pem"`
-	PublicKeyPath  string `env:"PUBLIC_KEY_PATH" envDefault:"public.pem"`
-	OTLPEndpoint   string `env:"OTLP_ENDPOINT" envDefault:"localhost:4317"`
-	RedisHost      string `env:"REDIS_HOST" envDefault:"localhost"`
-	RedisPort      string `env:"REDIS_PORT" envDefault:"6379"`
-	RedisPassword  string `env:"REDIS_PASSWORD" envDefault:""`
+	DBHost          string `env:"DB_HOST"`
+	DBUser          string `env:"DB_USER"`
+	DBPassword      string `env:"DB_PASSWORD"`
+	DBName          string `env:"DB_NAME"`
+	DBPort          string `env:"DB_PORT"`
+	DBSSLMode       string `env:"DB_SSL_MODE" envDefault:"disable"`
+	AppPort         string `env:"APP_PORT" envDefault:"8080"`
+	Env             string `env:"ENV" envDefault:"development"`
+	AppName         string `env:"APP_NAME" envDefault:"cms-api"`
+	PrivateKeyPath  string `env:"PRIVATE_KEY_PATH" envDefault:"private.pem"`
+	PublicKeyPath   string `env:"PUBLIC_KEY_PATH" envDefault:"public.pem"`
+	OTLPEndpoint    string `env:"OTLP_ENDPOINT" envDefault:"localhost:4317"`
+	RedisHost       string `env:"REDIS_HOST" envDefault:"localhost"`
+	RedisPort       string `env:"REDIS_PORT" envDefault:"6379"`
+	RedisPassword   string `env:"REDIS_PASSWORD" envDefault:""`
+	RateLimitGlobal string `env:"RATE_LIMIT_GLOBAL" envDefault:"100-M"`
+	RateLimitAuth   string `env:"RATE_LIMIT_AUTH" envDefault:"5-M"`
 }
 
 // Load reads a .env file (if present) and parses environment variables into a [Config].

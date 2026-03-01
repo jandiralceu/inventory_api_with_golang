@@ -19,6 +19,7 @@ import (
 	"github.com/jandiralceu/inventory_api_with_golang/internal/dto"
 	"github.com/jandiralceu/inventory_api_with_golang/internal/models"
 	"github.com/jandiralceu/inventory_api_with_golang/internal/pkg"
+	"github.com/redis/go-redis/v9"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -115,6 +116,14 @@ func (m *MockCacheManager) DeletePrefix(ctx context.Context, prefix string) erro
 func (m *MockCacheManager) Close() error {
 	args := m.Called()
 	return args.Error(0)
+}
+
+func (m *MockCacheManager) GetClient() *redis.Client {
+	args := m.Called()
+	if args.Get(0) == nil {
+		return nil
+	}
+	return args.Get(0).(*redis.Client)
 }
 
 // --- Test helpers ---
