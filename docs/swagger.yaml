@@ -7,6 +7,26 @@ definitions:
       reason:
         type: string
     type: object
+  dto.ChangePasswordRequest:
+    properties:
+      newPassword:
+        type: string
+      oldPassword:
+        type: string
+    required:
+    - newPassword
+    - oldPassword
+    type: object
+  dto.ChangeRoleRequest:
+    properties:
+      roleId:
+        type: string
+      userId:
+        type: string
+    required:
+    - roleId
+    - userId
+    type: object
   dto.CreateRoleRequest:
     properties:
       description:
@@ -489,6 +509,75 @@ paths:
           schema:
             $ref: '#/definitions/handlers.ProblemDetails'
       summary: Get user by ID
+      tags:
+      - users
+  /users/change-password:
+    post:
+      consumes:
+      - application/json
+      description: Updates the authenticated user's password. Requires the old password
+        for verification.
+      parameters:
+      - description: Password change data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.ChangePasswordRequest'
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handlers.ProblemDetails'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handlers.ProblemDetails'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.ProblemDetails'
+      summary: Change own password
+      tags:
+      - users
+  /users/change-role:
+    patch:
+      consumes:
+      - application/json
+      description: Updates a user's assigned role. Typically an administrative task.
+      parameters:
+      - description: User and Role UUIDs
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.ChangeRoleRequest'
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handlers.ProblemDetails'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handlers.ProblemDetails'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handlers.ProblemDetails'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.ProblemDetails'
+      summary: Change user role
       tags:
       - users
 securityDefinitions:

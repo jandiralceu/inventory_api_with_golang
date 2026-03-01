@@ -72,6 +72,8 @@ func Setup(routeConfig *RouteConfig, config *config.Config, jwtManager *pkg.JWTM
 			{
 				users.GET("", routeConfig.UserHandler.FindAllUsers)
 				users.GET("/:id", routeConfig.UserHandler.FindUserByID)
+				users.POST("/change-password", routeConfig.UserHandler.ChangePassword)
+				users.PATCH("/change-role", routeConfig.UserHandler.ChangeRole)
 				users.DELETE("/:id", routeConfig.UserHandler.DeleteUser)
 			}
 		}

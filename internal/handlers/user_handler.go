@@ -7,6 +7,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/jandiralceu/inventory_api_with_golang/internal/apperrors"
 	"github.com/jandiralceu/inventory_api_with_golang/internal/dto"
+	"github.com/jandiralceu/inventory_api_with_golang/internal/middleware"
 	"github.com/jandiralceu/inventory_api_with_golang/internal/models"
 	"github.com/jandiralceu/inventory_api_with_golang/internal/service"
 )
@@ -104,6 +105,67 @@ func (h *UserHandler) DeleteUser(c *gin.Context) {
 	}
 
 	if err := h.userService.Delete(c.Request.Context(), id); err != nil {
+		RespondWithError(c, err)
+		return
+	}
+
+	c.Status(http.StatusNoContent)
+}
+
+// ChangePassword godoc
+// @Summary      Change own password
+// @Description  Updates the authenticated user's password. Requires the old password for verification.
+// @Tags         users
+// @Accept       json
+// @Produce      json
+// @Param        request body dto.ChangePasswordRequest true "Password change data"
+// @Success      204 "No Content"
+// @Failure      400  {object}  ProblemDetails
+// @Failure      401  {object}  ProblemDetails
+// @Failure      500  {object}  ProblemDetails
+// @Router       /users/change-password [post]
+func (h *UserHandler) ChangePassword(c *gin.Context) {
+	var req dto.ChangePasswordRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		RespondWithError(c, ParseValidationError(err))
+		return
+	}
+
+	userID := middleware.GetUserID(c)
+	if userID == uuid.Nil {
+		RespondWithError(c, apperrors.ErrUnauthorized)
+		return
+	}
+
+	if err := h.userService.ChangePassword(c.Request.Context(), userID, req); err != nil {
+		RespondWithError(c, err)
+		return
+	}
+
+	c.Status(http.StatusNoContent)
+}
+
+// ChangeRole godoc
+// @Summary      Change user role
+// @Description  Updates a user's assigned role. Typically an administrative task.
+// @Tags         users
+// @Accept       json
+// @Produce      json
+// @Param        request body dto.ChangeRoleRequest true "User and Role UUIDs"
+// @Success      204 "No Content"
+// @Failure      400  {object}  ProblemDetails
+// @Failure      401  {object}  ProblemDetails
+// @Failure      404  {object}  ProblemDetails
+// @Failure      500  {object}  ProblemDetails
+// @Router       /users/change-role [patch]
+func (h *UserHandler) ChangeRole(c *gin.Context) {
+	var req dto.ChangeRoleRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		RespondWithError(c, ParseValidationError(err))
+		return
+	}
+
+	if err := h.userService.ChangeRole(c.Request.Context(), req.UserID, req); err != nil {
 		RespondWithError(c, err)
 		return
 	}
