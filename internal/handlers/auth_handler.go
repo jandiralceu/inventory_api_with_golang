@@ -112,13 +112,13 @@ func (h *AuthHandler) SignIn(c *gin.Context) {
 	}
 
 	// Generate access and refresh tokens.
-	accessToken, err := h.jwtManager.GenerateToken(user.ID, accessTokenExpiration)
+	accessToken, err := h.jwtManager.GenerateToken(user.ID, user.Role.Name, accessTokenExpiration)
 	if err != nil {
 		RespondWithError(c, fmt.Errorf("%w: failed to generate access token", apperrors.ErrInternal))
 		return
 	}
 
-	refreshToken, err := h.jwtManager.GenerateToken(user.ID, refreshTokenExpiration)
+	refreshToken, err := h.jwtManager.GenerateToken(user.ID, user.Role.Name, refreshTokenExpiration)
 	if err != nil {
 		RespondWithError(c, fmt.Errorf("%w: failed to generate refresh token", apperrors.ErrInternal))
 		return
@@ -155,13 +155,13 @@ func (h *AuthHandler) SignOut(c *gin.Context) {
 		return
 	}
 
-	userID, err := h.jwtManager.ValidateToken(req.RefreshToken)
+	claims, err := h.jwtManager.ValidateToken(req.RefreshToken)
 	if err != nil {
 		RespondWithError(c, fmt.Errorf("%w: invalid or expired refresh token", apperrors.ErrUnauthorized))
 		return
 	}
 
-	refreshKey := fmt.Sprintf("%s%s:%s", refreshTokenCacheKey, userID.String(), req.RefreshToken)
+	refreshKey := fmt.Sprintf("%s%s:%s", refreshTokenCacheKey, claims.UserID.String(), req.RefreshToken)
 	_ = h.cache.Delete(c.Request.Context(), refreshKey)
 
 	c.Status(http.StatusNoContent)
@@ -186,13 +186,13 @@ func (h *AuthHandler) RefreshToken(c *gin.Context) {
 		return
 	}
 
-	userID, err := h.jwtManager.ValidateToken(req.RefreshToken)
+	claims, err := h.jwtManager.ValidateToken(req.RefreshToken)
 	if err != nil {
 		RespondWithError(c, fmt.Errorf("%w: invalid or expired refresh token", apperrors.ErrUnauthorized))
 		return
 	}
 
-	refreshKey := fmt.Sprintf("%s%s:%s", refreshTokenCacheKey, userID.String(), req.RefreshToken)
+	refreshKey := fmt.Sprintf("%s%s:%s", refreshTokenCacheKey, claims.UserID.String(), req.RefreshToken)
 	var cachedToken string
 	err = h.cache.Get(c.Request.Context(), refreshKey, &cachedToken)
 	if err != nil {
@@ -201,19 +201,19 @@ func (h *AuthHandler) RefreshToken(c *gin.Context) {
 	}
 
 	// Verify the user still exists mapping from the id
-	_, err = h.userService.FindByID(c.Request.Context(), userID)
+	user, err := h.userService.FindByID(c.Request.Context(), claims.UserID)
 	if err != nil {
 		RespondWithError(c, fmt.Errorf("%w: user no longer exists", apperrors.ErrUnauthorized))
 		return
 	}
 
-	accessToken, err := h.jwtManager.GenerateToken(userID, accessTokenExpiration)
+	accessToken, err := h.jwtManager.GenerateToken(claims.UserID, user.Role.Name, accessTokenExpiration)
 	if err != nil {
 		RespondWithError(c, fmt.Errorf("%w: failed to generate access token", apperrors.ErrInternal))
 		return
 	}
 
-	refreshToken, err := h.jwtManager.GenerateToken(userID, refreshTokenExpiration)
+	refreshToken, err := h.jwtManager.GenerateToken(claims.UserID, user.Role.Name, refreshTokenExpiration)
 	if err != nil {
 		RespondWithError(c, fmt.Errorf("%w: failed to generate refresh token", apperrors.ErrInternal))
 		return
@@ -223,7 +223,7 @@ func (h *AuthHandler) RefreshToken(c *gin.Context) {
 	_ = h.cache.Delete(c.Request.Context(), refreshKey)
 
 	// Save the new refresh token
-	newRefreshKey := fmt.Sprintf("%s%s:%s", refreshTokenCacheKey, userID.String(), refreshToken)
+	newRefreshKey := fmt.Sprintf("%s%s:%s", refreshTokenCacheKey, claims.UserID.String(), refreshToken)
 	if err := h.cache.Set(c.Request.Context(), newRefreshKey, "active", refreshTokenExpiration); err != nil {
 		RespondWithError(c, fmt.Errorf("%w: failed to save new refresh token", apperrors.ErrInternal))
 		return

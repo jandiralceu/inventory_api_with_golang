@@ -25,6 +25,12 @@ type JWTManager struct {
 	publicKey  *rsa.PublicKey
 }
 
+// UserClaims represents the data stored in the JWT claims.
+type UserClaims struct {
+	UserID uuid.UUID
+	Role   string
+}
+
 // NewJWTManager creates a new JWTManager by parsing PEM-encoded RSA keys.
 // The private key is required for signing, and the public key for verification.
 func NewJWTManager(privateKeyPEM, publicKeyPEM string) (*JWTManager, error) {
@@ -46,12 +52,13 @@ func NewJWTManager(privateKeyPEM, publicKeyPEM string) (*JWTManager, error) {
 
 // GenerateToken creates a signed JWT containing the user ID in the 'sub' claim.
 // It also includes standard 'iat' (issued at), 'exp' (expiration), and 'jti' (token ID) claims.
-func (j *JWTManager) GenerateToken(userID uuid.UUID, expiration time.Duration) (string, error) {
+func (j *JWTManager) GenerateToken(userID uuid.UUID, role string, expiration time.Duration) (string, error) {
 	claims := jwt.MapClaims{
-		"sub": userID.String(),
-		"iat": time.Now().Unix(),
-		"exp": time.Now().Add(expiration).Unix(),
-		"jti": uuid.NewString(),
+		"sub":  userID.String(),
+		"role": role,
+		"iat":  time.Now().Unix(),
+		"exp":  time.Now().Add(expiration).Unix(),
+		"jti":  uuid.NewString(),
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodRS256, claims)
@@ -66,7 +73,7 @@ func (j *JWTManager) GenerateToken(userID uuid.UUID, expiration time.Duration) (
 
 // ValidateToken verifies the token signature against the public key and expiration.
 // Returns the user ID extracted from the 'sub' claim if valid.
-func (j *JWTManager) ValidateToken(tokenString string) (uuid.UUID, error) {
+func (j *JWTManager) ValidateToken(tokenString string) (*UserClaims, error) {
 	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (any, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodRSA); !ok {
 			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
@@ -74,25 +81,33 @@ func (j *JWTManager) ValidateToken(tokenString string) (uuid.UUID, error) {
 		return j.publicKey, nil
 	})
 	if err != nil {
-		return uuid.Nil, ErrInvalidToken
+		return nil, ErrInvalidToken
 	}
 
 	claims, ok := token.Claims.(jwt.MapClaims)
 	if !ok || !token.Valid {
-		return uuid.Nil, ErrInvalidClaims
+		return nil, ErrInvalidClaims
 	}
 
 	sub, ok := claims["sub"].(string)
 	if !ok {
-		return uuid.Nil, ErrInvalidClaims
+		return nil, ErrInvalidClaims
 	}
 
 	userID, err := uuid.Parse(sub)
 	if err != nil {
-		return uuid.Nil, ErrInvalidClaims
+		return nil, ErrInvalidClaims
 	}
 
-	return userID, nil
+	role, ok := claims["role"].(string)
+	if !ok {
+		return nil, ErrInvalidClaims
+	}
+
+	return &UserClaims{
+		UserID: userID,
+		Role:   role,
+	}, nil
 }
 
 func parsePrivateKey(pemStr string) (*rsa.PrivateKey, error) {

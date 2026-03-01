@@ -78,6 +78,21 @@ definitions:
     required:
     - refreshToken
     type: object
+  dto.UserListResponse:
+    properties:
+      data:
+        items:
+          $ref: '#/definitions/models.User'
+        type: array
+      limit:
+        type: integer
+      page:
+        type: integer
+      total:
+        type: integer
+      totalPages:
+        type: integer
+    type: object
   handlers.ProblemDetails:
     properties:
       detail:
@@ -102,6 +117,23 @@ definitions:
       id:
         type: string
       name:
+        type: string
+    type: object
+  models.User:
+    properties:
+      created_at:
+        type: string
+      email:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      role:
+        $ref: '#/definitions/models.Role'
+      role_id:
+        type: string
+      updated_at:
         type: string
     type: object
 host: localhost:8080
@@ -355,6 +387,110 @@ paths:
       summary: Get role by ID
       tags:
       - roles
+  /users:
+    get:
+      consumes:
+      - application/json
+      description: Get a paginated list of users. Supports filtering by name, email,
+        and role.
+      parameters:
+      - description: Page number
+        in: query
+        name: page
+        type: integer
+      - description: Number of items per page
+        in: query
+        name: limit
+        type: integer
+      - description: Filter by name
+        in: query
+        name: name
+        type: string
+      - description: Filter by email
+        in: query
+        name: email
+        type: string
+      - description: Filter by role UUID
+        in: query
+        name: roleId
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.UserListResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handlers.ProblemDetails'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.ProblemDetails'
+      summary: List all users
+      tags:
+      - users
+  /users/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Permanently remove a user from the system by their unique ID.
+      parameters:
+      - description: User UUID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handlers.ProblemDetails'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handlers.ProblemDetails'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.ProblemDetails'
+      summary: Delete user
+      tags:
+      - users
+    get:
+      consumes:
+      - application/json
+      description: Retrieve details for a single user using their unique ID.
+      parameters:
+      - description: User UUID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.User'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handlers.ProblemDetails'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handlers.ProblemDetails'
+      summary: Get user by ID
+      tags:
+      - users
 securityDefinitions:
   Bearer:
     description: Type "Bearer" followed by a space and JWT token.

@@ -19,6 +19,7 @@ import (
 type RouteConfig struct {
 	AuthHandler *handlers.AuthHandler
 	RoleHandler *handlers.RoleHandler
+	UserHandler *handlers.UserHandler
 }
 
 // Setup creates a configured [gin.Engine] with global middleware, public and
@@ -65,6 +66,13 @@ func Setup(routeConfig *RouteConfig, config *config.Config, jwtManager *pkg.JWTM
 				roles.GET("/:id", routeConfig.RoleHandler.FindRoleByID)
 				roles.POST("", routeConfig.RoleHandler.CreateRole)
 				roles.DELETE("/:id", routeConfig.RoleHandler.DeleteRole)
+			}
+
+			users := protected.Group("/users")
+			{
+				users.GET("", routeConfig.UserHandler.FindAllUsers)
+				users.GET("/:id", routeConfig.UserHandler.FindUserByID)
+				users.DELETE("/:id", routeConfig.UserHandler.DeleteUser)
 			}
 		}
 	}

@@ -98,10 +98,12 @@ func main() {
 	userRepository := repository.NewUserRepository(db)
 	userService := service.NewUserService(userRepository, hasher)
 	authHandler := handlers.NewAuthHandler(userService, jwtManager, cacheManager, hasher)
+	userHandler := handlers.NewUserHandler(userService)
 
 	routeConfig := &routes.RouteConfig{
 		AuthHandler: authHandler,
 		RoleHandler: roleHandler,
+		UserHandler: userHandler,
 	}
 
 	r := routes.Setup(routeConfig, cfg, jwtManager)

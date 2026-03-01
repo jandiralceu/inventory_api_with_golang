@@ -14,6 +14,8 @@ import (
 const (
 	// UserIDKey is the key used to store the authenticated user ID in the Gin context.
 	UserIDKey = "userID"
+	// UserRoleKey is the key used to store the authenticated user role in the Gin context.
+	UserRoleKey = "userRole"
 )
 
 // ProblemDetails represents a standard error response following RFC 7807.
@@ -55,20 +57,20 @@ func AuthMiddleware(jwtManager *pkg.JWTManager) gin.HandlerFunc {
 			return
 		}
 
-		userID, err := jwtManager.ValidateToken(parts[1])
+		claims, err := jwtManager.ValidateToken(parts[1])
 		if err != nil {
 			respondWithUnauthorized(c, "invalid or expired token")
 			return
 		}
 
-		// Store the user ID in the context for downstream handlers.
-		c.Set(UserIDKey, userID)
+		// Store the user ID and role in the context for downstream handlers.
+		c.Set(UserIDKey, claims.UserID)
+		c.Set(UserRoleKey, claims.Role)
 		c.Next()
 	}
 }
 
 // GetUserID extracts the authenticated user ID from the Gin context.
-// Returns uuid.Nil if the user ID is not found or is of invalid type.
 func GetUserID(c *gin.Context) uuid.UUID {
 	val, exists := c.Get(UserIDKey)
 	if !exists {
@@ -81,4 +83,19 @@ func GetUserID(c *gin.Context) uuid.UUID {
 	}
 
 	return userID
+}
+
+// GetUserRole extracts the authenticated user role from the Gin context.
+func GetUserRole(c *gin.Context) string {
+	val, exists := c.Get(UserRoleKey)
+	if !exists {
+		return ""
+	}
+
+	role, ok := val.(string)
+	if !ok {
+		return ""
+	}
+
+	return role
 }

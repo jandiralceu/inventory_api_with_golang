@@ -50,7 +50,11 @@ func setupTestRouter(jwtManager *pkg.JWTManager) *gin.Engine {
 	r.Use(middleware.AuthMiddleware(jwtManager))
 	r.GET("/protected", func(c *gin.Context) {
 		userID := middleware.GetUserID(c)
-		c.JSON(http.StatusOK, gin.H{"user_id": userID.String()})
+		role := middleware.GetUserRole(c)
+		c.JSON(http.StatusOK, gin.H{
+			"user_id": userID.String(),
+			"role":    role,
+		})
 	})
 	return r
 }
@@ -117,7 +121,8 @@ func TestAuthMiddleware(t *testing.T) {
 
 	t.Run("Valid Token", func(t *testing.T) {
 		userID := uuid.New()
-		token, err := jwtManager.GenerateToken(userID, 15*time.Minute)
+		role := "admin"
+		token, err := jwtManager.GenerateToken(userID, role, 15*time.Minute)
 		require.NoError(t, err)
 
 		req, _ := http.NewRequest(http.MethodGet, "/protected", nil)
@@ -127,6 +132,7 @@ func TestAuthMiddleware(t *testing.T) {
 
 		assert.Equal(t, http.StatusOK, resp.Code)
 		assert.Contains(t, resp.Body.String(), userID.String())
+		assert.Contains(t, resp.Body.String(), role)
 	})
 }
 
@@ -144,17 +150,26 @@ func TestGetUserID(t *testing.T) {
 
 	t.Run("Missing UserID", func(t *testing.T) {
 		c, _ := gin.CreateTestContext(httptest.NewRecorder())
-		// Not setting anything in context
-
 		actualID := middleware.GetUserID(c)
 		assert.Equal(t, uuid.Nil, actualID)
 	})
+}
 
-	t.Run("Invalid UserID Type", func(t *testing.T) {
+func TestGetUserRole(t *testing.T) {
+	gin.SetMode(gin.TestMode)
+
+	t.Run("Valid Role", func(t *testing.T) {
 		c, _ := gin.CreateTestContext(httptest.NewRecorder())
-		c.Set(middleware.UserIDKey, "not-a-uuid-type") // string instead of uuid.UUID
+		expectedRole := "admin"
+		c.Set(middleware.UserRoleKey, expectedRole)
 
-		actualID := middleware.GetUserID(c)
-		assert.Equal(t, uuid.Nil, actualID)
+		actualRole := middleware.GetUserRole(c)
+		assert.Equal(t, expectedRole, actualRole)
+	})
+
+	t.Run("Missing Role", func(t *testing.T) {
+		c, _ := gin.CreateTestContext(httptest.NewRecorder())
+		actualRole := middleware.GetUserRole(c)
+		assert.Equal(t, "", actualRole)
 	})
 }

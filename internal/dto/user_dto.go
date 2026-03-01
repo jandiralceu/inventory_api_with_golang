@@ -1,6 +1,9 @@
 package dto
 
-import "github.com/google/uuid"
+import (
+	"github.com/google/uuid"
+	"github.com/jandiralceu/inventory_api_with_golang/internal/models"
+)
 
 type ChangePasswordRequest struct {
 	OldPassword string `json:"oldPassword" binding:"required"`
@@ -25,3 +28,5 @@ type GetUserListRequest struct {
 	Email  string    `form:"email" binding:"omitempty,email"`
 	RoleID uuid.UUID `form:"roleId" binding:"omitempty"`
 }
+
+type UserListResponse PaginatedResponse[models.User]

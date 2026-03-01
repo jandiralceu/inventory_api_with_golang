@@ -39,8 +39,8 @@ func (m *MockUserService) FindAll(ctx context.Context, req dto.GetUserListReques
 	return args.Get(0).(dto.PaginatedResponse[models.User]), args.Error(1)
 }
 
-func (m *MockUserService) FindByID(ctx context.Context, id uuid.UUID) (*models.User, error) {
-	args := m.Called(ctx, id)
+func (m *MockUserService) FindByID(ctx context.Context, userID uuid.UUID) (*models.User, error) {
+	args := m.Called(ctx, userID)
 	if args.Get(0) == nil {
 		return nil, args.Error(1)
 	}
@@ -55,8 +55,18 @@ func (m *MockUserService) FindByEmail(ctx context.Context, email string) (*model
 	return args.Get(0).(*models.User), args.Error(1)
 }
 
-func (m *MockUserService) Delete(ctx context.Context, id uuid.UUID) error {
-	args := m.Called(ctx, id)
+func (m *MockUserService) ChangePassword(ctx context.Context, userID uuid.UUID, req dto.ChangePasswordRequest) error {
+	args := m.Called(ctx, userID, req)
+	return args.Error(0)
+}
+
+func (m *MockUserService) ChangeRole(ctx context.Context, userID uuid.UUID, req dto.ChangeRoleRequest) error {
+	args := m.Called(ctx, userID, req)
+	return args.Error(0)
+}
+
+func (m *MockUserService) Delete(ctx context.Context, userID uuid.UUID) error {
+	args := m.Called(ctx, userID)
 	return args.Error(0)
 }
 
@@ -320,6 +330,7 @@ func TestSignIn_Success(t *testing.T) {
 			Name:         "John Doe",
 			Email:        "john@example.com",
 			PasswordHash: hashedPassword,
+			Role:         models.Role{Name: "admin"},
 		}, nil)
 
 	mockCache.On("Set", mock.Anything, mock.Anything, "active", mock.Anything).Return(nil)
@@ -427,7 +438,7 @@ func TestSignOut_Success(t *testing.T) {
 	handler, _, mockCache, _, jwtManager := setupAuthHandlerWithMockHasher(t)
 
 	userID := uuid.New()
-	validRefreshToken, _ := jwtManager.GenerateToken(userID, refreshTokenExpiration)
+	validRefreshToken, _ := jwtManager.GenerateToken(userID, "admin", refreshTokenExpiration)
 	refreshKey := fmt.Sprintf("refresh_token:%s:%s", userID.String(), validRefreshToken)
 
 	mockCache.On("Delete", mock.Anything, refreshKey).Return(nil)
@@ -488,11 +499,11 @@ func TestRefreshToken_Success(t *testing.T) {
 
 	userID := uuid.New()
 
-	validRefreshToken, err := jwtManager.GenerateToken(userID, refreshTokenExpiration)
+	validRefreshToken, err := jwtManager.GenerateToken(userID, "admin", refreshTokenExpiration)
 	assert.NoError(t, err)
 
 	mockService.On("FindByID", mock.Anything, userID).
-		Return(&models.User{ID: userID, Name: "John Doe"}, nil)
+		Return(&models.User{ID: userID, Name: "John Doe", Role: models.Role{Name: "admin"}}, nil)
 
 	mockCache.On("Get", mock.Anything, mock.Anything, mock.Anything).Return(nil)
 	mockCache.On("Delete", mock.Anything, mock.Anything).Return(nil)
@@ -556,7 +567,7 @@ func TestRefreshToken_Unauthorized_TokenNotInCache(t *testing.T) {
 
 	userID := uuid.New()
 
-	validRefreshToken, err := jwtManager.GenerateToken(userID, refreshTokenExpiration)
+	validRefreshToken, err := jwtManager.GenerateToken(userID, "admin", refreshTokenExpiration)
 	assert.NoError(t, err)
 
 	mockCache.On("Get", mock.Anything, mock.Anything, mock.Anything).
@@ -584,7 +595,7 @@ func TestRefreshToken_Unauthorized_UserNotFound(t *testing.T) {
 
 	userID := uuid.New()
 
-	validRefreshToken, err := jwtManager.GenerateToken(userID, refreshTokenExpiration)
+	validRefreshToken, err := jwtManager.GenerateToken(userID, "admin", refreshTokenExpiration)
 	assert.NoError(t, err)
 
 	mockService.On("FindByID", mock.Anything, userID).
@@ -615,11 +626,11 @@ func TestRefreshToken_InternalServerError_FailedToSaveNewToken(t *testing.T) {
 
 	userID := uuid.New()
 
-	validRefreshToken, err := jwtManager.GenerateToken(userID, refreshTokenExpiration)
+	validRefreshToken, err := jwtManager.GenerateToken(userID, "admin", refreshTokenExpiration)
 	assert.NoError(t, err)
 
 	mockService.On("FindByID", mock.Anything, userID).
-		Return(&models.User{ID: userID, Name: "John Doe"}, nil)
+		Return(&models.User{ID: userID, Name: "John Doe", Role: models.Role{Name: "admin"}}, nil)
 
 	mockCache.On("Get", mock.Anything, mock.Anything, mock.Anything).Return(nil)
 	mockCache.On("Delete", mock.Anything, mock.Anything).Return(nil)

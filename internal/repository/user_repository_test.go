@@ -12,6 +12,7 @@ import (
 	"github.com/jandiralceu/inventory_api_with_golang/internal/dto"
 	"github.com/jandiralceu/inventory_api_with_golang/internal/models"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	"gorm.io/gorm"
 )
 
@@ -90,14 +91,19 @@ func TestUserRepositoryFindByIDSuccess(t *testing.T) {
 	rows := sqlmock.NewRows([]string{"id", "name", "email", "password_hash", "role_id", "created_at", "updated_at"}).
 		AddRow(userID, "John Doe", "john@example.com", "hash", roleID, now, now)
 
-	mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "users" WHERE id = $1`)).
+	mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "users" WHERE id = $1 ORDER BY "users"."id" LIMIT $2`)).
 		WithArgs(userID, 1).
 		WillReturnRows(rows)
+
+	// Role preloading
+	mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "roles" WHERE "roles"."id" = $1`)).
+		WithArgs(roleID).
+		WillReturnRows(sqlmock.NewRows([]string{"id", "name"}).AddRow(roleID, "Admin"))
 
 	user, err := repo.FindByID(context.Background(), userID)
 
 	assert.NoError(t, err)
-	assert.NotNil(t, user)
+	require.NotNil(t, user)
 	assert.Equal(t, userID, user.ID)
 	assert.Equal(t, "John Doe", user.Name)
 	assert.NoError(t, mock.ExpectationsWereMet())
@@ -111,7 +117,7 @@ func TestUserRepositoryFindByIDNotFound(t *testing.T) {
 
 	userID := uuid.New()
 
-	mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "users" WHERE id = $1`)).
+	mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "users" WHERE id = $1 ORDER BY "users"."id" LIMIT $2`)).
 		WithArgs(userID, 1).
 		WillReturnError(gorm.ErrRecordNotFound)
 
@@ -140,14 +146,19 @@ func TestUserRepositoryFindByEmailSuccess(t *testing.T) {
 	rows := sqlmock.NewRows([]string{"id", "name", "email", "password_hash", "role_id", "created_at", "updated_at"}).
 		AddRow(userID, "John Doe", "john@example.com", "hash", roleID, now, now)
 
-	mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "users" WHERE email = $1`)).
+	mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "users" WHERE email = $1 ORDER BY "users"."id" LIMIT $2`)).
 		WithArgs("john@example.com", 1).
 		WillReturnRows(rows)
+
+	// Role preloading
+	mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "roles" WHERE "roles"."id" = $1`)).
+		WithArgs(roleID).
+		WillReturnRows(sqlmock.NewRows([]string{"id", "name"}).AddRow(roleID, "Admin"))
 
 	user, err := repo.FindByEmail(context.Background(), "john@example.com")
 
 	assert.NoError(t, err)
-	assert.NotNil(t, user)
+	require.NotNil(t, user)
 	assert.Equal(t, "john@example.com", user.Email)
 	assert.NoError(t, mock.ExpectationsWereMet())
 }
@@ -158,7 +169,7 @@ func TestUserRepositoryFindByEmailNotFound(t *testing.T) {
 
 	repo := NewUserRepository(gormDB)
 
-	mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "users" WHERE email = $1`)).
+	mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "users" WHERE email = $1 ORDER BY "users"."id" LIMIT $2`)).
 		WithArgs("unknown@example.com", 1).
 		WillReturnError(gorm.ErrRecordNotFound)
 
@@ -254,13 +265,22 @@ func TestUserRepositoryFindAllSuccess(t *testing.T) {
 		WithArgs(roleID).
 		WillReturnRows(sqlmock.NewRows([]string{"id", "name"}).AddRow(roleID, "Admin"))
 
-	result, err := repo.FindAll(context.Background(), req)
+	filter := UserListFilter{
+		Pagination: PaginationParams{
+			Page:  req.Page,
+			Limit: req.Limit,
+			Sort:  "created_at",
+			Order: "desc",
+		},
+	}
+
+	users, total, err := repo.FindAll(context.Background(), filter)
 
 	assert.NoError(t, err)
-	assert.Equal(t, int64(2), result.Total)
-	assert.Len(t, result.Data, 2)
-	assert.Equal(t, "User One", result.Data[0].Name)
-	assert.Equal(t, "User Two", result.Data[1].Name)
+	assert.Equal(t, int64(2), total)
+	assert.Len(t, users, 2)
+	assert.Equal(t, "User One", users[0].Name)
+	assert.Equal(t, "User Two", users[1].Name)
 	assert.NoError(t, mock.ExpectationsWereMet())
 }
 
@@ -287,10 +307,19 @@ func TestUserRepositoryFindAllEmpty(t *testing.T) {
 	mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "users"`)).
 		WillReturnRows(rows)
 
-	result, err := repo.FindAll(context.Background(), req)
+	filter := UserListFilter{
+		Pagination: PaginationParams{
+			Page:  req.Page,
+			Limit: req.Limit,
+			Sort:  "created_at",
+			Order: "desc",
+		},
+	}
+
+	users, total, err := repo.FindAll(context.Background(), filter)
 
 	assert.NoError(t, err)
-	assert.Len(t, result.Data, 0)
-	assert.Equal(t, int64(0), result.Total)
+	assert.Len(t, users, 0)
+	assert.Equal(t, int64(0), total)
 	assert.NoError(t, mock.ExpectationsWereMet())
 }

@@ -76,14 +76,16 @@ func TestJWTManager_GenerateAndValidateToken_Success(t *testing.T) {
 	userID := uuid.New()
 	expiration := time.Minute * 15
 
-	token, err := manager.GenerateToken(userID, expiration)
+	role := "admin"
+	token, err := manager.GenerateToken(userID, role, expiration)
 
 	require.NoError(t, err)
 	assert.NotEmpty(t, token)
 
-	parsedUserID, err := manager.ValidateToken(token)
+	claims, err := manager.ValidateToken(token)
 	require.NoError(t, err)
-	assert.Equal(t, userID, parsedUserID)
+	assert.Equal(t, userID, claims.UserID)
+	assert.Equal(t, role, claims.Role)
 }
 
 func TestJWTManager_ValidateToken_Expired(t *testing.T) {
@@ -94,13 +96,13 @@ func TestJWTManager_ValidateToken_Expired(t *testing.T) {
 	userID := uuid.New()
 	expiration := -time.Minute * 15 // Set an expiration in the past
 
-	token, err := manager.GenerateToken(userID, expiration)
+	token, err := manager.GenerateToken(userID, "admin", expiration)
 	require.NoError(t, err)
 
-	parsedUserID, err := manager.ValidateToken(token)
+	claims, err := manager.ValidateToken(token)
 	require.Error(t, err)
 	// Should fail due to "token is expired" from golang-jwt validator
-	assert.Equal(t, uuid.Nil, parsedUserID)
+	assert.Nil(t, claims)
 }
 
 func TestJWTManager_ValidateToken_InvalidSignature(t *testing.T) {
@@ -113,11 +115,11 @@ func TestJWTManager_ValidateToken_InvalidSignature(t *testing.T) {
 	require.NoError(t, err)
 
 	userID := uuid.New()
-	tokenFrom1, err := manager1.GenerateToken(userID, time.Hour)
+	tokenFrom1, err := manager1.GenerateToken(userID, "admin", time.Hour)
 	require.NoError(t, err)
 
 	// Validating token signed by Key 1 using Key 2, should fail signature validation
-	parsedUserID, err := manager2.ValidateToken(tokenFrom1)
+	claims, err := manager2.ValidateToken(tokenFrom1)
 	require.Error(t, err)
-	assert.Equal(t, uuid.Nil, parsedUserID)
+	assert.Nil(t, claims)
 }
