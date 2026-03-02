@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/google/uuid"
+	"github.com/jandiralceu/inventory_api_with_golang/internal/apperrors"
 	"github.com/jandiralceu/inventory_api_with_golang/internal/models"
 	"gorm.io/gorm"
 )
@@ -41,22 +42,35 @@ func NewProductRepository(db *gorm.DB) ProductRepository {
 }
 
 func (r *productRepository) Create(ctx context.Context, product *models.Product) error {
-	return r.db.WithContext(ctx).Create(product).Error
+	if err := r.db.WithContext(ctx).Create(product).Error; err != nil {
+		return mapDatabaseError(err)
+	}
+	return nil
 }
 
 func (r *productRepository) Update(ctx context.Context, product *models.Product) error {
-	return r.db.WithContext(ctx).Save(product).Error
+	if err := r.db.WithContext(ctx).Save(product).Error; err != nil {
+		return mapDatabaseError(err)
+	}
+	return nil
 }
 
 func (r *productRepository) Delete(ctx context.Context, id uuid.UUID) error {
-	return r.db.WithContext(ctx).Delete(&models.Product{}, id).Error
+	result := r.db.WithContext(ctx).Delete(&models.Product{}, id)
+	if result.Error != nil {
+		return mapDatabaseError(result.Error)
+	}
+	if result.RowsAffected == 0 {
+		return apperrors.ErrNotFound
+	}
+	return nil
 }
 
 func (r *productRepository) FindByID(ctx context.Context, id uuid.UUID) (*models.Product, error) {
 	var product models.Product
 	err := r.db.WithContext(ctx).Preload("Category").Preload("Supplier").First(&product, id).Error
 	if err != nil {
-		return nil, err
+		return nil, mapDatabaseError(err)
 	}
 	return &product, nil
 }
@@ -65,7 +79,7 @@ func (r *productRepository) FindBySlug(ctx context.Context, slug string) (*model
 	var product models.Product
 	err := r.db.WithContext(ctx).Preload("Category").Preload("Supplier").Where("slug = ?", slug).First(&product).Error
 	if err != nil {
-		return nil, err
+		return nil, mapDatabaseError(err)
 	}
 	return &product, nil
 }
@@ -74,7 +88,7 @@ func (r *productRepository) FindBySKU(ctx context.Context, sku string) (*models.
 	var product models.Product
 	err := r.db.WithContext(ctx).Preload("Category").Preload("Supplier").Where("sku = ?", sku).First(&product).Error
 	if err != nil {
-		return nil, err
+		return nil, mapDatabaseError(err)
 	}
 	return &product, nil
 }
@@ -108,7 +122,7 @@ func (r *productRepository) FindAll(ctx context.Context, filter ProductListFilte
 	}
 
 	if err := query.Count(&total).Error; err != nil {
-		return nil, 0, err
+		return nil, 0, mapDatabaseError(err)
 	}
 
 	if filter.Sort != "" {
@@ -123,7 +137,7 @@ func (r *productRepository) FindAll(ctx context.Context, filter ProductListFilte
 
 	offset := (filter.Page - 1) * filter.Limit
 	if err := query.Preload("Category").Preload("Supplier").Offset(offset).Limit(filter.Limit).Find(&products).Error; err != nil {
-		return nil, 0, err
+		return nil, 0, mapDatabaseError(err)
 	}
 
 	return products, total, nil

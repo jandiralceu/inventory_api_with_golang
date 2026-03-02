@@ -4,7 +4,6 @@ import (
 	"context"
 
 	"github.com/google/uuid"
-	"github.com/jandiralceu/inventory_api_with_golang/internal/apperrors"
 	"github.com/jandiralceu/inventory_api_with_golang/internal/models"
 	"gorm.io/gorm"
 )
@@ -65,7 +64,7 @@ func (r *userRepository) Delete(ctx context.Context, userID uuid.UUID) error {
 		return mapDatabaseError(result.Error)
 	}
 	if result.RowsAffected == 0 {
-		return apperrors.ErrNotFound
+		return mapDatabaseError(gorm.ErrRecordNotFound)
 	}
 	return nil
 }
@@ -134,7 +133,7 @@ func (r *userRepository) ChangePassword(ctx context.Context, userID uuid.UUID, n
 	}
 
 	if result.RowsAffected == 0 {
-		return apperrors.ErrNotFound
+		return mapDatabaseError(gorm.ErrRecordNotFound)
 	}
 
 	return nil
@@ -152,7 +151,7 @@ func (r *userRepository) ChangeRole(ctx context.Context, userID uuid.UUID, newRo
 	}
 
 	if result.RowsAffected == 0 {
-		return apperrors.ErrNotFound
+		return mapDatabaseError(gorm.ErrRecordNotFound)
 	}
 
 	return nil

@@ -301,3 +301,49 @@ func (m *MockProductRepository) FindAll(ctx context.Context, filter repository.P
 	}
 	return nil, 0, args.Error(2)
 }
+
+// MockInventoryRepository is a mock implementation of repository.InventoryRepository.
+type MockInventoryRepository struct {
+	mock.Mock
+}
+
+func (m *MockInventoryRepository) Create(ctx context.Context, inventory *models.Inventory) error {
+	args := m.Called(ctx, inventory)
+	return args.Error(0)
+}
+
+func (m *MockInventoryRepository) Update(ctx context.Context, inventory *models.Inventory) error {
+	args := m.Called(ctx, inventory)
+	return args.Error(0)
+}
+
+func (m *MockInventoryRepository) Delete(ctx context.Context, id uuid.UUID) error {
+	args := m.Called(ctx, id)
+	return args.Error(0)
+}
+
+func (m *MockInventoryRepository) FindByID(ctx context.Context, id uuid.UUID) (*models.Inventory, error) {
+	args := m.Called(ctx, id)
+	if args.Get(0) != nil {
+		return args.Get(0).(*models.Inventory), args.Error(1)
+	}
+	return nil, args.Error(1)
+}
+
+func (m *MockInventoryRepository) FindAll(ctx context.Context, filter repository.InventoryListFilter) ([]models.Inventory, int64, error) {
+	args := m.Called(ctx, filter)
+	if args.Get(0) != nil {
+		return args.Get(0).([]models.Inventory), args.Get(1).(int64), args.Error(2)
+	}
+	return nil, 0, args.Error(2)
+}
+
+func (m *MockInventoryRepository) UpdateStock(ctx context.Context, id uuid.UUID, quantityDelta int, version int) error {
+	args := m.Called(ctx, id, quantityDelta, version)
+	return args.Error(0)
+}
+
+func (m *MockInventoryRepository) UpdateReservedStock(ctx context.Context, id uuid.UUID, reservedDelta int, version int) error {
+	args := m.Called(ctx, id, reservedDelta, version)
+	return args.Error(0)
+}

@@ -146,6 +146,10 @@ func setupAppCustom(t *testing.T, modifyConfig func(*config.Config)) (*httptest.
 	productService := service.NewProductService(productRepository, cacheManager)
 	productHandler := handlers.NewProductHandler(productService)
 
+	inventoryRepository := repository.NewInventoryRepository(db)
+	inventoryService := service.NewInventoryService(inventoryRepository, productRepository, warehouseRepository, cacheManager)
+	inventoryHandler := handlers.NewInventoryHandler(inventoryService)
+
 	// Initialize Casbin Enforcer for RBAC.
 	// We need to point to the files in the project root.
 	enforcer, err := casbin.NewEnforcer("../../model.conf", "../../policy.csv")
@@ -159,6 +163,7 @@ func setupAppCustom(t *testing.T, modifyConfig func(*config.Config)) (*httptest.
 		SupplierHandler:  supplierHandler,
 		WarehouseHandler: warehouseHandler,
 		ProductHandler:   productHandler,
+		InventoryHandler: inventoryHandler,
 	}
 
 	// Suppress Gin debug output during tests.

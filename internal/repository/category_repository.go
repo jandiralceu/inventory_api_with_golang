@@ -4,7 +4,6 @@ import (
 	"context"
 
 	"github.com/google/uuid"
-	"github.com/jandiralceu/inventory_api_with_golang/internal/apperrors"
 	"github.com/jandiralceu/inventory_api_with_golang/internal/models"
 	"gorm.io/gorm"
 )
@@ -60,7 +59,7 @@ func (r *categoryRepository) Update(ctx context.Context, category *models.Catego
 		return mapDatabaseError(result.Error)
 	}
 	if result.RowsAffected == 0 {
-		return apperrors.ErrNotFound
+		return mapDatabaseError(gorm.ErrRecordNotFound)
 	}
 	return nil
 }
@@ -72,7 +71,7 @@ func (r *categoryRepository) Delete(ctx context.Context, id uuid.UUID) error {
 		return mapDatabaseError(result.Error)
 	}
 	if result.RowsAffected == 0 {
-		return apperrors.ErrNotFound
+		return mapDatabaseError(gorm.ErrRecordNotFound)
 	}
 	return nil
 }

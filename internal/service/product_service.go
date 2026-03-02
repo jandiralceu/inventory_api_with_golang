@@ -12,7 +12,6 @@ import (
 	"github.com/jandiralceu/inventory_api_with_golang/internal/models"
 	"github.com/jandiralceu/inventory_api_with_golang/internal/pkg"
 	"github.com/jandiralceu/inventory_api_with_golang/internal/repository"
-	"gorm.io/gorm"
 )
 
 type ProductService interface {
@@ -40,7 +39,7 @@ func (s *productService) Create(ctx context.Context, req dto.CreateProductReques
 	// Check SKU uniqueness
 	if _, err := s.repo.FindBySKU(ctx, req.SKU); err == nil {
 		return nil, apperrors.ErrConflict
-	} else if !errors.Is(err, gorm.ErrRecordNotFound) {
+	} else if !errors.Is(err, apperrors.ErrNotFound) {
 		return nil, err
 	}
 
@@ -77,16 +76,13 @@ func (s *productService) Create(ctx context.Context, req dto.CreateProductReques
 func (s *productService) Update(ctx context.Context, id uuid.UUID, req dto.UpdateProductRequest) (*models.Product, error) {
 	product, err := s.repo.FindByID(ctx, id)
 	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, apperrors.ErrNotFound
-		}
 		return nil, err
 	}
 
 	if req.SKU != "" && req.SKU != product.SKU {
 		if _, err := s.repo.FindBySKU(ctx, req.SKU); err == nil {
 			return nil, apperrors.ErrConflict // SKU already exists
-		} else if !errors.Is(err, gorm.ErrRecordNotFound) {
+		} else if !errors.Is(err, apperrors.ErrNotFound) {
 			return nil, err
 		}
 		product.SKU = req.SKU
@@ -147,9 +143,6 @@ func (s *productService) Update(ctx context.Context, id uuid.UUID, req dto.Updat
 
 func (s *productService) Delete(ctx context.Context, id uuid.UUID) error {
 	if err := s.repo.Delete(ctx, id); err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return apperrors.ErrNotFound
-		}
 		return err
 	}
 
@@ -167,9 +160,6 @@ func (s *productService) FindByID(ctx context.Context, id uuid.UUID) (*models.Pr
 
 	p, err := s.repo.FindByID(ctx, id)
 	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, apperrors.ErrNotFound
-		}
 		return nil, err
 	}
 
@@ -187,9 +177,6 @@ func (s *productService) FindBySlug(ctx context.Context, slug string) (*models.P
 
 	p, err := s.repo.FindBySlug(ctx, slug)
 	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, apperrors.ErrNotFound
-		}
 		return nil, err
 	}
 

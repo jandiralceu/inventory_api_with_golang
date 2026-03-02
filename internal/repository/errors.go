@@ -25,10 +25,15 @@ func mapDatabaseError(err error) error {
 
 	var pgErr *pgconn.PgError
 	if errors.As(err, &pgErr) {
-		// Postgres error code 23505 represents a unique constraint violation.
 		switch pgErr.Code {
 		case "23505": // unique_violation
 			return apperrors.ErrConflict
+		case "23503": // foreign_key_violation
+			return apperrors.ErrConflict
+		case "23502": // not_null_violation
+			return apperrors.ErrInvalidInput
+		case "23514": // check_violation
+			return apperrors.ErrInvalidInput
 		}
 	}
 

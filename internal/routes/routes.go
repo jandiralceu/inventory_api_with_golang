@@ -25,6 +25,7 @@ type RouteConfig struct {
 	SupplierHandler  *handlers.SupplierHandler
 	WarehouseHandler *handlers.WarehouseHandler
 	ProductHandler   *handlers.ProductHandler
+	InventoryHandler *handlers.InventoryHandler
 }
 
 // Setup creates a configured [gin.Engine] with global middleware, public and
@@ -124,6 +125,21 @@ func Setup(routeConfig *RouteConfig, config *config.Config, jwtManager *pkg.JWTM
 				products.POST("", routeConfig.ProductHandler.CreateProduct)
 				products.PUT("/:id", routeConfig.ProductHandler.UpdateProduct)
 				products.DELETE("/:id", routeConfig.ProductHandler.DeleteProduct)
+			}
+
+			inventory := protected.Group("/inventory")
+			{
+				inventory.GET("", routeConfig.InventoryHandler.FindAllInventory)
+				inventory.GET("/:id", routeConfig.InventoryHandler.FindInventoryByID)
+				inventory.POST("", routeConfig.InventoryHandler.CreateInventory)
+				inventory.PUT("/:id", routeConfig.InventoryHandler.UpdateInventory)
+				inventory.DELETE("/:id", routeConfig.InventoryHandler.DeleteInventory)
+
+				// Stock operations
+				inventory.POST("/:id/add", routeConfig.InventoryHandler.AddStock)
+				inventory.POST("/:id/remove", routeConfig.InventoryHandler.RemoveStock)
+				inventory.POST("/:id/reserve", routeConfig.InventoryHandler.ReserveStock)
+				inventory.POST("/:id/release", routeConfig.InventoryHandler.ReleaseStock)
 			}
 		}
 	}

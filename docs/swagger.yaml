@@ -55,6 +55,29 @@ definitions:
     required:
     - name
     type: object
+  dto.CreateInventoryRequest:
+    properties:
+      locationCode:
+        type: string
+      maxQuantity:
+        type: integer
+      metadata:
+        additionalProperties: {}
+        type: object
+      minQuantity:
+        minimum: 0
+        type: integer
+      productId:
+        type: string
+      quantity:
+        minimum: 0
+        type: integer
+      warehouseId:
+        type: string
+    required:
+    - productId
+    - warehouseId
+    type: object
   dto.CreateProductRequest:
     properties:
       categoryId:
@@ -163,6 +186,56 @@ definitions:
     - code
     - name
     type: object
+  dto.InventoryListResponse:
+    properties:
+      data:
+        items:
+          $ref: '#/definitions/dto.InventoryResponse'
+        type: array
+      limit:
+        type: integer
+      page:
+        type: integer
+      total:
+        type: integer
+      totalPages:
+        type: integer
+    type: object
+  dto.InventoryResponse:
+    properties:
+      availableQuantity:
+        type: integer
+      createdAt:
+        type: string
+      id:
+        type: string
+      lastCountedAt:
+        type: string
+      locationCode:
+        type: string
+      maxQuantity:
+        type: integer
+      metadata:
+        $ref: '#/definitions/models.InventoryMetadata'
+      minQuantity:
+        type: integer
+      product:
+        $ref: '#/definitions/models.Product'
+      productId:
+        type: string
+      quantity:
+        type: integer
+      reservedQuantity:
+        type: integer
+      updatedAt:
+        type: string
+      version:
+        type: integer
+      warehouse:
+        $ref: '#/definitions/models.Warehouse'
+      warehouseId:
+        type: string
+    type: object
   dto.ProductListResponse:
     properties:
       data:
@@ -236,6 +309,15 @@ definitions:
     required:
     - refreshToken
     type: object
+  dto.StockOperationRequest:
+    properties:
+      quantity:
+        type: integer
+      reason:
+        type: string
+    required:
+    - quantity
+    type: object
   dto.SupplierAddress:
     properties:
       city:
@@ -291,6 +373,26 @@ definitions:
     required:
     - isActive
     - name
+    type: object
+  dto.UpdateInventoryRequest:
+    properties:
+      locationCode:
+        type: string
+      maxQuantity:
+        minimum: 0
+        type: integer
+      metadata:
+        additionalProperties: {}
+        type: object
+      minQuantity:
+        minimum: 0
+        type: integer
+      quantity:
+        minimum: 0
+        type: integer
+      reservedQuantity:
+        minimum: 0
+        type: integer
     type: object
   dto.UpdateProductRequest:
     properties:
@@ -505,6 +607,44 @@ definitions:
         description: UpdatedAt is the timestamp for the last update to the category
           record.
         type: string
+    type: object
+  models.Inventory:
+    properties:
+      createdAt:
+        type: string
+      id:
+        type: string
+      lastCountedAt:
+        type: string
+      locationCode:
+        type: string
+      maxQuantity:
+        type: integer
+      metadata:
+        $ref: '#/definitions/models.InventoryMetadata'
+      minQuantity:
+        type: integer
+      product:
+        allOf:
+        - $ref: '#/definitions/models.Product'
+        description: Relationships
+      productId:
+        type: string
+      quantity:
+        type: integer
+      reservedQuantity:
+        type: integer
+      updatedAt:
+        type: string
+      version:
+        type: integer
+      warehouse:
+        $ref: '#/definitions/models.Warehouse'
+      warehouseId:
+        type: string
+    type: object
+  models.InventoryMetadata:
+    additionalProperties: {}
     type: object
   models.Product:
     properties:
@@ -1047,6 +1187,456 @@ paths:
       summary: Update a category
       tags:
       - categories
+  /inventory:
+    get:
+      description: Retrieve a paginated list of inventory records with optional filters.
+      parameters:
+      - description: Filter by Product ID
+        in: query
+        name: productId
+        type: string
+      - description: Filter by Warehouse ID
+        in: query
+        name: warehouseId
+        type: string
+      - description: Filter items with low stock
+        in: query
+        name: lowStock
+        type: boolean
+      - description: Page number
+        in: query
+        name: page
+        type: integer
+      - description: Items per page
+        in: query
+        name: limit
+        type: integer
+      - description: Sort field
+        in: query
+        name: sort
+        type: string
+      - description: Sort order (asc/desc)
+        in: query
+        name: order
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.InventoryListResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handlers.ProblemDetails'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/handlers.ProblemDetails'
+        "429":
+          description: Too many requests
+          schema:
+            $ref: '#/definitions/handlers.ProblemDetails'
+      security:
+      - Bearer: []
+      summary: List inventory records
+      tags:
+      - inventory
+    post:
+      consumes:
+      - application/json
+      description: Initialize a new inventory record for a product in a warehouse.
+      parameters:
+      - description: Inventory data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.CreateInventoryRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.Inventory'
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/handlers.ProblemDetails'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handlers.ProblemDetails'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/handlers.ProblemDetails'
+        "404":
+          description: Not found
+          schema:
+            $ref: '#/definitions/handlers.ProblemDetails'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/handlers.ProblemDetails'
+        "429":
+          description: Too many requests
+          schema:
+            $ref: '#/definitions/handlers.ProblemDetails'
+      security:
+      - Bearer: []
+      summary: Create inventory record
+      tags:
+      - inventory
+  /inventory/{id}:
+    delete:
+      description: Remove an inventory record from the system.
+      parameters:
+      - description: Inventory ID (UUID)
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No content
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/handlers.ProblemDetails'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handlers.ProblemDetails'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/handlers.ProblemDetails'
+        "404":
+          description: Not found
+          schema:
+            $ref: '#/definitions/handlers.ProblemDetails'
+        "429":
+          description: Too many requests
+          schema:
+            $ref: '#/definitions/handlers.ProblemDetails'
+      security:
+      - Bearer: []
+      summary: Delete inventory record
+      tags:
+      - inventory
+    get:
+      description: Retrieve a single inventory record by its unique ID.
+      parameters:
+      - description: Inventory ID (UUID)
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Inventory'
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/handlers.ProblemDetails'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handlers.ProblemDetails'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/handlers.ProblemDetails'
+        "404":
+          description: Not found
+          schema:
+            $ref: '#/definitions/handlers.ProblemDetails'
+        "429":
+          description: Too many requests
+          schema:
+            $ref: '#/definitions/handlers.ProblemDetails'
+      security:
+      - Bearer: []
+      summary: Get inventory by ID
+      tags:
+      - inventory
+    put:
+      consumes:
+      - application/json
+      description: Update details like location code or inventory levels.
+      parameters:
+      - description: Inventory ID (UUID)
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Inventory update data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UpdateInventoryRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Inventory'
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/handlers.ProblemDetails'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handlers.ProblemDetails'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/handlers.ProblemDetails'
+        "404":
+          description: Not found
+          schema:
+            $ref: '#/definitions/handlers.ProblemDetails'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/handlers.ProblemDetails'
+        "429":
+          description: Too many requests
+          schema:
+            $ref: '#/definitions/handlers.ProblemDetails'
+      security:
+      - Bearer: []
+      summary: Update inventory record
+      tags:
+      - inventory
+  /inventory/{id}/add:
+    post:
+      consumes:
+      - application/json
+      description: Add physical stock to a specific inventory record.
+      parameters:
+      - description: Inventory ID (UUID)
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Stock operation data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.StockOperationRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/handlers.ProblemDetails'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handlers.ProblemDetails'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/handlers.ProblemDetails'
+        "404":
+          description: Not found
+          schema:
+            $ref: '#/definitions/handlers.ProblemDetails'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/handlers.ProblemDetails'
+        "429":
+          description: Too many requests
+          schema:
+            $ref: '#/definitions/handlers.ProblemDetails'
+      security:
+      - Bearer: []
+      summary: Inbound stock
+      tags:
+      - inventory
+  /inventory/{id}/release:
+    post:
+      consumes:
+      - application/json
+      description: Release a previously reserved stock quantity.
+      parameters:
+      - description: Inventory ID (UUID)
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Stock operation data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.StockOperationRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/handlers.ProblemDetails'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handlers.ProblemDetails'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/handlers.ProblemDetails'
+        "404":
+          description: Not found
+          schema:
+            $ref: '#/definitions/handlers.ProblemDetails'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/handlers.ProblemDetails'
+        "429":
+          description: Too many requests
+          schema:
+            $ref: '#/definitions/handlers.ProblemDetails'
+      security:
+      - Bearer: []
+      summary: Release reserved stock
+      tags:
+      - inventory
+  /inventory/{id}/remove:
+    post:
+      consumes:
+      - application/json
+      description: Remove physical stock from a specific inventory record.
+      parameters:
+      - description: Inventory ID (UUID)
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Stock operation data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.StockOperationRequest'
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No content
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/handlers.ProblemDetails'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handlers.ProblemDetails'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/handlers.ProblemDetails'
+        "404":
+          description: Not found
+          schema:
+            $ref: '#/definitions/handlers.ProblemDetails'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/handlers.ProblemDetails'
+        "429":
+          description: Too many requests
+          schema:
+            $ref: '#/definitions/handlers.ProblemDetails'
+      security:
+      - Bearer: []
+      summary: Outbound stock
+      tags:
+      - inventory
+  /inventory/{id}/reserve:
+    post:
+      consumes:
+      - application/json
+      description: Reserve a quantity of stock for a pending order.
+      parameters:
+      - description: Inventory ID (UUID)
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Stock operation data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.StockOperationRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/handlers.ProblemDetails'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handlers.ProblemDetails'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/handlers.ProblemDetails'
+        "404":
+          description: Not found
+          schema:
+            $ref: '#/definitions/handlers.ProblemDetails'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/handlers.ProblemDetails'
+        "429":
+          description: Too many requests
+          schema:
+            $ref: '#/definitions/handlers.ProblemDetails'
+      security:
+      - Bearer: []
+      summary: Reserve stock
+      tags:
+      - inventory
   /products:
     get:
       description: Retrieve a paginated list of products with optional filters.
