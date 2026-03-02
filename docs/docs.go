@@ -2254,7 +2254,7 @@ const docTemplate = `{
                 },
                 "metadata": {
                     "type": "object",
-                    "additionalProperties": true
+                    "additionalProperties": {}
                 },
                 "name": {
                     "type": "string",
@@ -2592,7 +2592,7 @@ const docTemplate = `{
                 },
                 "metadata": {
                     "type": "object",
-                    "additionalProperties": true
+                    "additionalProperties": {}
                 },
                 "name": {
                     "type": "string",
@@ -2945,7 +2945,7 @@ const docTemplate = `{
         },
         "models.ProductMetadata": {
             "type": "object",
-            "additionalProperties": true
+            "additionalProperties": {}
         },
         "models.Role": {
             "type": "object",

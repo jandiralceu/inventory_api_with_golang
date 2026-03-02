@@ -69,7 +69,7 @@ definitions:
           type: string
         type: array
       metadata:
-        additionalProperties: true
+        additionalProperties: {}
         type: object
       name:
         maxLength: 200
@@ -308,7 +308,7 @@ definitions:
       isActive:
         type: boolean
       metadata:
-        additionalProperties: true
+        additionalProperties: {}
         type: object
       name:
         maxLength: 200
@@ -552,7 +552,7 @@ definitions:
         type: number
     type: object
   models.ProductMetadata:
-    additionalProperties: true
+    additionalProperties: {}
     type: object
   models.Role:
     properties:

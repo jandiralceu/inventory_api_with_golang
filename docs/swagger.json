@@ -2248,7 +2248,7 @@
                 },
                 "metadata": {
                     "type": "object",
-                    "additionalProperties": true
+                    "additionalProperties": {}
                 },
                 "name": {
                     "type": "string",
@@ -2586,7 +2586,7 @@
                 },
                 "metadata": {
                     "type": "object",
-                    "additionalProperties": true
+                    "additionalProperties": {}
                 },
                 "name": {
                     "type": "string",
@@ -2939,7 +2939,7 @@
         },
         "models.ProductMetadata": {
             "type": "object",
-            "additionalProperties": true
+            "additionalProperties": {}
         },
         "models.Role": {
             "type": "object",
