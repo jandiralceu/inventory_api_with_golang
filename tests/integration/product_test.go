@@ -47,7 +47,7 @@ func TestProductLifecycle(t *testing.T) {
 	defer respCat.Body.Close()
 	require.Equal(t, http.StatusCreated, respCat.StatusCode)
 
-	var catData map[string]interface{}
+	var catData map[string]any
 	json.NewDecoder(respCat.Body).Decode(&catData)
 	catIDStr := catData["id"].(string)
 	catID, _ := uuid.Parse(catIDStr)
@@ -77,7 +77,7 @@ func TestProductLifecycle(t *testing.T) {
 	defer respSup.Body.Close()
 	require.Equal(t, http.StatusCreated, respSup.StatusCode)
 
-	var supData map[string]interface{}
+	var supData map[string]any
 	json.NewDecoder(respSup.Body).Decode(&supData)
 	supIDStr := supData["id"].(string)
 	supID, _ := uuid.Parse(supIDStr)
@@ -106,13 +106,13 @@ func TestProductLifecycle(t *testing.T) {
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusCreated {
-		var errResp map[string]interface{}
+		var errResp map[string]any
 		json.NewDecoder(resp.Body).Decode(&errResp)
 		t.Fatalf("Failed to create product: %v", errResp)
 	}
 	assert.Equal(t, http.StatusCreated, resp.StatusCode)
 
-	var createdProduct map[string]interface{}
+	var createdProduct map[string]any
 	err = json.NewDecoder(resp.Body).Decode(&createdProduct)
 	require.NoError(t, err)
 	productID := createdProduct["id"].(string)
@@ -130,7 +130,7 @@ func TestProductLifecycle(t *testing.T) {
 	defer resp.Body.Close()
 
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
-	var fetchedProduct map[string]interface{}
+	var fetchedProduct map[string]any
 	json.NewDecoder(resp.Body).Decode(&fetchedProduct)
 	assert.Equal(t, "Smartphone X", fetchedProduct["name"])
 
@@ -143,7 +143,7 @@ func TestProductLifecycle(t *testing.T) {
 	defer resp.Body.Close()
 
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
-	var listResp map[string]interface{}
+	var listResp map[string]any
 	json.NewDecoder(resp.Body).Decode(&listResp)
 
 	total := int(listResp["total"].(float64))
@@ -164,7 +164,7 @@ func TestProductLifecycle(t *testing.T) {
 	defer resp.Body.Close()
 
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
-	var updatedProduct map[string]interface{}
+	var updatedProduct map[string]any
 	json.NewDecoder(resp.Body).Decode(&updatedProduct)
 	assert.Equal(t, "Smartphone X Updated", updatedProduct["name"])
 	assert.Equal(t, 1050.50, updatedProduct["price"])

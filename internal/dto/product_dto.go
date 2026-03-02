@@ -7,35 +7,35 @@ import (
 
 // CreateProductRequest defines the payload for creating a product
 type CreateProductRequest struct {
-	SKU             string                 `json:"sku" binding:"required,min=2,max=50"`
-	Name            string                 `json:"name" binding:"required,min=2,max=200"`
-	Description     string                 `json:"description,omitempty"`
-	Price           float64                `json:"price" binding:"required,min=0"`
-	CostPrice       *float64               `json:"costPrice,omitempty" binding:"omitempty,min=0"`
-	CategoryID      *uuid.UUID             `json:"categoryId,omitempty"`
-	SupplierID      *uuid.UUID             `json:"supplierId,omitempty"`
-	ReorderLevel    int                    `json:"reorderLevel,omitempty" binding:"min=0"`
-	ReorderQuantity int                    `json:"reorderQuantity,omitempty" binding:"min=0"`
-	WeightKg        *float64               `json:"weightKg,omitempty" binding:"omitempty,min=0"`
-	Images          []string               `json:"images,omitempty"`
-	Metadata        map[string]interface{} `json:"metadata,omitempty"`
+	SKU             string         `json:"sku" binding:"required,min=2,max=50"`
+	Name            string         `json:"name" binding:"required,min=2,max=200"`
+	Description     string         `json:"description,omitempty"`
+	Price           float64        `json:"price" binding:"required,min=0"`
+	CostPrice       *float64       `json:"costPrice,omitempty" binding:"omitempty,min=0"`
+	CategoryID      *uuid.UUID     `json:"categoryId,omitempty"`
+	SupplierID      *uuid.UUID     `json:"supplierId,omitempty"`
+	ReorderLevel    int            `json:"reorderLevel,omitempty" binding:"min=0"`
+	ReorderQuantity int            `json:"reorderQuantity,omitempty" binding:"min=0"`
+	WeightKg        *float64       `json:"weightKg,omitempty" binding:"omitempty,min=0"`
+	Images          []string       `json:"images,omitempty"`
+	Metadata        map[string]any `json:"metadata,omitempty"`
 }
 
 // UpdateProductRequest defines the payload for updating a product
 type UpdateProductRequest struct {
-	SKU             string                 `json:"sku,omitempty" binding:"omitempty,min=2,max=50"`
-	Name            string                 `json:"name,omitempty" binding:"omitempty,min=2,max=200"`
-	Description     string                 `json:"description,omitempty"`
-	Price           *float64               `json:"price,omitempty" binding:"omitempty,min=0"`
-	CostPrice       *float64               `json:"costPrice,omitempty" binding:"omitempty,min=0"`
-	CategoryID      *uuid.UUID             `json:"categoryId,omitempty"`
-	SupplierID      *uuid.UUID             `json:"supplierId,omitempty"`
-	ReorderLevel    *int                   `json:"reorderLevel,omitempty" binding:"omitempty,min=0"`
-	ReorderQuantity *int                   `json:"reorderQuantity,omitempty" binding:"omitempty,min=0"`
-	WeightKg        *float64               `json:"weightKg,omitempty" binding:"omitempty,min=0"`
-	Images          []string               `json:"images,omitempty"`
-	Metadata        map[string]interface{} `json:"metadata,omitempty"`
-	IsActive        *bool                  `json:"isActive,omitempty"`
+	SKU             string         `json:"sku,omitempty" binding:"omitempty,min=2,max=50"`
+	Name            string         `json:"name,omitempty" binding:"omitempty,min=2,max=200"`
+	Description     string         `json:"description,omitempty"`
+	Price           *float64       `json:"price,omitempty" binding:"omitempty,min=0"`
+	CostPrice       *float64       `json:"costPrice,omitempty" binding:"omitempty,min=0"`
+	CategoryID      *uuid.UUID     `json:"categoryId,omitempty"`
+	SupplierID      *uuid.UUID     `json:"supplierId,omitempty"`
+	ReorderLevel    *int           `json:"reorderLevel,omitempty" binding:"omitempty,min=0"`
+	ReorderQuantity *int           `json:"reorderQuantity,omitempty" binding:"omitempty,min=0"`
+	WeightKg        *float64       `json:"weightKg,omitempty" binding:"omitempty,min=0"`
+	Images          []string       `json:"images,omitempty"`
+	Metadata        map[string]any `json:"metadata,omitempty"`
+	IsActive        *bool          `json:"isActive,omitempty"`
 }
 
 // GetProductListRequest defines query parameters for listing products

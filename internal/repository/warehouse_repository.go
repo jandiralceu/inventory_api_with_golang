@@ -47,7 +47,11 @@ func (r *warehouseRepository) Create(ctx context.Context, warehouse *models.Ware
 }
 
 func (r *warehouseRepository) Update(ctx context.Context, warehouse *models.Warehouse) error {
-	result := r.db.WithContext(ctx).Save(warehouse)
+	result := r.db.WithContext(ctx).
+		Model(&models.Warehouse{}).
+		Where("id = ?", warehouse.ID).
+		Updates(warehouse)
+
 	if result.Error != nil {
 		return mapDatabaseError(result.Error)
 	}

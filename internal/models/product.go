@@ -21,7 +21,7 @@ func (pi ProductImages) Value() (driver.Value, error) {
 }
 
 // Scan makes ProductImages implement sql.Scanner for JSONB retrieval
-func (pi *ProductImages) Scan(value interface{}) error {
+func (pi *ProductImages) Scan(value any) error {
 	if value == nil {
 		*pi = ProductImages{}
 		return nil
@@ -34,7 +34,7 @@ func (pi *ProductImages) Scan(value interface{}) error {
 }
 
 // ProductMetadata represents flexible JSON attributes
-type ProductMetadata map[string]interface{}
+type ProductMetadata map[string]any
 
 // Value makes ProductMetadata implement driver.Valuer for JSONB storage
 func (pm ProductMetadata) Value() (driver.Value, error) {
@@ -45,7 +45,7 @@ func (pm ProductMetadata) Value() (driver.Value, error) {
 }
 
 // Scan makes ProductMetadata implement sql.Scanner for JSONB retrieval
-func (pm *ProductMetadata) Scan(value interface{}) error {
+func (pm *ProductMetadata) Scan(value any) error {
 	if value == nil {
 		*pm = ProductMetadata{}
 		return nil
