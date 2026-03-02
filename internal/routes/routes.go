@@ -24,6 +24,7 @@ type RouteConfig struct {
 	CategoryHandler  *handlers.CategoryHandler
 	SupplierHandler  *handlers.SupplierHandler
 	WarehouseHandler *handlers.WarehouseHandler
+	ProductHandler   *handlers.ProductHandler
 }
 
 // Setup creates a configured [gin.Engine] with global middleware, public and
@@ -114,6 +115,15 @@ func Setup(routeConfig *RouteConfig, config *config.Config, jwtManager *pkg.JWTM
 				warehouses.POST("", routeConfig.WarehouseHandler.CreateWarehouse)
 				warehouses.PUT("/:id", routeConfig.WarehouseHandler.UpdateWarehouse)
 				warehouses.DELETE("/:id", routeConfig.WarehouseHandler.DeleteWarehouse)
+			}
+
+			products := protected.Group("/products")
+			{
+				products.GET("", routeConfig.ProductHandler.FindAllProducts)
+				products.GET("/:id", routeConfig.ProductHandler.FindProductByID)
+				products.POST("", routeConfig.ProductHandler.CreateProduct)
+				products.PUT("/:id", routeConfig.ProductHandler.UpdateProduct)
+				products.DELETE("/:id", routeConfig.ProductHandler.DeleteProduct)
 			}
 		}
 	}

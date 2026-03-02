@@ -55,6 +55,49 @@ definitions:
     required:
     - name
     type: object
+  dto.CreateProductRequest:
+    properties:
+      categoryId:
+        type: string
+      costPrice:
+        minimum: 0
+        type: number
+      description:
+        type: string
+      images:
+        items:
+          type: string
+        type: array
+      metadata:
+        additionalProperties: true
+        type: object
+      name:
+        maxLength: 200
+        minLength: 2
+        type: string
+      price:
+        minimum: 0
+        type: number
+      reorderLevel:
+        minimum: 0
+        type: integer
+      reorderQuantity:
+        minimum: 0
+        type: integer
+      sku:
+        maxLength: 50
+        minLength: 2
+        type: string
+      supplierId:
+        type: string
+      weightKg:
+        minimum: 0
+        type: number
+    required:
+    - name
+    - price
+    - sku
+    type: object
   dto.CreateRoleRequest:
     properties:
       description:
@@ -119,6 +162,21 @@ definitions:
     - address
     - code
     - name
+    type: object
+  dto.ProductListResponse:
+    properties:
+      data:
+        items:
+          $ref: '#/definitions/models.Product'
+        type: array
+      limit:
+        type: integer
+      page:
+        type: integer
+      total:
+        type: integer
+      totalPages:
+        type: integer
     type: object
   dto.RefreshTokenRequest:
     properties:
@@ -233,6 +291,47 @@ definitions:
     required:
     - isActive
     - name
+    type: object
+  dto.UpdateProductRequest:
+    properties:
+      categoryId:
+        type: string
+      costPrice:
+        minimum: 0
+        type: number
+      description:
+        type: string
+      images:
+        items:
+          type: string
+        type: array
+      isActive:
+        type: boolean
+      metadata:
+        additionalProperties: true
+        type: object
+      name:
+        maxLength: 200
+        minLength: 2
+        type: string
+      price:
+        minimum: 0
+        type: number
+      reorderLevel:
+        minimum: 0
+        type: integer
+      reorderQuantity:
+        minimum: 0
+        type: integer
+      sku:
+        maxLength: 50
+        minLength: 2
+        type: string
+      supplierId:
+        type: string
+      weightKg:
+        minimum: 0
+        type: number
     type: object
   dto.UpdateSupplierRequest:
     properties:
@@ -406,6 +505,54 @@ definitions:
         description: UpdatedAt is the timestamp for the last update to the category
           record.
         type: string
+    type: object
+  models.Product:
+    properties:
+      category:
+        allOf:
+        - $ref: '#/definitions/models.Category'
+        description: Relationships
+      categoryId:
+        type: string
+      costPrice:
+        type: number
+      createdAt:
+        type: string
+      description:
+        type: string
+      id:
+        type: string
+      images:
+        items:
+          type: string
+        type: array
+      isActive:
+        type: boolean
+      metadata:
+        $ref: '#/definitions/models.ProductMetadata'
+      name:
+        type: string
+      price:
+        type: number
+      reorderLevel:
+        type: integer
+      reorderQuantity:
+        type: integer
+      sku:
+        type: string
+      slug:
+        type: string
+      supplier:
+        $ref: '#/definitions/models.Supplier'
+      supplierId:
+        type: string
+      updatedAt:
+        type: string
+      weightKg:
+        type: number
+    type: object
+  models.ProductMetadata:
+    additionalProperties: true
     type: object
   models.Role:
     properties:
@@ -900,6 +1047,228 @@ paths:
       summary: Update a category
       tags:
       - categories
+  /products:
+    get:
+      description: Retrieve a paginated list of products with optional filters.
+      parameters:
+      - description: Filter by name (partial match)
+        in: query
+        name: name
+        type: string
+      - description: Filter by exact SKU
+        in: query
+        name: sku
+        type: string
+      - description: Filter by Category ID
+        in: query
+        name: categoryId
+        type: string
+      - description: Filter by Supplier ID
+        in: query
+        name: supplierId
+        type: string
+      - description: Filter by active status
+        in: query
+        name: isActive
+        type: boolean
+      - description: Filter by minimum price
+        in: query
+        name: minPrice
+        type: number
+      - description: Filter by maximum price
+        in: query
+        name: maxPrice
+        type: number
+      - description: Page number
+        in: query
+        name: page
+        type: integer
+      - description: Items per page
+        in: query
+        name: limit
+        type: integer
+      - description: Sort field
+        in: query
+        name: sort
+        type: string
+      - description: Sort order (asc/desc)
+        in: query
+        name: order
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.ProductListResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handlers.ProblemDetails'
+        "429":
+          description: Too many requests
+          schema:
+            $ref: '#/definitions/handlers.ProblemDetails'
+      security:
+      - Bearer: []
+      summary: List products
+      tags:
+      - products
+    post:
+      consumes:
+      - application/json
+      description: Register a new product in the system.
+      parameters:
+      - description: Product data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.CreateProductRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.Product'
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/handlers.ProblemDetails'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handlers.ProblemDetails'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/handlers.ProblemDetails'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/handlers.ProblemDetails'
+        "429":
+          description: Too many requests
+          schema:
+            $ref: '#/definitions/handlers.ProblemDetails'
+      security:
+      - Bearer: []
+      summary: Create a product
+      tags:
+      - products
+  /products/{id}:
+    delete:
+      description: Remove a product from the system by its ID.
+      parameters:
+      - description: Product ID (UUID)
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No content
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/handlers.ProblemDetails'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handlers.ProblemDetails'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/handlers.ProblemDetails'
+        "404":
+          description: Not found
+          schema:
+            $ref: '#/definitions/handlers.ProblemDetails'
+      security:
+      - Bearer: []
+      summary: Delete a product
+      tags:
+      - products
+    get:
+      description: Retrieve a single product by its unique ID.
+      parameters:
+      - description: Product ID (UUID)
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Product'
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/handlers.ProblemDetails'
+        "404":
+          description: Not found
+          schema:
+            $ref: '#/definitions/handlers.ProblemDetails'
+      security:
+      - Bearer: []
+      summary: Get product by ID
+      tags:
+      - products
+    put:
+      consumes:
+      - application/json
+      description: Modify an existing product details by ID.
+      parameters:
+      - description: Product ID (UUID)
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Product update data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UpdateProductRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Product'
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/handlers.ProblemDetails'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handlers.ProblemDetails'
+        "404":
+          description: Not found
+          schema:
+            $ref: '#/definitions/handlers.ProblemDetails'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/handlers.ProblemDetails'
+        "429":
+          description: Too many requests
+          schema:
+            $ref: '#/definitions/handlers.ProblemDetails'
+      security:
+      - Bearer: []
+      summary: Update a product
+      tags:
+      - products
   /roles:
     get:
       description: Retrieve a list of all roles
