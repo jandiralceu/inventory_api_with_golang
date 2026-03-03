@@ -68,6 +68,9 @@ func Setup(routeConfig *RouteConfig, config *config.Config, jwtManager *pkg.JWTM
 			auth.POST("/signout", routeConfig.AuthHandler.SignOut)
 		}
 
+		// Public roles listing so users can choose a role during registration.
+		api.GET("/roles", routeConfig.RoleHandler.FindAllRoles)
+
 		// Protected routes (authentication required).
 		protected := api.Group("")
 		protected.Use(middleware.AuthMiddleware(jwtManager))
@@ -75,7 +78,6 @@ func Setup(routeConfig *RouteConfig, config *config.Config, jwtManager *pkg.JWTM
 		{
 			roles := protected.Group("/roles")
 			{
-				roles.GET("", routeConfig.RoleHandler.FindAllRoles)
 				roles.GET("/:id", routeConfig.RoleHandler.FindRoleByID)
 				roles.POST("", routeConfig.RoleHandler.CreateRole)
 				roles.DELETE("/:id", routeConfig.RoleHandler.DeleteRole)
