@@ -46,7 +46,7 @@ var _ RoleService = (*roleService)(nil)
 func (s *roleService) Create(ctx context.Context, role *models.Role) (*models.Role, error) {
 	create, err := s.roleRepo.Create(ctx, role)
 	if err == nil {
-		s.cache.DeletePrefix(ctx, _roleCachePrefix)
+		_ = s.cache.DeletePrefix(ctx, _roleCachePrefix)
 	}
 
 	return create, err
@@ -56,7 +56,7 @@ func (s *roleService) Create(ctx context.Context, role *models.Role) (*models.Ro
 func (s *roleService) Delete(ctx context.Context, id uuid.UUID) error {
 	err := s.roleRepo.Delete(ctx, id)
 	if err == nil {
-		s.cache.DeletePrefix(ctx, _roleCachePrefix)
+		_ = s.cache.DeletePrefix(ctx, _roleCachePrefix)
 	}
 
 	return err
@@ -72,7 +72,7 @@ func (s *roleService) FindByID(ctx context.Context, id uuid.UUID) (*models.Role,
 
 	role, err := s.roleRepo.FindByID(ctx, id)
 	if err == nil {
-		s.cache.Set(ctx, cacheKey, role, 72*time.Hour)
+		_ = s.cache.Set(ctx, cacheKey, role, 72*time.Hour)
 	}
 
 	return role, err
@@ -88,7 +88,7 @@ func (s *roleService) FindAll(ctx context.Context) ([]models.Role, error) {
 
 	roles, err := s.roleRepo.FindAll(ctx)
 	if err == nil {
-		s.cache.Set(ctx, cacheKey, roles, 72*time.Hour)
+		_ = s.cache.Set(ctx, cacheKey, roles, 72*time.Hour)
 	}
 
 	return roles, err

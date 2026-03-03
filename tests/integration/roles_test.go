@@ -3,7 +3,6 @@
 package integration
 
 import (
-	"encoding/json"
 	"fmt"
 	"net/http"
 	"testing"
@@ -40,7 +39,7 @@ func TestRoleManagementIntegration(t *testing.T) {
 		assert.Equal(t, http.StatusCreated, resp.StatusCode)
 
 		var created models.Role
-		json.NewDecoder(resp.Body).Decode(&created)
+		require.NoError(t, decodeResponse(resp, &created))
 		assert.Equal(t, "auditor", created.Name)
 		assert.Equal(t, "View only access for auditing", created.Description)
 		assert.NotEqual(t, [16]byte{}, created.ID)
@@ -51,7 +50,7 @@ func TestRoleManagementIntegration(t *testing.T) {
 		assert.Equal(t, http.StatusOK, resp.StatusCode)
 
 		var roles []models.Role
-		json.NewDecoder(resp.Body).Decode(&roles)
+		require.NoError(t, decodeResponse(resp, &roles))
 
 		// Should have at least the 3 default seeded roles + the auditor created above
 		assert.GreaterOrEqual(t, len(roles), 4)
@@ -71,7 +70,7 @@ func TestRoleManagementIntegration(t *testing.T) {
 		assert.Equal(t, http.StatusOK, resp.StatusCode)
 
 		var found models.Role
-		json.NewDecoder(resp.Body).Decode(&found)
+		require.NoError(t, decodeResponse(resp, &found))
 		assert.Equal(t, operatorRole.ID, found.ID)
 		assert.Equal(t, "operator", found.Name)
 	})
@@ -84,7 +83,7 @@ func TestRoleManagementIntegration(t *testing.T) {
 		}
 		respCreate := authedRequest(t, "POST", baseURL+"/api/v1/roles", adminToken, req)
 		var tempRole models.Role
-		json.NewDecoder(respCreate.Body).Decode(&tempRole)
+		require.NoError(t, decodeResponse(respCreate, &tempRole))
 
 		// Delete it
 		resp := authedRequest(t, "DELETE", fmt.Sprintf("%s/api/v1/roles/%s", baseURL, tempRole.ID), adminToken, nil)

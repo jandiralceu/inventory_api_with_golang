@@ -37,7 +37,7 @@ func main() {
 		slog.Error("Failed to get underlying DB connection", "error", err)
 		os.Exit(1)
 	}
-	defer sqlDB.Close()
+	defer func() { _ = sqlDB.Close() }()
 
 	// Run SeedRoles
 	if err := database.SeedRoles(ctx, db); err != nil {
@@ -47,7 +47,7 @@ func main() {
 
 	// Initialize cache and clear roles cache
 	cacheManager := pkg.NewRedisCacheManager(cfg)
-	defer cacheManager.Close()
+	defer func() { _ = cacheManager.Close() }()
 	if err := cacheManager.DeletePrefix(ctx, "role:"); err != nil {
 		slog.Warn("Failed to clear role cache", "error", err)
 	}

@@ -146,6 +146,11 @@ func setupAppCustom(t *testing.T, modifyConfig func(*config.Config)) (*httptest.
 	productService := service.NewProductService(productRepository, cacheManager)
 	productHandler := handlers.NewProductHandler(productService)
 
+	inventoryRepository := repository.NewInventoryRepository(db)
+	inventoryTransactionRepository := repository.NewInventoryTransactionRepository(db)
+	inventoryService := service.NewInventoryService(inventoryRepository, productRepository, warehouseRepository, inventoryTransactionRepository, cacheManager)
+	inventoryHandler := handlers.NewInventoryHandler(inventoryService)
+
 	// Initialize Casbin Enforcer for RBAC.
 	// We need to point to the files in the project root.
 	enforcer, err := casbin.NewEnforcer("../../model.conf", "../../policy.csv")
@@ -159,6 +164,7 @@ func setupAppCustom(t *testing.T, modifyConfig func(*config.Config)) (*httptest.
 		SupplierHandler:  supplierHandler,
 		WarehouseHandler: warehouseHandler,
 		ProductHandler:   productHandler,
+		InventoryHandler: inventoryHandler,
 	}
 
 	// Suppress Gin debug output during tests.
@@ -174,12 +180,12 @@ func setupAppCustom(t *testing.T, modifyConfig func(*config.Config)) (*httptest.
 
 	cleanup := func() {
 		ts.Close()
-		cacheManager.Close()
-		sqlDB.Close()
+		_ = cacheManager.Close()
+		_ = sqlDB.Close()
 		// Termination might take time, use a separate context
 		termCtx := context.Background()
-		pgContainer.Terminate(termCtx)
-		redisContainer.Terminate(termCtx)
+		_ = pgContainer.Terminate(termCtx)
+		_ = redisContainer.Terminate(termCtx)
 	}
 
 	return ts, db, cleanup
@@ -192,7 +198,7 @@ func signUpUser(t *testing.T, baseURL, name, email, password, roleID string) {
 	body := fmt.Sprintf(`{"name":"%s","email":"%s","password":"%s","roleId":"%s"}`, name, email, password, roleID)
 	resp, err := http.Post(baseURL+"/api/v1/auth/register", "application/json", strings.NewReader(body))
 	require.NoError(t, err)
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	require.Equal(t, http.StatusNoContent, resp.StatusCode, "Register should return 204")
 }
@@ -204,11 +210,11 @@ func signInUser(t *testing.T, baseURL, email, password string) (string, string) 
 	body := fmt.Sprintf(`{"email":"%s","password":"%s"}`, email, password)
 	resp, err := http.Post(baseURL+"/api/v1/auth/signin", "application/json", strings.NewReader(body))
 	require.NoError(t, err)
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	if resp.StatusCode != http.StatusOK {
 		var errResp map[string]any
-		json.NewDecoder(resp.Body).Decode(&errResp)
+		_ = json.NewDecoder(resp.Body).Decode(&errResp)
 		t.Fatalf("SignIn failed with status %d: %v", resp.StatusCode, errResp)
 	}
 
@@ -246,14 +252,4 @@ func authedRequest(t *testing.T, method, url, token string, bodyData any) *http.
 	require.NoError(t, err)
 
 	return resp
-}
-
-// seedInitialData seeds the roles into the test database.
-func seedInitialData(t *testing.T, baseURL string) {
-	// In the real app we use a seeder script.
-	// For integration tests, we can use the repository directly if we had access to it,
-	// but setupApp hides it. However, we can call the Role creation endpoint if we had an admin.
-	// But wait, the seeder script uses GORM directly.
-	// For simplicity in integration tests, we'll assume the DB is migration-ready.
-	// If we want the roles, we should seed them.
 }

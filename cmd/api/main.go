@@ -81,14 +81,14 @@ func main() {
 		slog.Error("Failed to get underlying DB connection", "error", err)
 		os.Exit(1)
 	}
-	defer sqlDB.Close()
+	defer func() { _ = sqlDB.Close() }()
 
 	sqlDB.SetMaxIdleConns(10)
 	sqlDB.SetMaxOpenConns(100)
 	sqlDB.SetConnMaxLifetime(time.Hour)
 
 	cacheManager := pkg.NewRedisCacheManager(cfg)
-	defer cacheManager.Close()
+	defer func() { _ = cacheManager.Close() }()
 
 	hasher := pkg.NewArgon2PasswordHasher()
 
@@ -117,6 +117,11 @@ func main() {
 	productService := service.NewProductService(productRepository, cacheManager)
 	productHandler := handlers.NewProductHandler(productService)
 
+	inventoryRepository := repository.NewInventoryRepository(db)
+	inventoryTransactionRepository := repository.NewInventoryTransactionRepository(db)
+	inventoryService := service.NewInventoryService(inventoryRepository, productRepository, warehouseRepository, inventoryTransactionRepository, cacheManager)
+	inventoryHandler := handlers.NewInventoryHandler(inventoryService)
+
 	// Initialize Casbin Enforcer for RBAC.
 	enforcer, err := casbin.NewEnforcer("model.conf", "policy.csv")
 	if err != nil {
@@ -132,6 +137,7 @@ func main() {
 		SupplierHandler:  supplierHandler,
 		WarehouseHandler: warehouseHandler,
 		ProductHandler:   productHandler,
+		InventoryHandler: inventoryHandler,
 	}
 
 	r := routes.Setup(routeConfig, cfg, jwtManager, enforcer, cacheManager)

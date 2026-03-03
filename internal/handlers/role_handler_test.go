@@ -13,6 +13,7 @@ import (
 	"github.com/jandiralceu/inventory_api_with_golang/internal/models"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
+	"github.com/stretchr/testify/require"
 )
 
 // --- Mock RoleService ---
@@ -103,7 +104,7 @@ func TestCreateRoleBadRequestMissingName(t *testing.T) {
 	assert.Equal(t, http.StatusBadRequest, w.Code)
 
 	var resp ProblemDetails
-	json.Unmarshal(w.Body.Bytes(), &resp)
+	require.NoError(t, json.Unmarshal(w.Body.Bytes(), &resp))
 
 	assert.Equal(t, "Validation Failed", resp.Title)
 	mockService.AssertNotCalled(t, "Create")
@@ -164,7 +165,7 @@ func TestCreateRoleConflict(t *testing.T) {
 	assert.Equal(t, http.StatusConflict, w.Code)
 
 	var resp ProblemDetails
-	json.Unmarshal(w.Body.Bytes(), &resp)
+	require.NoError(t, json.Unmarshal(w.Body.Bytes(), &resp))
 
 	assert.Equal(t, "Conflict", resp.Title)
 	mockService.AssertExpectations(t)
@@ -190,7 +191,7 @@ func TestCreateRoleInternalServerError(t *testing.T) {
 	assert.Equal(t, http.StatusInternalServerError, w.Code)
 
 	var resp ProblemDetails
-	json.Unmarshal(w.Body.Bytes(), &resp)
+	require.NoError(t, json.Unmarshal(w.Body.Bytes(), &resp))
 
 	assert.Equal(t, "Internal Server Error", resp.Title)
 	assert.Equal(t, "An unexpected error occurred. Please try again later.", resp.Detail)
@@ -229,7 +230,7 @@ func TestDeleteRoleInvalidUUID(t *testing.T) {
 	assert.Equal(t, http.StatusBadRequest, w.Code)
 
 	var resp ProblemDetails
-	json.Unmarshal(w.Body.Bytes(), &resp)
+	require.NoError(t, json.Unmarshal(w.Body.Bytes(), &resp))
 
 	assert.Equal(t, "Bad Request", resp.Title)
 	mockService.AssertNotCalled(t, "Delete")
@@ -308,7 +309,7 @@ func TestFindRoleByIDInvalidUUID(t *testing.T) {
 	assert.Equal(t, http.StatusBadRequest, w.Code)
 
 	var resp ProblemDetails
-	json.Unmarshal(w.Body.Bytes(), &resp)
+	require.NoError(t, json.Unmarshal(w.Body.Bytes(), &resp))
 
 	assert.Equal(t, "Bad Request", resp.Title)
 	mockService.AssertNotCalled(t, "FindByID")
@@ -330,7 +331,7 @@ func TestFindRoleByIDNotFound(t *testing.T) {
 	assert.Equal(t, http.StatusNotFound, w.Code)
 
 	var resp ProblemDetails
-	json.Unmarshal(w.Body.Bytes(), &resp)
+	require.NoError(t, json.Unmarshal(w.Body.Bytes(), &resp))
 
 	assert.Equal(t, "Resource Not Found", resp.Title)
 	mockService.AssertExpectations(t)
@@ -418,7 +419,7 @@ func TestFindAllRolesInternalServerError(t *testing.T) {
 	assert.Equal(t, http.StatusInternalServerError, w.Code)
 
 	var resp ProblemDetails
-	json.Unmarshal(w.Body.Bytes(), &resp)
+	require.NoError(t, json.Unmarshal(w.Body.Bytes(), &resp))
 
 	assert.Equal(t, "Internal Server Error", resp.Title)
 	assert.Equal(t, "An unexpected error occurred. Please try again later.", resp.Detail)

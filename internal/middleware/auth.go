@@ -1,6 +1,7 @@
 package middleware
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"strings"
@@ -16,6 +17,12 @@ const (
 	UserIDKey = "userID"
 	// UserRoleKey is the key used to store the authenticated user role in the Gin context.
 	UserRoleKey = "userRole"
+)
+
+type contextKey string
+
+const (
+	ctxUserIDKey contextKey = "userID"
 )
 
 // ProblemDetails represents a standard error response following RFC 7807.
@@ -66,6 +73,11 @@ func AuthMiddleware(jwtManager *pkg.JWTManager) gin.HandlerFunc {
 		// Store the user ID and role in the context for downstream handlers.
 		c.Set(UserIDKey, claims.UserID)
 		c.Set(UserRoleKey, claims.Role)
+
+		// Inject into Request context so services can access it without Gin dependency
+		ctx := context.WithValue(c.Request.Context(), ctxUserIDKey, claims.UserID)
+		c.Request = c.Request.WithContext(ctx)
+
 		c.Next()
 	}
 }

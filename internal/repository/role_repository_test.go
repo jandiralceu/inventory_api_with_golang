@@ -20,7 +20,7 @@ import (
 
 func TestRoleRepositoryCreateSuccess(t *testing.T) {
 	gormDB, mock, db := setupTestDB(t)
-	defer db.Close()
+	defer func() { _ = db.Close() }()
 
 	repo := NewRoleRepository(gormDB)
 
@@ -49,7 +49,7 @@ func TestRoleRepositoryCreateSuccess(t *testing.T) {
 
 func TestRoleRepositoryCreateDuplicateError(t *testing.T) {
 	gormDB, mock, db := setupTestDB(t)
-	defer db.Close()
+	defer func() { _ = db.Close() }()
 
 	repo := NewRoleRepository(gormDB)
 
@@ -77,7 +77,7 @@ func TestRoleRepositoryCreateDuplicateError(t *testing.T) {
 
 func TestRoleRepositoryFindAllSuccess(t *testing.T) {
 	gormDB, mock, db := setupTestDB(t)
-	defer db.Close()
+	defer func() { _ = db.Close() }()
 
 	repo := NewRoleRepository(gormDB)
 
@@ -103,7 +103,7 @@ func TestRoleRepositoryFindAllSuccess(t *testing.T) {
 
 func TestRoleRepositoryFindAllEmpty(t *testing.T) {
 	gormDB, mock, db := setupTestDB(t)
-	defer db.Close()
+	defer func() { _ = db.Close() }()
 
 	repo := NewRoleRepository(gormDB)
 
@@ -121,7 +121,7 @@ func TestRoleRepositoryFindAllEmpty(t *testing.T) {
 
 func TestRoleRepositoryFindAllError(t *testing.T) {
 	gormDB, mock, db := setupTestDB(t)
-	defer db.Close()
+	defer func() { _ = db.Close() }()
 
 	repo := NewRoleRepository(gormDB)
 
@@ -141,7 +141,7 @@ func TestRoleRepositoryFindAllError(t *testing.T) {
 
 func TestRoleRepositoryFindByIDSuccess(t *testing.T) {
 	gormDB, mock, db := setupTestDB(t)
-	defer db.Close()
+	defer func() { _ = db.Close() }()
 
 	repo := NewRoleRepository(gormDB)
 
@@ -167,7 +167,7 @@ func TestRoleRepositoryFindByIDSuccess(t *testing.T) {
 
 func TestRoleRepositoryFindByIDNotFound(t *testing.T) {
 	gormDB, mock, db := setupTestDB(t)
-	defer db.Close()
+	defer func() { _ = db.Close() }()
 
 	repo := NewRoleRepository(gormDB)
 
@@ -191,7 +191,7 @@ func TestRoleRepositoryFindByIDNotFound(t *testing.T) {
 
 func TestRoleRepositoryDeleteSuccess(t *testing.T) {
 	gormDB, mock, db := setupTestDB(t)
-	defer db.Close()
+	defer func() { _ = db.Close() }()
 
 	repo := NewRoleRepository(gormDB)
 
@@ -211,7 +211,7 @@ func TestRoleRepositoryDeleteSuccess(t *testing.T) {
 
 func TestRoleRepositoryDeleteNotFound(t *testing.T) {
 	gormDB, mock, db := setupTestDB(t)
-	defer db.Close()
+	defer func() { _ = db.Close() }()
 
 	repo := NewRoleRepository(gormDB)
 
@@ -232,7 +232,7 @@ func TestRoleRepositoryDeleteNotFound(t *testing.T) {
 
 func TestRoleRepositoryDeleteError(t *testing.T) {
 	gormDB, mock, db := setupTestDB(t)
-	defer db.Close()
+	defer func() { _ = db.Close() }()
 
 	repo := NewRoleRepository(gormDB)
 

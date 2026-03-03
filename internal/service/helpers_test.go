@@ -9,6 +9,7 @@ import (
 	"github.com/jandiralceu/inventory_api_with_golang/internal/repository"
 	"github.com/redis/go-redis/v9"
 	"github.com/stretchr/testify/mock"
+	"gorm.io/gorm"
 )
 
 // MockCacheManager is a shared mock for pkg.CacheManager used across service tests.
@@ -298,6 +299,78 @@ func (m *MockProductRepository) FindAll(ctx context.Context, filter repository.P
 	args := m.Called(ctx, filter)
 	if args.Get(0) != nil {
 		return args.Get(0).([]models.Product), args.Get(1).(int64), args.Error(2)
+	}
+	return nil, 0, args.Error(2)
+}
+
+// MockInventoryRepository is a mock implementation of repository.InventoryRepository.
+type MockInventoryRepository struct {
+	mock.Mock
+}
+
+func (m *MockInventoryRepository) Create(ctx context.Context, inventory *models.Inventory) error {
+	args := m.Called(ctx, inventory)
+	return args.Error(0)
+}
+
+func (m *MockInventoryRepository) Update(ctx context.Context, inventory *models.Inventory) error {
+	args := m.Called(ctx, inventory)
+	return args.Error(0)
+}
+
+func (m *MockInventoryRepository) Delete(ctx context.Context, id uuid.UUID) error {
+	args := m.Called(ctx, id)
+	return args.Error(0)
+}
+
+func (m *MockInventoryRepository) FindByID(ctx context.Context, id uuid.UUID) (*models.Inventory, error) {
+	args := m.Called(ctx, id)
+	if args.Get(0) != nil {
+		return args.Get(0).(*models.Inventory), args.Error(1)
+	}
+	return nil, args.Error(1)
+}
+
+func (m *MockInventoryRepository) FindAll(ctx context.Context, filter repository.InventoryListFilter) ([]models.Inventory, int64, error) {
+	args := m.Called(ctx, filter)
+	if args.Get(0) != nil {
+		return args.Get(0).([]models.Inventory), args.Get(1).(int64), args.Error(2)
+	}
+	return nil, 0, args.Error(2)
+}
+
+func (m *MockInventoryRepository) UpdateStock(ctx context.Context, id uuid.UUID, quantityDelta int, version int) error {
+	args := m.Called(ctx, id, quantityDelta, version)
+	return args.Error(0)
+}
+
+func (m *MockInventoryRepository) UpdateReservedStock(ctx context.Context, id uuid.UUID, reservedDelta int, version int) error {
+	args := m.Called(ctx, id, reservedDelta, version)
+	return args.Error(0)
+}
+
+// MockInventoryTransactionRepository is a mock implementation of repository.InventoryTransactionRepository.
+type MockInventoryTransactionRepository struct {
+	mock.Mock
+}
+
+func (m *MockInventoryTransactionRepository) Create(ctx context.Context, tx *gorm.DB, transaction *models.InventoryTransaction) error {
+	args := m.Called(ctx, tx, transaction)
+	return args.Error(0)
+}
+
+func (m *MockInventoryTransactionRepository) FindByInventoryID(ctx context.Context, inventoryID uuid.UUID, params repository.PaginationParams) ([]models.InventoryTransaction, int64, error) {
+	args := m.Called(ctx, inventoryID, params)
+	if args.Get(0) != nil {
+		return args.Get(0).([]models.InventoryTransaction), args.Get(1).(int64), args.Error(2)
+	}
+	return nil, 0, args.Error(2)
+}
+
+func (m *MockInventoryTransactionRepository) FindAll(ctx context.Context, filter repository.TransactionListFilter) ([]models.InventoryTransaction, int64, error) {
+	args := m.Called(ctx, filter)
+	if args.Get(0) != nil {
+		return args.Get(0).([]models.InventoryTransaction), args.Get(1).(int64), args.Error(2)
 	}
 	return nil, 0, args.Error(2)
 }

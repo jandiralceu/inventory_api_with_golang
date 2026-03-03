@@ -12,7 +12,6 @@ import (
 	"github.com/jandiralceu/inventory_api_with_golang/internal/models"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
-	"gorm.io/gorm"
 )
 
 func TestProductService_Create(t *testing.T) {
@@ -26,8 +25,8 @@ func TestProductService_Create(t *testing.T) {
 		Price: 99.99,
 	}
 
-	repo.On("FindBySKU", mock.Anything, req.SKU).Return((*models.Product)(nil), gorm.ErrRecordNotFound)
-	repo.On("FindBySlug", mock.Anything, "test-product").Return((*models.Product)(nil), gorm.ErrRecordNotFound)
+	repo.On("FindBySKU", mock.Anything, req.SKU).Return((*models.Product)(nil), apperrors.ErrNotFound)
+	repo.On("FindBySlug", mock.Anything, "test-product").Return((*models.Product)(nil), apperrors.ErrNotFound)
 	repo.On("Create", mock.Anything, mock.MatchedBy(func(p *models.Product) bool {
 		return p.Name == req.Name && p.Slug == "test-product" && p.SKU == req.SKU && p.Price == req.Price
 	})).Return(nil)
@@ -97,8 +96,8 @@ func TestProductService_Update(t *testing.T) {
 	}
 
 	repo.On("FindByID", mock.Anything, id).Return(existing, nil)
-	repo.On("FindBySKU", mock.Anything, "SKU-NEW").Return((*models.Product)(nil), gorm.ErrRecordNotFound)
-	repo.On("FindBySlug", mock.Anything, "new-name").Return((*models.Product)(nil), gorm.ErrRecordNotFound)
+	repo.On("FindBySKU", mock.Anything, "SKU-NEW").Return((*models.Product)(nil), apperrors.ErrNotFound)
+	repo.On("FindBySlug", mock.Anything, "new-name").Return((*models.Product)(nil), apperrors.ErrNotFound)
 	repo.On("Update", mock.Anything, mock.MatchedBy(func(p *models.Product) bool {
 		return p.Name == "New Name" && p.Slug == "new-name" && p.SKU == "SKU-NEW" && p.Price == 20.0
 	})).Return(nil)

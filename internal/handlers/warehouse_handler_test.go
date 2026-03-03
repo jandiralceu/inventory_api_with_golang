@@ -13,6 +13,7 @@ import (
 	"github.com/jandiralceu/inventory_api_with_golang/internal/models"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
+	"github.com/stretchr/testify/require"
 )
 
 // MockWarehouseService is a mock implementation of service.WarehouseService.
@@ -89,7 +90,7 @@ func TestWarehouseHandler_CreateWarehouse(t *testing.T) {
 
 		assert.Equal(t, http.StatusCreated, w.Code)
 		var resp models.Warehouse
-		json.Unmarshal(w.Body.Bytes(), &resp)
+		require.NoError(t, json.Unmarshal(w.Body.Bytes(), &resp))
 		assert.Equal(t, expected.ID, resp.ID)
 		assert.Equal(t, expected.Name, resp.Name)
 	})
@@ -140,7 +141,7 @@ func TestWarehouseHandler_UpdateWarehouse(t *testing.T) {
 
 		assert.Equal(t, http.StatusOK, w.Code)
 		var resp models.Warehouse
-		json.Unmarshal(w.Body.Bytes(), &resp)
+		require.NoError(t, json.Unmarshal(w.Body.Bytes(), &resp))
 		assert.Equal(t, expected.Name, resp.Name)
 		assert.Equal(t, true, resp.IsActive)
 	})
@@ -191,7 +192,7 @@ func TestWarehouseHandler_FindWarehouseByID(t *testing.T) {
 
 		assert.Equal(t, http.StatusOK, w.Code)
 		var resp models.Warehouse
-		json.Unmarshal(w.Body.Bytes(), &resp)
+		require.NoError(t, json.Unmarshal(w.Body.Bytes(), &resp))
 		assert.Equal(t, id, resp.ID)
 	})
 
@@ -256,7 +257,7 @@ func TestWarehouseHandler_FindAllWarehouses(t *testing.T) {
 
 	assert.Equal(t, http.StatusOK, w.Code)
 	var resp dto.PaginatedResponse[models.Warehouse]
-	json.Unmarshal(w.Body.Bytes(), &resp)
+	require.NoError(t, json.Unmarshal(w.Body.Bytes(), &resp))
 	assert.Len(t, resp.Data, 1)
 	assert.Equal(t, int64(1), resp.Total)
 }

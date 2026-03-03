@@ -14,11 +14,17 @@ import (
 
 // SupplierService defines the business logic contract for supplier management and caching.
 type SupplierService interface {
+	// Create registers a new supplier and invalidates the supplier cache.
 	Create(ctx context.Context, req dto.CreateSupplierRequest) (*models.Supplier, error)
+	// Update modifies an existing supplier record and invalidates the supplier cache.
 	Update(ctx context.Context, id uuid.UUID, req dto.UpdateSupplierRequest) (*models.Supplier, error)
+	// Delete removes a supplier record and purges related cache entries.
 	Delete(ctx context.Context, id uuid.UUID) error
+	// FindByID retrieves a single supplier by ID, using cache when available.
 	FindByID(ctx context.Context, id uuid.UUID) (*models.Supplier, error)
+	// FindBySlug retrieves a single supplier by its URL slug, using cache when available.
 	FindBySlug(ctx context.Context, slug string) (*models.Supplier, error)
+	// FindAll returns a paginated list of suppliers matching the provided filters.
 	FindAll(ctx context.Context, req dto.GetSupplierListRequest) (dto.PaginatedResponse[models.Supplier], error)
 }
 
@@ -42,6 +48,7 @@ func NewSupplierService(supplierRepo repository.SupplierRepository, cache pkg.Ca
 	}
 }
 
+// Create registers a new supplier and invalidates the supplier cache.
 func (s *supplierService) Create(ctx context.Context, req dto.CreateSupplierRequest) (*models.Supplier, error) {
 	supplier := &models.Supplier{
 		Name:          req.Name,
@@ -59,10 +66,11 @@ func (s *supplierService) Create(ctx context.Context, req dto.CreateSupplierRequ
 		return nil, err
 	}
 
-	s.cache.DeletePrefix(ctx, _supplierCachePrefix)
+	_ = s.cache.DeletePrefix(ctx, _supplierCachePrefix)
 	return supplier, nil
 }
 
+// Update modifies an existing supplier record and invalidates the supplier cache.
 func (s *supplierService) Update(ctx context.Context, id uuid.UUID, req dto.UpdateSupplierRequest) (*models.Supplier, error) {
 	supplier, err := s.supplierRepo.FindByID(ctx, id)
 	if err != nil {
@@ -83,19 +91,21 @@ func (s *supplierService) Update(ctx context.Context, id uuid.UUID, req dto.Upda
 		return nil, err
 	}
 
-	s.cache.DeletePrefix(ctx, _supplierCachePrefix)
+	_ = s.cache.DeletePrefix(ctx, _supplierCachePrefix)
 	return supplier, nil
 }
 
+// Delete removes a supplier record and purges related cache entries.
 func (s *supplierService) Delete(ctx context.Context, id uuid.UUID) error {
 	if err := s.supplierRepo.Delete(ctx, id); err != nil {
 		return err
 	}
 
-	s.cache.DeletePrefix(ctx, _supplierCachePrefix)
+	_ = s.cache.DeletePrefix(ctx, _supplierCachePrefix)
 	return nil
 }
 
+// FindByID retrieves a single supplier by ID, using cache when available.
 func (s *supplierService) FindByID(ctx context.Context, id uuid.UUID) (*models.Supplier, error) {
 	cacheKey := fmt.Sprintf("%sid:%s", _supplierCachePrefix, id)
 	var cached models.Supplier
@@ -105,12 +115,13 @@ func (s *supplierService) FindByID(ctx context.Context, id uuid.UUID) (*models.S
 
 	supplier, err := s.supplierRepo.FindByID(ctx, id)
 	if err == nil {
-		s.cache.Set(ctx, cacheKey, supplier, _supplierCacheTTL)
+		_ = s.cache.Set(ctx, cacheKey, supplier, _supplierCacheTTL)
 	}
 
 	return supplier, err
 }
 
+// FindBySlug retrieves a single supplier by its URL slug, using cache when available.
 func (s *supplierService) FindBySlug(ctx context.Context, slug string) (*models.Supplier, error) {
 	cacheKey := fmt.Sprintf("%sslug:%s", _supplierCachePrefix, slug)
 	var cached models.Supplier
@@ -120,12 +131,13 @@ func (s *supplierService) FindBySlug(ctx context.Context, slug string) (*models.
 
 	supplier, err := s.supplierRepo.FindBySlug(ctx, slug)
 	if err == nil {
-		s.cache.Set(ctx, cacheKey, supplier, _supplierCacheTTL)
+		_ = s.cache.Set(ctx, cacheKey, supplier, _supplierCacheTTL)
 	}
 
 	return supplier, err
 }
 
+// FindAll returns a paginated list of suppliers matching the provided filters.
 func (s *supplierService) FindAll(ctx context.Context, req dto.GetSupplierListRequest) (dto.PaginatedResponse[models.Supplier], error) {
 	filter := repository.SupplierListFilter{
 		Name:     req.Name,

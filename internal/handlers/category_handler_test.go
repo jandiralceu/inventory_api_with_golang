@@ -12,6 +12,7 @@ import (
 	"github.com/jandiralceu/inventory_api_with_golang/internal/models"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
+	"github.com/stretchr/testify/require"
 )
 
 // MockCategoryService is a mock implementation of service.CategoryService.
@@ -78,7 +79,7 @@ func TestCategoryHandler_CreateCategory(t *testing.T) {
 
 	assert.Equal(t, http.StatusCreated, w.Code)
 	var resp models.Category
-	json.Unmarshal(w.Body.Bytes(), &resp)
+	require.NoError(t, json.Unmarshal(w.Body.Bytes(), &resp))
 	assert.Equal(t, expected.ID, resp.ID)
 	assert.Equal(t, expected.Name, resp.Name)
 }
@@ -98,7 +99,7 @@ func TestCategoryHandler_FindCategoryByID(t *testing.T) {
 
 	assert.Equal(t, http.StatusOK, w.Code)
 	var resp models.Category
-	json.Unmarshal(w.Body.Bytes(), &resp)
+	require.NoError(t, json.Unmarshal(w.Body.Bytes(), &resp))
 	assert.Equal(t, id, resp.ID)
 }
 
@@ -135,7 +136,7 @@ func TestCategoryHandler_FindAllCategories(t *testing.T) {
 
 	assert.Equal(t, http.StatusOK, w.Code)
 	var resp dto.PaginatedResponse[models.Category]
-	json.Unmarshal(w.Body.Bytes(), &resp)
+	require.NoError(t, json.Unmarshal(w.Body.Bytes(), &resp))
 	assert.Len(t, resp.Data, 1)
 	assert.Equal(t, int64(1), resp.Total)
 }

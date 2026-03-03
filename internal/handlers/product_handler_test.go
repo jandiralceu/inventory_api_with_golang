@@ -13,6 +13,7 @@ import (
 	"github.com/jandiralceu/inventory_api_with_golang/internal/models"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
+	"github.com/stretchr/testify/require"
 )
 
 // MockProductService is a mock implementation of service.ProductService.
@@ -84,7 +85,7 @@ func TestProductHandler_CreateProduct(t *testing.T) {
 
 	assert.Equal(t, http.StatusCreated, w.Code)
 	var resp models.Product
-	json.Unmarshal(w.Body.Bytes(), &resp)
+	require.NoError(t, json.Unmarshal(w.Body.Bytes(), &resp))
 	assert.Equal(t, expected.ID, resp.ID)
 	assert.Equal(t, expected.SKU, resp.SKU)
 }
@@ -105,7 +106,7 @@ func TestProductHandler_FindProductByID(t *testing.T) {
 
 		assert.Equal(t, http.StatusOK, w.Code)
 		var resp models.Product
-		json.Unmarshal(w.Body.Bytes(), &resp)
+		require.NoError(t, json.Unmarshal(w.Body.Bytes(), &resp))
 		assert.Equal(t, id, resp.ID)
 	})
 
@@ -144,7 +145,7 @@ func TestProductHandler_UpdateProduct(t *testing.T) {
 
 	assert.Equal(t, http.StatusOK, w.Code)
 	var resp models.Product
-	json.Unmarshal(w.Body.Bytes(), &resp)
+	require.NoError(t, json.Unmarshal(w.Body.Bytes(), &resp))
 	assert.Equal(t, expected.Name, resp.Name)
 	assert.Equal(t, expected.Price, resp.Price)
 }
@@ -184,7 +185,7 @@ func TestProductHandler_FindAllProducts(t *testing.T) {
 
 	assert.Equal(t, http.StatusOK, w.Code)
 	var resp dto.ProductListResponse
-	json.Unmarshal(w.Body.Bytes(), &resp)
+	require.NoError(t, json.Unmarshal(w.Body.Bytes(), &resp))
 	assert.Len(t, resp.Data, 1)
 	assert.Equal(t, int64(1), resp.Total)
 }

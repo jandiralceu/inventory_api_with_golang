@@ -3,7 +3,6 @@
 package integration
 
 import (
-	"encoding/json"
 	"fmt"
 	"net/http"
 	"testing"
@@ -61,7 +60,7 @@ func TestSupplierManagementIntegration(t *testing.T) {
 		assert.Equal(t, http.StatusCreated, resp.StatusCode)
 
 		var created models.Supplier
-		json.NewDecoder(resp.Body).Decode(&created)
+		require.NoError(t, decodeResponse(resp, &created))
 		assert.Equal(t, createReq.Name, created.Name)
 		assert.Equal(t, "tech-supplies-co", created.Slug)
 		assert.Equal(t, "Innovation Ave", created.Address.Street)
@@ -86,7 +85,7 @@ func TestSupplierManagementIntegration(t *testing.T) {
 		assert.Equal(t, http.StatusOK, respUpdate.StatusCode)
 
 		var updated models.Supplier
-		json.NewDecoder(respUpdate.Body).Decode(&updated)
+		require.NoError(t, decodeResponse(respUpdate, &updated))
 		assert.Equal(t, "Tech Supplies Global", updated.Name)
 		assert.Equal(t, "tech-supplies-global", updated.Slug)
 		assert.Equal(t, "501", updated.Address.Number)
@@ -97,31 +96,30 @@ func TestSupplierManagementIntegration(t *testing.T) {
 		assert.Equal(t, http.StatusOK, resp.StatusCode)
 
 		var list dto.PaginatedResponse[models.Supplier]
-		json.NewDecoder(resp.Body).Decode(&list)
+		require.NoError(t, decodeResponse(resp, &list))
 		assert.GreaterOrEqual(t, len(list.Data), 1)
 		assert.Contains(t, list.Data[0].Name, "Tech")
 	})
 
 	t.Run("Operator can find by ID", func(t *testing.T) {
-		// Get first supplier
 		listResp := authedRequest(t, "GET", baseURL+"/api/v1/suppliers?limit=1", operatorToken, nil)
-		var list dto.PaginatedResponse[models.Supplier]
-		json.NewDecoder(listResp.Body).Decode(&list)
-		id := list.Data[0].ID
+		var list1 dto.PaginatedResponse[models.Supplier]
+		require.NoError(t, decodeResponse(listResp, &list1))
+		id := list1.Data[0].ID
 
 		resp := authedRequest(t, "GET", fmt.Sprintf("%s/api/v1/suppliers/%s", baseURL, id), operatorToken, nil)
 		assert.Equal(t, http.StatusOK, resp.StatusCode)
 
 		var found models.Supplier
-		json.NewDecoder(resp.Body).Decode(&found)
+		require.NoError(t, decodeResponse(resp, &found))
 		assert.Equal(t, id, found.ID)
 	})
 
 	t.Run("RBAC: Operator cannot delete suppliers", func(t *testing.T) {
 		listResp := authedRequest(t, "GET", baseURL+"/api/v1/suppliers?limit=1", operatorToken, nil)
-		var list dto.PaginatedResponse[models.Supplier]
-		json.NewDecoder(listResp.Body).Decode(&list)
-		id := list.Data[0].ID
+		var list2 dto.PaginatedResponse[models.Supplier]
+		require.NoError(t, decodeResponse(listResp, &list2))
+		id := list2.Data[0].ID
 
 		resp := authedRequest(t, "DELETE", fmt.Sprintf("%s/api/v1/suppliers/%s", baseURL, id), operatorToken, nil)
 		assert.Equal(t, http.StatusForbidden, resp.StatusCode)
@@ -138,7 +136,7 @@ func TestSupplierManagementIntegration(t *testing.T) {
 		}
 		cResp := authedRequest(t, "POST", baseURL+"/api/v1/suppliers", managerToken, cReq)
 		var toDel models.Supplier
-		json.NewDecoder(cResp.Body).Decode(&toDel)
+		require.NoError(t, decodeResponse(cResp, &toDel))
 		assert.NotEmpty(t, toDel.ID, "ID should not be empty")
 
 		resp := authedRequest(t, "DELETE", fmt.Sprintf("%s/api/v1/suppliers/%s", baseURL, toDel.ID), adminToken, nil)

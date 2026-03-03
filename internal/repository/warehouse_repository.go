@@ -4,19 +4,37 @@ import (
 	"context"
 
 	"github.com/google/uuid"
-	"github.com/jandiralceu/inventory_api_with_golang/internal/apperrors"
 	"github.com/jandiralceu/inventory_api_with_golang/internal/models"
 	"gorm.io/gorm"
 )
 
 // WarehouseRepository defines the persistence contract for warehouse-related data operations.
 type WarehouseRepository interface {
+	// Create persists a new warehouse record.
+	// Returns ErrConflict if a warehouse with the same code or slug already exists.
 	Create(ctx context.Context, warehouse *models.Warehouse) error
+
+	// Update modifies an existing warehouse record.
+	// Returns ErrNotFound if the record does not exist.
 	Update(ctx context.Context, warehouse *models.Warehouse) error
+
+	// Delete removes a warehouse record by its unique ID.
+	// Returns ErrNotFound if the record does not exist.
 	Delete(ctx context.Context, id uuid.UUID) error
+
+	// FindByID retrieves a warehouse by its unique identifier.
+	// Returns ErrNotFound if the record does not exist.
 	FindByID(ctx context.Context, id uuid.UUID) (*models.Warehouse, error)
+
+	// FindBySlug retrieves a warehouse by its URL-friendly slug.
+	// Returns ErrNotFound if the record does not exist.
 	FindBySlug(ctx context.Context, slug string) (*models.Warehouse, error)
+
+	// FindByCode retrieves a warehouse by its unique business code.
+	// Returns ErrNotFound if the record does not exist.
 	FindByCode(ctx context.Context, code string) (*models.Warehouse, error)
+
+	// FindAll retrieves a paginated list of warehouses based on the provided filters.
 	FindAll(ctx context.Context, filter WarehouseListFilter) (warehouses []models.Warehouse, total int64, err error)
 }
 
@@ -39,6 +57,7 @@ type WarehouseListFilter struct {
 	Pagination PaginationParams
 }
 
+// Create inserts a new warehouse record into the database.
 func (r *warehouseRepository) Create(ctx context.Context, warehouse *models.Warehouse) error {
 	if err := r.db.WithContext(ctx).Create(warehouse).Error; err != nil {
 		return mapDatabaseError(err)
@@ -46,6 +65,7 @@ func (r *warehouseRepository) Create(ctx context.Context, warehouse *models.Ware
 	return nil
 }
 
+// Update saves changes to an existing warehouse record using selective updates.
 func (r *warehouseRepository) Update(ctx context.Context, warehouse *models.Warehouse) error {
 	result := r.db.WithContext(ctx).
 		Model(&models.Warehouse{}).
@@ -56,22 +76,24 @@ func (r *warehouseRepository) Update(ctx context.Context, warehouse *models.Ware
 		return mapDatabaseError(result.Error)
 	}
 	if result.RowsAffected == 0 {
-		return apperrors.ErrNotFound
+		return mapDatabaseError(gorm.ErrRecordNotFound)
 	}
 	return nil
 }
 
+// Delete removes a warehouse record by its unique ID.
 func (r *warehouseRepository) Delete(ctx context.Context, id uuid.UUID) error {
 	result := r.db.WithContext(ctx).Delete(&models.Warehouse{}, "id = ?", id)
 	if result.Error != nil {
 		return mapDatabaseError(result.Error)
 	}
 	if result.RowsAffected == 0 {
-		return apperrors.ErrNotFound
+		return mapDatabaseError(gorm.ErrRecordNotFound)
 	}
 	return nil
 }
 
+// FindByID retrieves a warehouse by its unique identifier.
 func (r *warehouseRepository) FindByID(ctx context.Context, id uuid.UUID) (*models.Warehouse, error) {
 	var warehouse models.Warehouse
 	if err := r.db.WithContext(ctx).First(&warehouse, "id = ?", id).Error; err != nil {
@@ -80,6 +102,7 @@ func (r *warehouseRepository) FindByID(ctx context.Context, id uuid.UUID) (*mode
 	return &warehouse, nil
 }
 
+// FindBySlug retrieves a warehouse by its URL-friendly slug.
 func (r *warehouseRepository) FindBySlug(ctx context.Context, slug string) (*models.Warehouse, error) {
 	var warehouse models.Warehouse
 	if err := r.db.WithContext(ctx).Where("slug = ?", slug).First(&warehouse).Error; err != nil {
@@ -88,6 +111,7 @@ func (r *warehouseRepository) FindBySlug(ctx context.Context, slug string) (*mod
 	return &warehouse, nil
 }
 
+// FindByCode retrieves a warehouse by its unique business code.
 func (r *warehouseRepository) FindByCode(ctx context.Context, code string) (*models.Warehouse, error) {
 	var warehouse models.Warehouse
 	if err := r.db.WithContext(ctx).Where("code = ?", code).First(&warehouse).Error; err != nil {
@@ -96,6 +120,7 @@ func (r *warehouseRepository) FindByCode(ctx context.Context, code string) (*mod
 	return &warehouse, nil
 }
 
+// FindAll executes a listing query with dynamic filtering and pagination for warehouses.
 func (r *warehouseRepository) FindAll(ctx context.Context, filter WarehouseListFilter) ([]models.Warehouse, int64, error) {
 	var warehouses []models.Warehouse
 	var total int64
