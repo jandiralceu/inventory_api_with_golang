@@ -62,14 +62,6 @@ spec:
               mountPath: /app/public.pem
               subPath: public.pem
               readOnly: true
-            - name: casbin-config
-              mountPath: /app/model.conf
-              subPath: model.conf
-              readOnly: true
-            - name: casbin-config
-              mountPath: /app/policy.csv
-              subPath: policy.csv
-              readOnly: true
       volumes:
         - name: rsa-keys
           secret:
@@ -79,6 +71,3 @@ spec:
                 path: private.pem
               - key: public.pem
                 path: public.pem
-        - name: casbin-config
-          configMap:
-            name: casbin-config
