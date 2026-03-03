@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: inventory-redis
+  namespace: inventory
+  labels:
+    app: inventory-redis
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: inventory-redis
+  template:
+    metadata:
+      labels:
+        app: inventory-redis
+    spec:
+      containers:
+        - name: inventory-redis
+          image: redis:7-alpine
+          ports:
+            - containerPort: 6379
+          livenessProbe:
+            exec:
+              command: ["redis-cli", "ping"]
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          readinessProbe:
+            exec:
+              command: ["redis-cli", "ping"]
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          resources:
+            requests:
+              cpu: 50m
+              memory: 64Mi
+            limits:
+              cpu: 100m
+              memory: 128Mi

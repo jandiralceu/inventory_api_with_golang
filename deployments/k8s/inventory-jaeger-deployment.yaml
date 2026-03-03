@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: inventory-jaeger
+  namespace: inventory
+  labels:
+    app: inventory-jaeger
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: inventory-jaeger
+  template:
+    metadata:
+      labels:
+        app: inventory-jaeger
+    spec:
+      containers:
+        - name: inventory-jaeger
+          image: jaegertracing/all-in-one:latest
+          ports:
+            - containerPort: 4317 # OTLP gRPC
+            - containerPort: 16686 # UI
+          env:
+            - name: COLLECTOR_OTLP_ENABLED
+              value: "true"
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 250m
+              memory: 256Mi

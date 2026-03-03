@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: inventory-api-configmap
+  namespace: inventory
+data:
+  APP_PORT: "8080"
+  APP_NAME: "inventory-api"
+  DB_HOST: "inventory-postgres"
+  DB_PORT: "5432"
+  DB_USER: "jandiralceu"
+  DB_NAME: "inventory"
+  DB_SSL_MODE: "disable"
+  REDIS_HOST: "inventory-redis"
+  REDIS_PORT: "6379"
+  OTLP_ENDPOINT: "inventory-jaeger:4317"

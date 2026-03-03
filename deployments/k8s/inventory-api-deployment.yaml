@@ -1,0 +1,84 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: inventory-api
+  namespace: inventory
+  labels:
+    app: inventory-api
+spec:
+  replicas: 2
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      app: inventory-api
+  template:
+    metadata:
+      labels:
+        app: inventory-api
+    spec:
+      containers:
+        - name: inventory-api
+          image: jandir/inventory-api:latest
+          ports:
+            - containerPort: 8080
+          resources:
+            requests:
+              cpu: 50m
+              memory: 64Mi
+            limits:
+              cpu: 100m
+              memory: 128Mi
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            initialDelaySeconds: 15
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          envFrom:
+            - configMapRef:
+                name: inventory-api-configmap
+          env:
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: inventory-api-secret
+                  key: DB_PASSWORD
+          volumeMounts:
+            - name: rsa-keys
+              mountPath: /app/private.pem
+              subPath: private.pem
+              readOnly: true
+            - name: rsa-keys
+              mountPath: /app/public.pem
+              subPath: public.pem
+              readOnly: true
+            - name: casbin-config
+              mountPath: /app/model.conf
+              subPath: model.conf
+              readOnly: true
+            - name: casbin-config
+              mountPath: /app/policy.csv
+              subPath: policy.csv
+              readOnly: true
+      volumes:
+        - name: rsa-keys
+          secret:
+            secretName: inventory-api-secret
+            items:
+              - key: private.pem
+                path: private.pem
+              - key: public.pem
+                path: public.pem
+        - name: casbin-config
+          configMap:
+            name: casbin-config

@@ -1,3 +1,4 @@
+name: inventory
 services:
   db:
     container_name: inventory-postgres
@@ -43,10 +44,25 @@ services:
     networks:
       - inventory-network
 
+  migrate:
+    container_name: inventory-migrate
+    image: migrate/migrate
+    volumes:
+      - ../migrations:/migrations
+    networks:
+      - inventory-network
+    depends_on:
+      db:
+        condition: service_healthy
+    command:
+      - -path=/migrations/
+      - -database=postgres://jandiralceu:nk6eloPZ1FQk8Ku1@db:5432/inventory?sslmode=disable
+      - up
+
   api:
     container_name: inventory-api
     build:
-      context: .
+      context: ..
       dockerfile: Dockerfile
     ports:
       - "8080:8080"
@@ -59,6 +75,8 @@ services:
         condition: service_healthy
       jaeger:
         condition: service_started
+      migrate:
+        condition: service_completed_successfully
     environment:
       - DB_HOST=db
       - DB_USER=jandiralceu
@@ -69,8 +87,10 @@ services:
       - REDIS_PORT=6379
       - OTLP_ENDPOINT=jaeger:4317
     volumes:
-      - ./private.pem:/app/private.pem:ro
-      - ./public.pem:/app/public.pem:ro
+      - ../private.pem:/app/private.pem:ro
+      - ../public.pem:/app/public.pem:ro
+      - ../model.conf:/app/model.conf:ro
+      - ../policy.csv:/app/policy.csv:ro
     networks:
       - inventory-network
 

@@ -56,16 +56,16 @@ migration-down: ## Rollback migrations. Usage: make migration-down [step=1]
 	@migrate -path $(MIGRATIONS_PATH) -database "$(DB_URL)" down $(if $(step),$(step),1)
 
 docker-up: ## Start only background docker containers (DB, Redis, Jaeger) in detached mode
-	docker compose up -d 
+	docker compose -f deployments/compose.yaml up -d 
 
 docker-up-all: generate-keys ## Start ALL docker containers including the API app in detached mode
-	docker compose --profile all up -d --build
+	docker compose -f deployments/compose.yaml --profile all up -d --build
 
 docker-stop: ## Stop docker containers without removing them
-	docker compose --profile all stop
+	docker compose -f deployments/compose.yaml --profile all stop
 
 docker-down: ## Stop and remove docker containers
-	docker compose --profile all down
+	docker compose -f deployments/compose.yaml --profile all down
 
 generate-keys: ## Generate RSA keys for JWT
 	@if [ ! -f private.pem ]; then \

@@ -1,0 +1,50 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: inventory-postgres
+  namespace: inventory
+  labels:
+    app: inventory-postgres
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: inventory-postgres
+  template:
+    metadata:
+      labels:
+        app: inventory-postgres
+    spec:
+      containers:
+        - name: inventory-postgres
+          image: postgres:17.0
+          ports:
+            - containerPort: 5432
+          env:
+            - name: POSTGRES_USER
+              value: jandiralceu
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: inventory-api-secret
+                  key: DB_PASSWORD
+            - name: POSTGRES_DB
+              value: inventory
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+          livenessProbe:
+            exec:
+              command: ["pg_isready", "-U", "jandiralceu", "-d", "inventory"]
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            exec:
+              command: ["pg_isready", "-U", "jandiralceu", "-d", "inventory"]
+            initialDelaySeconds: 5
+            periodSeconds: 5
+      # Note: For production, a PersistentVolumeClaim should be used.

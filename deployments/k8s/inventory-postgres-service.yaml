@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: inventory-postgres
+  namespace: inventory
+  labels:
+    app: inventory-postgres
+spec:
+  selector:
+    app: inventory-postgres
+  ports:
+    - name: postgres
+      protocol: TCP
+      port: 5432
+      targetPort: 5432
+  type: ClusterIP
