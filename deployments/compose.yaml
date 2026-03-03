@@ -20,13 +20,13 @@ services:
 
   jaeger:
     container_name: inventory-jaeger
-    image: jaegertracing/all-in-one:latest
+    image: jaegertracing/jaeger:2.5.0
     restart: always
     ports:
       - 4317:4317   # OTLP gRPC (receives traces from the app)
       - 16686:16686 # Web UI (http://localhost:16686)
     environment:
-      COLLECTOR_OTLP_ENABLED: "true"
+      SPAN_STORAGE_TYPE: "memory"
     networks:
       - inventory-network
 

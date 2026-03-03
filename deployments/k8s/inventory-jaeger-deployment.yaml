@@ -17,13 +17,13 @@ spec:
     spec:
       containers:
         - name: inventory-jaeger
-          image: jaegertracing/all-in-one:latest
+          image: jaegertracing/jaeger:2.5.0
           ports:
             - containerPort: 4317 # OTLP gRPC
             - containerPort: 16686 # UI
           env:
-            - name: COLLECTOR_OTLP_ENABLED
-              value: "true"
+            - name: SPAN_STORAGE_TYPE
+              value: "memory"
           resources:
             requests:
               cpu: 100m
