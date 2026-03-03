@@ -59,7 +59,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: jandiralceu/inventory-api
+          images: ${{ secrets.DOCKERHUB_USERNAME }}/inventory-api
           tags: |
             type=sha,prefix=
             type=raw,value=latest
