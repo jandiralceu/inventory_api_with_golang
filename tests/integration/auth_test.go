@@ -3,7 +3,6 @@
 package integration
 
 import (
-	"encoding/json"
 	"net/http"
 	"testing"
 
@@ -41,7 +40,7 @@ func TestAuthFlowAndRBAC(t *testing.T) {
 		assert.Equal(t, http.StatusOK, resp.StatusCode)
 
 		var refreshResult map[string]string
-		json.NewDecoder(resp.Body).Decode(&refreshResult)
+		require.NoError(t, decodeResponse(resp, &refreshResult))
 		newAccessToken := refreshResult["accessToken"]
 		newRefreshToken := refreshResult["refreshToken"]
 		assert.NotEmpty(t, newAccessToken)
@@ -71,7 +70,7 @@ func TestAuthFlowAndRBAC(t *testing.T) {
 		assert.Equal(t, http.StatusOK, resp.StatusCode, "Admin should be able to list roles")
 
 		var roles []models.Role
-		json.NewDecoder(resp.Body).Decode(&roles)
+		require.NoError(t, decodeResponse(resp, &roles))
 		assert.GreaterOrEqual(t, len(roles), 3, "Should have seeded roles")
 
 		// Operator attempts to list roles

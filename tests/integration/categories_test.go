@@ -3,7 +3,6 @@
 package integration
 
 import (
-	"encoding/json"
 	"fmt"
 	"net/http"
 	"testing"
@@ -52,7 +51,7 @@ func TestCategoryManagementIntegration(t *testing.T) {
 		assert.Equal(t, http.StatusCreated, resp.StatusCode)
 
 		var created models.Category
-		json.NewDecoder(resp.Body).Decode(&created)
+		require.NoError(t, decodeResponse(resp, &created))
 		assert.Equal(t, "Electronics", created.Name)
 		assert.Equal(t, "electronics", created.Slug)
 
@@ -68,7 +67,7 @@ func TestCategoryManagementIntegration(t *testing.T) {
 		assert.Equal(t, http.StatusOK, respUpdate.StatusCode)
 
 		var updated models.Category
-		json.NewDecoder(respUpdate.Body).Decode(&updated)
+		require.NoError(t, decodeResponse(respUpdate, &updated))
 		assert.Equal(t, updateReq.Name, updated.Name)
 		assert.Equal(t, "electronics-gadgets", updated.Slug)
 	})
@@ -78,7 +77,7 @@ func TestCategoryManagementIntegration(t *testing.T) {
 		pReq := dto.CreateCategoryRequest{Name: "Computers"}
 		pResp := authedRequest(t, "POST", baseURL+"/api/v1/categories", managerToken, pReq)
 		var parent models.Category
-		json.NewDecoder(pResp.Body).Decode(&parent)
+		require.NoError(t, decodeResponse(pResp, &parent))
 
 		// Subcategory
 		subReq := dto.CreateCategoryRequest{
@@ -89,7 +88,7 @@ func TestCategoryManagementIntegration(t *testing.T) {
 		assert.Equal(t, http.StatusCreated, subResp.StatusCode)
 
 		var sub models.Category
-		json.NewDecoder(subResp.Body).Decode(&sub)
+		require.NoError(t, decodeResponse(subResp, &sub))
 		assert.Equal(t, &parent.ID, sub.ParentID)
 	})
 
@@ -99,7 +98,7 @@ func TestCategoryManagementIntegration(t *testing.T) {
 		assert.Equal(t, http.StatusOK, resp.StatusCode)
 
 		var list dto.PaginatedResponse[models.Category]
-		json.NewDecoder(resp.Body).Decode(&list)
+		require.NoError(t, decodeResponse(resp, &list))
 		assert.GreaterOrEqual(t, len(list.Data), 2)
 	})
 
@@ -107,7 +106,7 @@ func TestCategoryManagementIntegration(t *testing.T) {
 		// First get an ID (from a category created by manager)
 		listResp := authedRequest(t, "GET", baseURL+"/api/v1/categories?limit=1", operatorToken, nil)
 		var list dto.PaginatedResponse[models.Category]
-		json.NewDecoder(listResp.Body).Decode(&list)
+		require.NoError(t, decodeResponse(listResp, &list))
 		id := list.Data[0].ID
 
 		resp := authedRequest(t, "GET", fmt.Sprintf("%s/api/v1/categories/%s", baseURL, id), operatorToken, nil)
@@ -118,7 +117,7 @@ func TestCategoryManagementIntegration(t *testing.T) {
 		// Get an ID
 		listResp := authedRequest(t, "GET", baseURL+"/api/v1/categories?limit=1", operatorToken, nil)
 		var list dto.PaginatedResponse[models.Category]
-		json.NewDecoder(listResp.Body).Decode(&list)
+		require.NoError(t, decodeResponse(listResp, &list))
 		id := list.Data[0].ID
 
 		resp := authedRequest(t, "DELETE", fmt.Sprintf("%s/api/v1/categories/%s", baseURL, id), operatorToken, nil)
@@ -130,7 +129,7 @@ func TestCategoryManagementIntegration(t *testing.T) {
 		cReq := dto.CreateCategoryRequest{Name: "To Delete"}
 		cResp := authedRequest(t, "POST", baseURL+"/api/v1/categories", managerToken, cReq)
 		var toDel models.Category
-		json.NewDecoder(cResp.Body).Decode(&toDel)
+		require.NoError(t, decodeResponse(cResp, &toDel))
 
 		resp := authedRequest(t, "DELETE", fmt.Sprintf("%s/api/v1/categories/%s", baseURL, toDel.ID), adminToken, nil)
 		assert.Equal(t, http.StatusNoContent, resp.StatusCode)

@@ -69,7 +69,7 @@ func (s *categoryService) Create(ctx context.Context, req dto.CreateCategoryRequ
 		return nil, err
 	}
 
-	s.cache.DeletePrefix(ctx, _categoryCachePrefix)
+	_ = s.cache.DeletePrefix(ctx, _categoryCachePrefix)
 	return category, nil
 }
 
@@ -99,7 +99,7 @@ func (s *categoryService) Update(ctx context.Context, id uuid.UUID, req dto.Upda
 		return nil, err
 	}
 
-	s.cache.DeletePrefix(ctx, _categoryCachePrefix)
+	_ = s.cache.DeletePrefix(ctx, _categoryCachePrefix)
 	return category, nil
 }
 
@@ -109,7 +109,7 @@ func (s *categoryService) Delete(ctx context.Context, id uuid.UUID) error {
 		return err
 	}
 
-	s.cache.DeletePrefix(ctx, _categoryCachePrefix)
+	_ = s.cache.DeletePrefix(ctx, _categoryCachePrefix)
 	return nil
 }
 
@@ -123,7 +123,7 @@ func (s *categoryService) FindByID(ctx context.Context, id uuid.UUID) (*models.C
 
 	category, err := s.categoryRepo.FindByID(ctx, id)
 	if err == nil {
-		s.cache.Set(ctx, cacheKey, category, _categoryCacheTTL)
+		_ = s.cache.Set(ctx, cacheKey, category, _categoryCacheTTL)
 	}
 
 	return category, err
@@ -139,7 +139,7 @@ func (s *categoryService) FindBySlug(ctx context.Context, slug string) (*models.
 
 	category, err := s.categoryRepo.FindBySlug(ctx, slug)
 	if err == nil {
-		s.cache.Set(ctx, cacheKey, category, _categoryCacheTTL)
+		_ = s.cache.Set(ctx, cacheKey, category, _categoryCacheTTL)
 	}
 
 	return category, err

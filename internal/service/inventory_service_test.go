@@ -40,6 +40,7 @@ func TestInventoryService_Create(t *testing.T) {
 			return i.ProductID == productID && i.WarehouseID == warehouseID && i.Quantity == 100
 		})).Return(nil).Once()
 		cache.On("DeletePrefix", mock.Anything, "inventory:").Return(nil).Once()
+		transactionRepo.On("Create", mock.Anything, mock.Anything, mock.AnythingOfType("*models.InventoryTransaction")).Return(nil).Once()
 
 		inv, err := svc.Create(context.Background(), req)
 
@@ -121,6 +122,7 @@ func TestInventoryService_StockOperations(t *testing.T) {
 		repo.On("FindByID", mock.Anything, id).Return(existing, nil).Once()
 		repo.On("UpdateStock", mock.Anything, id, 5, existing.Version).Return(nil).Once()
 		cache.On("DeletePrefix", mock.Anything, "inventory:").Return(nil).Once()
+		transactionRepo.On("Create", mock.Anything, mock.Anything, mock.AnythingOfType("*models.InventoryTransaction")).Return(nil).Once()
 
 		err := svc.AddStock(context.Background(), id, 5)
 
@@ -140,6 +142,7 @@ func TestInventoryService_StockOperations(t *testing.T) {
 		repo.On("FindByID", mock.Anything, id).Return(existing, nil).Once()
 		repo.On("UpdateReservedStock", mock.Anything, id, 3, existing.Version).Return(nil).Once()
 		cache.On("DeletePrefix", mock.Anything, "inventory:").Return(nil).Once()
+		transactionRepo.On("Create", mock.Anything, mock.Anything, mock.AnythingOfType("*models.InventoryTransaction")).Return(nil).Once()
 
 		err := svc.ReserveStock(context.Background(), id, 3)
 

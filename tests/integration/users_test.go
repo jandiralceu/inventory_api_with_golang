@@ -3,7 +3,6 @@
 package integration
 
 import (
-	"encoding/json"
 	"fmt"
 	"net/http"
 	"testing"
@@ -40,7 +39,7 @@ func TestUserManagementIntegration(t *testing.T) {
 		assert.Equal(t, http.StatusOK, resp.StatusCode)
 
 		var listResp dto.UserListResponse
-		json.NewDecoder(resp.Body).Decode(&listResp)
+		require.NoError(t, decodeResponse(resp, &listResp))
 		assert.NotEmpty(t, listResp.Data)
 		assert.Equal(t, "Searchable User", listResp.Data[0].Name)
 	})

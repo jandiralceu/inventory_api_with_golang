@@ -67,7 +67,7 @@ func TestRateLimiter(t *testing.T) {
 	client := redis.NewClient(&redis.Options{
 		Addr: mr.Addr(),
 	})
-	defer client.Close()
+	defer func() { _ = client.Close() }()
 
 	// Create our mock CacheManager to return the real redis client
 	mockCache := new(MockCacheManager)
@@ -124,7 +124,7 @@ func TestRateLimiter_WithUserID(t *testing.T) {
 	defer mr.Close()
 
 	client := redis.NewClient(&redis.Options{Addr: mr.Addr()})
-	defer client.Close()
+	defer func() { _ = client.Close() }()
 
 	mockCache := new(MockCacheManager)
 	mockCache.On("GetClient").Return(client)

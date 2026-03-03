@@ -51,7 +51,7 @@ func Setup(routeConfig *RouteConfig, config *config.Config, jwtManager *pkg.JWTM
 		MaxAge:          12 * 3600,
 	}))
 
-	router.SetTrustedProxies(nil)
+	_ = router.SetTrustedProxies(nil)
 
 	router.Use(otelgin.Middleware(config.AppName))
 

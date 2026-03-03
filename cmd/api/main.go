@@ -81,14 +81,14 @@ func main() {
 		slog.Error("Failed to get underlying DB connection", "error", err)
 		os.Exit(1)
 	}
-	defer sqlDB.Close()
+	defer func() { _ = sqlDB.Close() }()
 
 	sqlDB.SetMaxIdleConns(10)
 	sqlDB.SetMaxOpenConns(100)
 	sqlDB.SetConnMaxLifetime(time.Hour)
 
 	cacheManager := pkg.NewRedisCacheManager(cfg)
-	defer cacheManager.Close()
+	defer func() { _ = cacheManager.Close() }()
 
 	hasher := pkg.NewArgon2PasswordHasher()
 

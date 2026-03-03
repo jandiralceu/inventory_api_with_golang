@@ -19,6 +19,12 @@ const (
 	UserRoleKey = "userRole"
 )
 
+type contextKey string
+
+const (
+	ctxUserIDKey contextKey = "userID"
+)
+
 // ProblemDetails represents a standard error response following RFC 7807.
 // This is a local copy to avoid a circular dependency with the handlers package.
 type ProblemDetails struct {
@@ -69,7 +75,7 @@ func AuthMiddleware(jwtManager *pkg.JWTManager) gin.HandlerFunc {
 		c.Set(UserRoleKey, claims.Role)
 
 		// Inject into Request context so services can access it without Gin dependency
-		ctx := context.WithValue(c.Request.Context(), UserIDKey, claims.UserID)
+		ctx := context.WithValue(c.Request.Context(), ctxUserIDKey, claims.UserID)
 		c.Request = c.Request.WithContext(ctx)
 
 		c.Next()

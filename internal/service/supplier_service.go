@@ -66,7 +66,7 @@ func (s *supplierService) Create(ctx context.Context, req dto.CreateSupplierRequ
 		return nil, err
 	}
 
-	s.cache.DeletePrefix(ctx, _supplierCachePrefix)
+	_ = s.cache.DeletePrefix(ctx, _supplierCachePrefix)
 	return supplier, nil
 }
 
@@ -91,7 +91,7 @@ func (s *supplierService) Update(ctx context.Context, id uuid.UUID, req dto.Upda
 		return nil, err
 	}
 
-	s.cache.DeletePrefix(ctx, _supplierCachePrefix)
+	_ = s.cache.DeletePrefix(ctx, _supplierCachePrefix)
 	return supplier, nil
 }
 
@@ -101,7 +101,7 @@ func (s *supplierService) Delete(ctx context.Context, id uuid.UUID) error {
 		return err
 	}
 
-	s.cache.DeletePrefix(ctx, _supplierCachePrefix)
+	_ = s.cache.DeletePrefix(ctx, _supplierCachePrefix)
 	return nil
 }
 
@@ -115,7 +115,7 @@ func (s *supplierService) FindByID(ctx context.Context, id uuid.UUID) (*models.S
 
 	supplier, err := s.supplierRepo.FindByID(ctx, id)
 	if err == nil {
-		s.cache.Set(ctx, cacheKey, supplier, _supplierCacheTTL)
+		_ = s.cache.Set(ctx, cacheKey, supplier, _supplierCacheTTL)
 	}
 
 	return supplier, err
@@ -131,7 +131,7 @@ func (s *supplierService) FindBySlug(ctx context.Context, slug string) (*models.
 
 	supplier, err := s.supplierRepo.FindBySlug(ctx, slug)
 	if err == nil {
-		s.cache.Set(ctx, cacheKey, supplier, _supplierCacheTTL)
+		_ = s.cache.Set(ctx, cacheKey, supplier, _supplierCacheTTL)
 	}
 
 	return supplier, err

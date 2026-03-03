@@ -67,7 +67,7 @@ func (s *warehouseService) Create(ctx context.Context, req dto.CreateWarehouseRe
 		return nil, err
 	}
 
-	s.cache.DeletePrefix(ctx, _warehouseCachePrefix)
+	_ = s.cache.DeletePrefix(ctx, _warehouseCachePrefix)
 	return warehouse, nil
 }
 
@@ -93,7 +93,7 @@ func (s *warehouseService) Update(ctx context.Context, id uuid.UUID, req dto.Upd
 		return nil, err
 	}
 
-	s.cache.DeletePrefix(ctx, _warehouseCachePrefix)
+	_ = s.cache.DeletePrefix(ctx, _warehouseCachePrefix)
 	return warehouse, nil
 }
 
@@ -103,7 +103,7 @@ func (s *warehouseService) Delete(ctx context.Context, id uuid.UUID) error {
 		return err
 	}
 
-	s.cache.DeletePrefix(ctx, _warehouseCachePrefix)
+	_ = s.cache.DeletePrefix(ctx, _warehouseCachePrefix)
 	return nil
 }
 
@@ -117,7 +117,7 @@ func (s *warehouseService) FindByID(ctx context.Context, id uuid.UUID) (*models.
 
 	warehouse, err := s.warehouseRepo.FindByID(ctx, id)
 	if err == nil {
-		s.cache.Set(ctx, cacheKey, warehouse, _warehouseCacheTTL)
+		_ = s.cache.Set(ctx, cacheKey, warehouse, _warehouseCacheTTL)
 	}
 
 	return warehouse, err
@@ -133,7 +133,7 @@ func (s *warehouseService) FindBySlug(ctx context.Context, slug string) (*models
 
 	warehouse, err := s.warehouseRepo.FindBySlug(ctx, slug)
 	if err == nil {
-		s.cache.Set(ctx, cacheKey, warehouse, _warehouseCacheTTL)
+		_ = s.cache.Set(ctx, cacheKey, warehouse, _warehouseCacheTTL)
 	}
 
 	return warehouse, err

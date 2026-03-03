@@ -12,6 +12,7 @@ import (
 	"github.com/jandiralceu/inventory_api_with_golang/internal/models"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
+	"github.com/stretchr/testify/require"
 )
 
 // MockSupplierService is a mock implementation of service.SupplierService.
@@ -87,7 +88,7 @@ func TestSupplierHandler_CreateSupplier(t *testing.T) {
 
 	assert.Equal(t, http.StatusCreated, w.Code)
 	var resp models.Supplier
-	json.Unmarshal(w.Body.Bytes(), &resp)
+	require.NoError(t, json.Unmarshal(w.Body.Bytes(), &resp))
 	assert.Equal(t, expected.ID, resp.ID)
 }
 
@@ -106,7 +107,7 @@ func TestSupplierHandler_FindSupplierByID(t *testing.T) {
 
 	assert.Equal(t, http.StatusOK, w.Code)
 	var resp models.Supplier
-	json.Unmarshal(w.Body.Bytes(), &resp)
+	require.NoError(t, json.Unmarshal(w.Body.Bytes(), &resp))
 	assert.Equal(t, id, resp.ID)
 }
 
@@ -138,7 +139,7 @@ func TestSupplierHandler_UpdateSupplier(t *testing.T) {
 
 	assert.Equal(t, http.StatusOK, w.Code)
 	var resp models.Supplier
-	json.Unmarshal(w.Body.Bytes(), &resp)
+	require.NoError(t, json.Unmarshal(w.Body.Bytes(), &resp))
 	assert.Equal(t, "Updated Name", resp.Name)
 }
 
@@ -175,7 +176,7 @@ func TestSupplierHandler_FindAllSuppliers(t *testing.T) {
 
 	assert.Equal(t, http.StatusOK, w.Code)
 	var resp dto.PaginatedResponse[models.Supplier]
-	json.Unmarshal(w.Body.Bytes(), &resp)
+	require.NoError(t, json.Unmarshal(w.Body.Bytes(), &resp))
 	assert.Len(t, resp.Data, 1)
 }
 

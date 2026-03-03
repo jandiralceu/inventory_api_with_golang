@@ -22,7 +22,7 @@ func TestRedisCacheManager_SetGetDelete(t *testing.T) {
 	}
 
 	cache := NewRedisCacheManager(cfg)
-	defer cache.Close()
+	defer func() { _ = cache.Close() }()
 
 	ctx := context.Background()
 
@@ -58,7 +58,7 @@ func TestRedisCacheManager_DeletePrefix(t *testing.T) {
 	}
 
 	cache := NewRedisCacheManager(cfg)
-	defer cache.Close()
+	defer func() { _ = cache.Close() }()
 
 	ctx := context.Background()
 
@@ -89,7 +89,7 @@ func TestRedisCacheManager_SetInvalidJSON(t *testing.T) {
 	}
 
 	cache := NewRedisCacheManager(cfg)
-	defer cache.Close()
+	defer func() { _ = cache.Close() }()
 
 	// Channels cannot be JSON-marshaled
 	invalidValue := make(chan int)

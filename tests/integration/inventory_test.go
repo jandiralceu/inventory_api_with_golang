@@ -90,7 +90,7 @@ func createCategory(t *testing.T, baseURL, token string) uuid.UUID {
 	resp := authedRequest(t, "POST", baseURL+"/api/v1/categories", token, req)
 	require.Equal(t, http.StatusCreated, resp.StatusCode)
 	var data models.Category
-	decodeResponse(resp, &data)
+	require.NoError(t, decodeResponse(resp, &data))
 	return data.ID
 }
 
@@ -111,7 +111,7 @@ func createSupplier(t *testing.T, baseURL, token string) uuid.UUID {
 	resp := authedRequest(t, "POST", baseURL+"/api/v1/suppliers", token, req)
 	require.Equal(t, http.StatusCreated, resp.StatusCode)
 	var data models.Supplier
-	decodeResponse(resp, &data)
+	require.NoError(t, decodeResponse(resp, &data))
 	return data.ID
 }
 
@@ -131,7 +131,7 @@ func createWarehouse(t *testing.T, baseURL, token string) uuid.UUID {
 	resp := authedRequest(t, "POST", baseURL+"/api/v1/warehouses", token, req)
 	require.Equal(t, http.StatusCreated, resp.StatusCode)
 	var data models.Warehouse
-	decodeResponse(resp, &data)
+	require.NoError(t, decodeResponse(resp, &data))
 	return data.ID
 }
 
@@ -146,11 +146,11 @@ func createProduct(t *testing.T, baseURL, token string, catID, supID uuid.UUID) 
 	resp := authedRequest(t, "POST", baseURL+"/api/v1/products", token, req)
 	require.Equal(t, http.StatusCreated, resp.StatusCode)
 	var data models.Product
-	decodeResponse(resp, &data)
+	require.NoError(t, decodeResponse(resp, &data))
 	return data.ID
 }
 
 func decodeResponse(resp *http.Response, target any) error {
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 	return json.NewDecoder(resp.Body).Decode(target)
 }

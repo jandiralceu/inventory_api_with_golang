@@ -44,11 +44,11 @@ func TestProductLifecycle(t *testing.T) {
 
 	respCat, err := http.DefaultClient.Do(reqCat)
 	require.NoError(t, err)
-	defer respCat.Body.Close()
+	defer func() { _ = respCat.Body.Close() }()
 	require.Equal(t, http.StatusCreated, respCat.StatusCode)
 
 	var catData map[string]any
-	json.NewDecoder(respCat.Body).Decode(&catData)
+	require.NoError(t, decodeResponse(respCat, &catData))
 	catIDStr := catData["id"].(string)
 	catID, _ := uuid.Parse(catIDStr)
 
@@ -74,11 +74,11 @@ func TestProductLifecycle(t *testing.T) {
 
 	respSup, err := http.DefaultClient.Do(reqSup)
 	require.NoError(t, err)
-	defer respSup.Body.Close()
+	defer func() { _ = respSup.Body.Close() }()
 	require.Equal(t, http.StatusCreated, respSup.StatusCode)
 
 	var supData map[string]any
-	json.NewDecoder(respSup.Body).Decode(&supData)
+	require.NoError(t, decodeResponse(respSup, &supData))
 	supIDStr := supData["id"].(string)
 	supID, _ := uuid.Parse(supIDStr)
 
@@ -103,17 +103,17 @@ func TestProductLifecycle(t *testing.T) {
 
 	resp, err := http.DefaultClient.Do(req)
 	require.NoError(t, err)
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	if resp.StatusCode != http.StatusCreated {
 		var errResp map[string]any
-		json.NewDecoder(resp.Body).Decode(&errResp)
+		_ = json.NewDecoder(resp.Body).Decode(&errResp)
 		t.Fatalf("Failed to create product: %v", errResp)
 	}
 	assert.Equal(t, http.StatusCreated, resp.StatusCode)
 
 	var createdProduct map[string]any
-	err = json.NewDecoder(resp.Body).Decode(&createdProduct)
+	require.NoError(t, decodeResponse(resp, &createdProduct))
 	require.NoError(t, err)
 	productID := createdProduct["id"].(string)
 	assert.NotEmpty(t, productID)
@@ -127,11 +127,11 @@ func TestProductLifecycle(t *testing.T) {
 
 	resp, err = http.DefaultClient.Do(req)
 	require.NoError(t, err)
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 	var fetchedProduct map[string]any
-	json.NewDecoder(resp.Body).Decode(&fetchedProduct)
+	require.NoError(t, decodeResponse(resp, &fetchedProduct))
 	assert.Equal(t, "Smartphone X", fetchedProduct["name"])
 
 	// 4. List and Filter Products
@@ -140,11 +140,11 @@ func TestProductLifecycle(t *testing.T) {
 
 	resp, err = http.DefaultClient.Do(req)
 	require.NoError(t, err)
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 	var listResp map[string]any
-	json.NewDecoder(resp.Body).Decode(&listResp)
+	require.NoError(t, decodeResponse(resp, &listResp))
 
 	total := int(listResp["total"].(float64))
 	assert.GreaterOrEqual(t, total, 1)
@@ -161,11 +161,11 @@ func TestProductLifecycle(t *testing.T) {
 
 	resp, err = http.DefaultClient.Do(req)
 	require.NoError(t, err)
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 	var updatedProduct map[string]any
-	json.NewDecoder(resp.Body).Decode(&updatedProduct)
+	require.NoError(t, decodeResponse(resp, &updatedProduct))
 	assert.Equal(t, "Smartphone X Updated", updatedProduct["name"])
 	assert.Equal(t, 1050.50, updatedProduct["price"])
 
@@ -175,7 +175,7 @@ func TestProductLifecycle(t *testing.T) {
 
 	resp, err = http.DefaultClient.Do(req)
 	require.NoError(t, err)
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	assert.Equal(t, http.StatusNoContent, resp.StatusCode)
 
@@ -185,7 +185,7 @@ func TestProductLifecycle(t *testing.T) {
 
 	resp, err = http.DefaultClient.Do(req)
 	require.NoError(t, err)
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	assert.Equal(t, http.StatusNotFound, resp.StatusCode)
 }

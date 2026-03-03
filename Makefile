@@ -1,4 +1,4 @@
-.PHONY: start seed help build test test-unit test-integration test-bench test-cover clean migration-create migration-up migration-down docker-up docker-up-all docker-stop docker-down generate-keys swagger
+.PHONY: start seed help build test lint test-unit test-integration test-bench test-cover clean migration-create migration-up migration-down docker-up docker-up-all docker-stop docker-down generate-keys swagger
 
 include .env
 export
@@ -18,6 +18,10 @@ seed: ## Seed individual roles into the database (idempotent)
 build: swagger ## Build the application
 	@echo "Building the application..."
 	@go build -o bin/$(BINARY_NAME) cmd/api/main.go
+
+lint: ## Run linter
+	@echo "Running linter..."
+	@golangci-lint run --build-tags integration
 
 test: ## Run all tests
 	@make test-unit

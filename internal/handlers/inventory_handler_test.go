@@ -13,6 +13,7 @@ import (
 	"github.com/jandiralceu/inventory_api_with_golang/internal/models"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
+	"github.com/stretchr/testify/require"
 )
 
 // MockInventoryService is a mock implementation of service.InventoryService.
@@ -102,7 +103,7 @@ func TestInventoryHandler_CreateInventory(t *testing.T) {
 
 	assert.Equal(t, http.StatusCreated, w.Code)
 	var resp models.Inventory
-	json.Unmarshal(w.Body.Bytes(), &resp)
+	require.NoError(t, json.Unmarshal(w.Body.Bytes(), &resp))
 	assert.Equal(t, expected.ID, resp.ID)
 }
 
@@ -121,7 +122,7 @@ func TestInventoryHandler_FindInventoryByID(t *testing.T) {
 
 	assert.Equal(t, http.StatusOK, w.Code)
 	var resp models.Inventory
-	json.Unmarshal(w.Body.Bytes(), &resp)
+	require.NoError(t, json.Unmarshal(w.Body.Bytes(), &resp))
 	assert.Equal(t, id, resp.ID)
 }
 
@@ -182,7 +183,7 @@ func TestInventoryHandler_UpdateInventory_Success(t *testing.T) {
 
 	assert.Equal(t, http.StatusOK, w.Code)
 	var resp models.Inventory
-	json.Unmarshal(w.Body.Bytes(), &resp)
+	require.NoError(t, json.Unmarshal(w.Body.Bytes(), &resp))
 	assert.Equal(t, 200, resp.Quantity)
 }
 

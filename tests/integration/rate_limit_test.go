@@ -37,7 +37,7 @@ func TestRateLimitingIntegration(t *testing.T) {
 			if err != nil {
 				t.Fatalf("Request %d failed: %v", i, err)
 			}
-			defer resp.Body.Close()
+			defer func() { _ = resp.Body.Close() }()
 
 			if i <= 5 {
 				// Should be Unauthorized (if user doesn't exist) or OK, but definitely NOT 429
