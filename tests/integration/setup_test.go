@@ -147,7 +147,8 @@ func setupAppCustom(t *testing.T, modifyConfig func(*config.Config)) (*httptest.
 	productHandler := handlers.NewProductHandler(productService)
 
 	inventoryRepository := repository.NewInventoryRepository(db)
-	inventoryService := service.NewInventoryService(inventoryRepository, productRepository, warehouseRepository, cacheManager)
+	inventoryTransactionRepository := repository.NewInventoryTransactionRepository(db)
+	inventoryService := service.NewInventoryService(inventoryRepository, productRepository, warehouseRepository, inventoryTransactionRepository, cacheManager)
 	inventoryHandler := handlers.NewInventoryHandler(inventoryService)
 
 	// Initialize Casbin Enforcer for RBAC.

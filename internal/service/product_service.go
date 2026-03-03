@@ -14,12 +14,20 @@ import (
 	"github.com/jandiralceu/inventory_api_with_golang/internal/repository"
 )
 
+// ProductService defines the business logic contract for product management and caching.
 type ProductService interface {
+	// Create registers a new product and invalidates the product cache.
+	// It validates SKU uniqueness and generates a unique slug.
 	Create(ctx context.Context, req dto.CreateProductRequest) (*models.Product, error)
+	// Update modifies an existing product and invalidates the product cache.
 	Update(ctx context.Context, id uuid.UUID, req dto.UpdateProductRequest) (*models.Product, error)
+	// Delete removes a product record and purges related cache entries.
 	Delete(ctx context.Context, id uuid.UUID) error
+	// FindByID retrieves a single product by ID, using cache when available.
 	FindByID(ctx context.Context, id uuid.UUID) (*models.Product, error)
+	// FindBySlug retrieves a single product by its URL-friendly slug, using cache when available.
 	FindBySlug(ctx context.Context, slug string) (*models.Product, error)
+	// FindAll returns a paginated list of products matching the provided filters.
 	FindAll(ctx context.Context, req dto.GetProductListRequest) (*dto.ProductListResponse, error)
 }
 
@@ -35,6 +43,8 @@ func NewProductService(repo repository.ProductRepository, cache pkg.CacheManager
 	}
 }
 
+// Create registers a new product and invalidates the product cache.
+// It validates SKU uniqueness and generates a unique slug.
 func (s *productService) Create(ctx context.Context, req dto.CreateProductRequest) (*models.Product, error) {
 	// Check SKU uniqueness
 	if _, err := s.repo.FindBySKU(ctx, req.SKU); err == nil {
@@ -73,6 +83,7 @@ func (s *productService) Create(ctx context.Context, req dto.CreateProductReques
 	return product, nil
 }
 
+// Update modifies an existing product and invalidates the product cache.
 func (s *productService) Update(ctx context.Context, id uuid.UUID, req dto.UpdateProductRequest) (*models.Product, error) {
 	product, err := s.repo.FindByID(ctx, id)
 	if err != nil {
@@ -141,6 +152,7 @@ func (s *productService) Update(ctx context.Context, id uuid.UUID, req dto.Updat
 	return product, nil
 }
 
+// Delete removes a product record and purges related cache entries.
 func (s *productService) Delete(ctx context.Context, id uuid.UUID) error {
 	if err := s.repo.Delete(ctx, id); err != nil {
 		return err
@@ -150,6 +162,7 @@ func (s *productService) Delete(ctx context.Context, id uuid.UUID) error {
 	return nil
 }
 
+// FindByID retrieves a single product by ID, using cache when available.
 func (s *productService) FindByID(ctx context.Context, id uuid.UUID) (*models.Product, error) {
 	cacheKey := fmt.Sprintf("product:id:%s", id)
 	var product models.Product
@@ -167,6 +180,7 @@ func (s *productService) FindByID(ctx context.Context, id uuid.UUID) (*models.Pr
 	return p, nil
 }
 
+// FindBySlug retrieves a single product by its URL-friendly slug, using cache when available.
 func (s *productService) FindBySlug(ctx context.Context, slug string) (*models.Product, error) {
 	cacheKey := fmt.Sprintf("product:slug:%s", slug)
 	var product models.Product
@@ -184,6 +198,7 @@ func (s *productService) FindBySlug(ctx context.Context, slug string) (*models.P
 	return p, nil
 }
 
+// FindAll returns a paginated list of products matching the provided filters.
 func (s *productService) FindAll(ctx context.Context, req dto.GetProductListRequest) (*dto.ProductListResponse, error) {
 	page := req.Page
 	if page < 1 {

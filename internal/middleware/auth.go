@@ -1,6 +1,7 @@
 package middleware
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"strings"
@@ -66,6 +67,11 @@ func AuthMiddleware(jwtManager *pkg.JWTManager) gin.HandlerFunc {
 		// Store the user ID and role in the context for downstream handlers.
 		c.Set(UserIDKey, claims.UserID)
 		c.Set(UserRoleKey, claims.Role)
+
+		// Inject into Request context so services can access it without Gin dependency
+		ctx := context.WithValue(c.Request.Context(), UserIDKey, claims.UserID)
+		c.Request = c.Request.WithContext(ctx)
+
 		c.Next()
 	}
 }

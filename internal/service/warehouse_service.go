@@ -14,11 +14,17 @@ import (
 
 // WarehouseService defines the business logic contract for warehouse management and caching.
 type WarehouseService interface {
+	// Create registers a new warehouse and invalidates the warehouse cache.
 	Create(ctx context.Context, req dto.CreateWarehouseRequest) (*models.Warehouse, error)
+	// Update modifies an existing warehouse and invalidates the warehouse cache.
 	Update(ctx context.Context, id uuid.UUID, req dto.UpdateWarehouseRequest) (*models.Warehouse, error)
+	// Delete removes a warehouse by ID and invalidates the warehouse cache.
 	Delete(ctx context.Context, id uuid.UUID) error
+	// FindByID retrieves a single warehouse by ID, using cache when available.
 	FindByID(ctx context.Context, id uuid.UUID) (*models.Warehouse, error)
+	// FindBySlug retrieves a single warehouse by its URL slug, using cache when available.
 	FindBySlug(ctx context.Context, slug string) (*models.Warehouse, error)
+	// FindAll returns a paginated list of warehouses with optional filtering.
 	FindAll(ctx context.Context, req dto.GetWarehouseListRequest) (dto.PaginatedResponse[models.Warehouse], error)
 }
 
@@ -42,6 +48,7 @@ func NewWarehouseService(warehouseRepo repository.WarehouseRepository, cache pkg
 	}
 }
 
+// Create registers a new warehouse and invalidates the warehouse cache.
 func (s *warehouseService) Create(ctx context.Context, req dto.CreateWarehouseRequest) (*models.Warehouse, error) {
 	warehouse := &models.Warehouse{
 		Name:        req.Name,
@@ -64,6 +71,7 @@ func (s *warehouseService) Create(ctx context.Context, req dto.CreateWarehouseRe
 	return warehouse, nil
 }
 
+// Update modifies an existing warehouse and invalidates the warehouse cache.
 func (s *warehouseService) Update(ctx context.Context, id uuid.UUID, req dto.UpdateWarehouseRequest) (*models.Warehouse, error) {
 	warehouse, err := s.warehouseRepo.FindByID(ctx, id)
 	if err != nil {
@@ -89,6 +97,7 @@ func (s *warehouseService) Update(ctx context.Context, id uuid.UUID, req dto.Upd
 	return warehouse, nil
 }
 
+// Delete removes a warehouse by ID and invalidates the warehouse cache.
 func (s *warehouseService) Delete(ctx context.Context, id uuid.UUID) error {
 	if err := s.warehouseRepo.Delete(ctx, id); err != nil {
 		return err
@@ -98,6 +107,7 @@ func (s *warehouseService) Delete(ctx context.Context, id uuid.UUID) error {
 	return nil
 }
 
+// FindByID retrieves a single warehouse by ID, using cache when available.
 func (s *warehouseService) FindByID(ctx context.Context, id uuid.UUID) (*models.Warehouse, error) {
 	cacheKey := fmt.Sprintf("%sid:%s", _warehouseCachePrefix, id)
 	var cached models.Warehouse
@@ -113,6 +123,7 @@ func (s *warehouseService) FindByID(ctx context.Context, id uuid.UUID) (*models.
 	return warehouse, err
 }
 
+// FindBySlug retrieves a single warehouse by its URL slug, using cache when available.
 func (s *warehouseService) FindBySlug(ctx context.Context, slug string) (*models.Warehouse, error) {
 	cacheKey := fmt.Sprintf("%sslug:%s", _warehouseCachePrefix, slug)
 	var cached models.Warehouse
@@ -128,6 +139,7 @@ func (s *warehouseService) FindBySlug(ctx context.Context, slug string) (*models
 	return warehouse, err
 }
 
+// FindAll returns a paginated list of warehouses with optional filtering.
 func (s *warehouseService) FindAll(ctx context.Context, req dto.GetWarehouseListRequest) (dto.PaginatedResponse[models.Warehouse], error) {
 	filter := repository.WarehouseListFilter{
 		Name:     req.Name,

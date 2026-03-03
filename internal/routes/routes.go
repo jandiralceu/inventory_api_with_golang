@@ -130,6 +130,7 @@ func Setup(routeConfig *RouteConfig, config *config.Config, jwtManager *pkg.JWTM
 			inventory := protected.Group("/inventory")
 			{
 				inventory.GET("", routeConfig.InventoryHandler.FindAllInventory)
+				inventory.GET("/transactions", routeConfig.InventoryHandler.GetTransactionHistory)
 				inventory.GET("/:id", routeConfig.InventoryHandler.FindInventoryByID)
 				inventory.POST("", routeConfig.InventoryHandler.CreateInventory)
 				inventory.PUT("/:id", routeConfig.InventoryHandler.UpdateInventory)

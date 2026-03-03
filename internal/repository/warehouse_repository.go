@@ -57,7 +57,7 @@ type WarehouseListFilter struct {
 	Pagination PaginationParams
 }
 
-// Create persists a new warehouse record.
+// Create inserts a new warehouse record into the database.
 func (r *warehouseRepository) Create(ctx context.Context, warehouse *models.Warehouse) error {
 	if err := r.db.WithContext(ctx).Create(warehouse).Error; err != nil {
 		return mapDatabaseError(err)
@@ -65,7 +65,7 @@ func (r *warehouseRepository) Create(ctx context.Context, warehouse *models.Ware
 	return nil
 }
 
-// Update modifies an existing warehouse record.
+// Update saves changes to an existing warehouse record using selective updates.
 func (r *warehouseRepository) Update(ctx context.Context, warehouse *models.Warehouse) error {
 	result := r.db.WithContext(ctx).
 		Model(&models.Warehouse{}).
@@ -120,7 +120,7 @@ func (r *warehouseRepository) FindByCode(ctx context.Context, code string) (*mod
 	return &warehouse, nil
 }
 
-// FindAll retrieves a paginated list of warehouses based on the provided filters.
+// FindAll executes a listing query with dynamic filtering and pagination for warehouses.
 func (r *warehouseRepository) FindAll(ctx context.Context, filter WarehouseListFilter) ([]models.Warehouse, int64, error) {
 	var warehouses []models.Warehouse
 	var total int64

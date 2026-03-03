@@ -34,13 +34,16 @@ type InventoryService interface {
 	ReserveStock(ctx context.Context, id uuid.UUID, quantity int) error
 	// ReleaseStock removes a reservation, making the quantity available again.
 	ReleaseStock(ctx context.Context, id uuid.UUID, quantity int) error
+	// GetTransactionHistory retrieves a paginated audit log of stock movements.
+	GetTransactionHistory(ctx context.Context, req dto.TransactionListRequest) (dto.TransactionListResponse, error)
 }
 
 type inventoryService struct {
-	repo          repository.InventoryRepository
-	productRepo   repository.ProductRepository
-	warehouseRepo repository.WarehouseRepository
-	cache         pkg.CacheManager
+	repo            repository.InventoryRepository
+	productRepo     repository.ProductRepository
+	warehouseRepo   repository.WarehouseRepository
+	transactionRepo repository.InventoryTransactionRepository
+	cache           pkg.CacheManager
 }
 
 const (
@@ -53,16 +56,20 @@ func NewInventoryService(
 	repo repository.InventoryRepository,
 	productRepo repository.ProductRepository,
 	warehouseRepo repository.WarehouseRepository,
+	transactionRepo repository.InventoryTransactionRepository,
 	cache pkg.CacheManager,
 ) InventoryService {
 	return &inventoryService{
-		repo:          repo,
-		productRepo:   productRepo,
-		warehouseRepo: warehouseRepo,
-		cache:         cache,
+		repo:            repo,
+		productRepo:     productRepo,
+		warehouseRepo:   warehouseRepo,
+		transactionRepo: transactionRepo,
+		cache:           cache,
 	}
 }
 
+// Create registers a new inventory record for a product in a warehouse.
+// It validates if product and warehouse exist first and logs an initial OPENING transaction if quantity > 0.
 func (s *inventoryService) Create(ctx context.Context, req dto.CreateInventoryRequest) (*models.Inventory, error) {
 	// Check if product exists
 	if _, err := s.productRepo.FindByID(ctx, req.ProductID); err != nil {
@@ -75,24 +82,32 @@ func (s *inventoryService) Create(ctx context.Context, req dto.CreateInventoryRe
 	}
 
 	inventory := &models.Inventory{
-		ProductID:    req.ProductID,
-		WarehouseID:  req.WarehouseID,
-		Quantity:     req.Quantity,
-		LocationCode: req.LocationCode,
-		MinQuantity:  req.MinQuantity,
-		MaxQuantity:  req.MaxQuantity,
-		Metadata:     req.Metadata,
-		Version:      1,
+		ProductID:        req.ProductID,
+		WarehouseID:      req.WarehouseID,
+		Quantity:         req.Quantity,
+		ReservedQuantity: 0,
+		LocationCode:     req.LocationCode,
+		MinQuantity:      req.MinQuantity,
+		MaxQuantity:      req.MaxQuantity,
+		Metadata:         req.Metadata,
+		Version:          1,
 	}
 
 	if err := s.repo.Create(ctx, inventory); err != nil {
 		return nil, err
 	}
 
+	// Record initial transaction if quantity > 0
+	if req.Quantity > 0 {
+		_ = s.logTransaction(ctx, inventory, req.Quantity, "OPENING", "Initial stock setup")
+	}
+
 	_ = s.cache.DeletePrefix(ctx, _inventoryCachePrefix)
 	return inventory, nil
 }
 
+// Update modifies non-quantity fields of an existing inventory record.
+// If quantity is updated directly, it logs an ADJUSTMENT transaction.
 func (s *inventoryService) Update(ctx context.Context, id uuid.UUID, req dto.UpdateInventoryRequest) (*models.Inventory, error) {
 	inventory, err := s.repo.FindByID(ctx, id)
 	if err != nil {
@@ -113,7 +128,9 @@ func (s *inventoryService) Update(ctx context.Context, id uuid.UUID, req dto.Upd
 	}
 	// Quantity and ReservedQuantity are typically updated via specific methods (AddStock, etc.)
 	// But we can allow direct updates if needed
+	var qtyDiff int
 	if req.Quantity != nil {
+		qtyDiff = *req.Quantity - inventory.Quantity
 		inventory.Quantity = *req.Quantity
 	}
 	if req.ReservedQuantity != nil {
@@ -124,10 +141,16 @@ func (s *inventoryService) Update(ctx context.Context, id uuid.UUID, req dto.Upd
 		return nil, err
 	}
 
+	// Record adjustment if quantity changed directly
+	if qtyDiff != 0 {
+		_ = s.logTransaction(ctx, inventory, qtyDiff, "ADJUSTMENT", "Manual update in Inventory record")
+	}
+
 	_ = s.cache.DeletePrefix(ctx, _inventoryCachePrefix)
 	return inventory, nil
 }
 
+// Delete removes an inventory record and purges related cache entries.
 func (s *inventoryService) Delete(ctx context.Context, id uuid.UUID) error {
 	if err := s.repo.Delete(ctx, id); err != nil {
 		return err
@@ -137,6 +160,7 @@ func (s *inventoryService) Delete(ctx context.Context, id uuid.UUID) error {
 	return nil
 }
 
+// FindByID retrieves a single inventory record, using cache when available.
 func (s *inventoryService) FindByID(ctx context.Context, id uuid.UUID) (*models.Inventory, error) {
 	cacheKey := fmt.Sprintf("%sid:%s", _inventoryCachePrefix, id)
 	var inventory models.Inventory
@@ -154,6 +178,7 @@ func (s *inventoryService) FindByID(ctx context.Context, id uuid.UUID) (*models.
 	return inv, nil
 }
 
+// FindAll returns a paginated list of inventory records with optional filters.
 func (s *inventoryService) FindAll(ctx context.Context, req dto.GetInventoryListRequest) (*dto.InventoryListResponse, error) {
 	page := req.Page
 	if page < 1 {
@@ -211,6 +236,7 @@ func (s *inventoryService) FindAll(ctx context.Context, req dto.GetInventoryList
 	}, nil
 }
 
+// AddStock increases the physical quantity of an item using optimistic locking and logs an IN transaction.
 func (s *inventoryService) AddStock(ctx context.Context, id uuid.UUID, quantity int) error {
 	inv, err := s.repo.FindByID(ctx, id)
 	if err != nil {
@@ -222,10 +248,15 @@ func (s *inventoryService) AddStock(ctx context.Context, id uuid.UUID, quantity 
 		return err
 	}
 
+	// Record transaction
+	_ = s.logTransaction(ctx, inv, quantity, "IN", "Stock added via AddStock API")
+
 	_ = s.cache.DeletePrefix(ctx, _inventoryCachePrefix)
 	return nil
 }
 
+// RemoveStock decreases the physical quantity of an item and logs an OUT transaction.
+// Returns an error if available quantity is insufficient.
 func (s *inventoryService) RemoveStock(ctx context.Context, id uuid.UUID, quantity int) error {
 	inv, err := s.repo.FindByID(ctx, id)
 	if err != nil {
@@ -241,10 +272,15 @@ func (s *inventoryService) RemoveStock(ctx context.Context, id uuid.UUID, quanti
 		return err
 	}
 
+	// Record transaction
+	_ = s.logTransaction(ctx, inv, -quantity, "OUT", "Stock removed via RemoveStock API")
+
 	_ = s.cache.DeletePrefix(ctx, _inventoryCachePrefix)
 	return nil
 }
 
+// ReserveStock earmarks a quantity for a future transaction without decreasing physical stock.
+// Logs a RESERVE transaction (quantity change 0 as physical balance doesn't change).
 func (s *inventoryService) ReserveStock(ctx context.Context, id uuid.UUID, quantity int) error {
 	inv, err := s.repo.FindByID(ctx, id)
 	if err != nil {
@@ -260,10 +296,16 @@ func (s *inventoryService) ReserveStock(ctx context.Context, id uuid.UUID, quant
 		return err
 	}
 
+	// Reservations don't change physical quantity balance immediately,
+	// but we log it as a non-quantity-changing transaction for audit.
+	_ = s.logTransaction(ctx, inv, 0, "RESERVE", fmt.Sprintf("Reserved %d units", quantity))
+
 	_ = s.cache.DeletePrefix(ctx, _inventoryCachePrefix)
 	return nil
 }
 
+// ReleaseStock removes a reservation, making the quantity available again.
+// Logs a RELEASE transaction.
 func (s *inventoryService) ReleaseStock(ctx context.Context, id uuid.UUID, quantity int) error {
 	inv, err := s.repo.FindByID(ctx, id)
 	if err != nil {
@@ -279,6 +321,92 @@ func (s *inventoryService) ReleaseStock(ctx context.Context, id uuid.UUID, quant
 		return err
 	}
 
+	_ = s.logTransaction(ctx, inv, 0, "RELEASE", fmt.Sprintf("Released %d reserved units", quantity))
+
 	_ = s.cache.DeletePrefix(ctx, _inventoryCachePrefix)
 	return nil
+}
+
+// GetTransactionHistory retrieves a paginated audit log of stock movements for the specific filters.
+func (s *inventoryService) GetTransactionHistory(ctx context.Context, req dto.TransactionListRequest) (dto.TransactionListResponse, error) {
+	filter := repository.TransactionListFilter{
+		InventoryID:     req.InventoryID,
+		ProductID:       req.ProductID,
+		WarehouseID:     req.WarehouseID,
+		UserID:          req.UserID,
+		TransactionType: req.TransactionType,
+		StartDate:       req.StartDate,
+		EndDate:         req.EndDate,
+		Pagination: repository.PaginationParams{
+			Page:  req.GetPage(),
+			Limit: req.GetLimit(),
+			Sort:  req.GetSort("created_at"),
+			Order: req.GetOrder(),
+		},
+	}
+
+	transactions, total, err := s.transactionRepo.FindAll(ctx, filter)
+	if err != nil {
+		return dto.TransactionListResponse{}, err
+	}
+
+	responses := make([]dto.TransactionResponse, len(transactions))
+	for i, tx := range transactions {
+		responses[i] = dto.TransactionResponse{
+			ID:              tx.ID,
+			InventoryID:     tx.InventoryID,
+			ProductID:       tx.ProductID,
+			WarehouseID:     tx.WarehouseID,
+			UserID:          tx.UserID,
+			QuantityChange:  tx.QuantityChange,
+			QuantityBalance: tx.QuantityBalance,
+			TransactionType: tx.TransactionType,
+			ReferenceID:     tx.ReferenceID,
+			Reason:          tx.Reason,
+			CreatedAt:       tx.CreatedAt,
+			Product:         tx.Product,
+			Warehouse:       tx.Warehouse,
+			User:            tx.User,
+		}
+	}
+
+	return dto.TransactionListResponse{
+		PaginatedResponse: dto.NewPaginatedResponse(responses, total, filter.Pagination.Page, filter.Pagination.Limit),
+	}, nil
+}
+
+// Helpers
+
+// getUserIDFromCtx extracts the userID uuid from the context if present.
+func (s *inventoryService) getUserIDFromCtx(ctx context.Context) *uuid.UUID {
+	val := ctx.Value("userID")
+	if val == nil {
+		return nil
+	}
+	id, ok := val.(uuid.UUID)
+	if !ok {
+		return nil
+	}
+	return &id
+}
+
+// logTransaction is an internal helper to persist a new InventoryTransaction record.
+func (s *inventoryService) logTransaction(ctx context.Context, inv *models.Inventory, delta int, txType string, reason string) error {
+	userID := s.getUserIDFromCtx(ctx)
+
+	// Balance after change
+	balance := inv.Quantity + delta
+
+	transaction := &models.InventoryTransaction{
+		InventoryID:     inv.ID,
+		ProductID:       inv.ProductID,
+		WarehouseID:     inv.WarehouseID,
+		UserID:          userID,
+		QuantityChange:  delta,
+		QuantityBalance: balance,
+		TransactionType: txType,
+		Reason:          reason,
+	}
+
+	return s.transactionRepo.Create(ctx, nil, transaction)
 }

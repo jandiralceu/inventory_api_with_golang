@@ -23,13 +23,21 @@ type ProductListFilter struct {
 	Order      string
 }
 
+// ProductRepository defines the persistence contract for product-related data operations.
 type ProductRepository interface {
+	// Create persists a new product record.
 	Create(ctx context.Context, product *models.Product) error
+	// Update modifies an existing product record.
 	Update(ctx context.Context, product *models.Product) error
+	// Delete removes a product record by its unique ID.
 	Delete(ctx context.Context, id uuid.UUID) error
+	// FindByID retrieves a single product by its ID, preloading associations.
 	FindByID(ctx context.Context, id uuid.UUID) (*models.Product, error)
+	// FindBySlug retrieves a single product by its URL-friendly slug.
 	FindBySlug(ctx context.Context, slug string) (*models.Product, error)
+	// FindBySKU retrieves a single product by its unique SKU code.
 	FindBySKU(ctx context.Context, sku string) (*models.Product, error)
+	// FindAll retrieves a list of products based on filters and pagination parameters.
 	FindAll(ctx context.Context, filter ProductListFilter) ([]models.Product, int64, error)
 }
 
@@ -37,10 +45,12 @@ type productRepository struct {
 	db *gorm.DB
 }
 
+// NewProductRepository initializes a GORM-based implementation of ProductRepository.
 func NewProductRepository(db *gorm.DB) ProductRepository {
 	return &productRepository{db: db}
 }
 
+// Create inserts a new product record into the database.
 func (r *productRepository) Create(ctx context.Context, product *models.Product) error {
 	if err := r.db.WithContext(ctx).Create(product).Error; err != nil {
 		return mapDatabaseError(err)
@@ -48,6 +58,7 @@ func (r *productRepository) Create(ctx context.Context, product *models.Product)
 	return nil
 }
 
+// Update saves changes to an existing product record.
 func (r *productRepository) Update(ctx context.Context, product *models.Product) error {
 	if err := r.db.WithContext(ctx).Save(product).Error; err != nil {
 		return mapDatabaseError(err)
@@ -55,6 +66,7 @@ func (r *productRepository) Update(ctx context.Context, product *models.Product)
 	return nil
 }
 
+// Delete removes a product record and returns [apperrors.ErrNotFound] if no record was deleted.
 func (r *productRepository) Delete(ctx context.Context, id uuid.UUID) error {
 	result := r.db.WithContext(ctx).Delete(&models.Product{}, id)
 	if result.Error != nil {
@@ -66,6 +78,7 @@ func (r *productRepository) Delete(ctx context.Context, id uuid.UUID) error {
 	return nil
 }
 
+// FindByID retrieves a specific product using its unique UUID.
 func (r *productRepository) FindByID(ctx context.Context, id uuid.UUID) (*models.Product, error) {
 	var product models.Product
 	err := r.db.WithContext(ctx).Preload("Category").Preload("Supplier").First(&product, id).Error
@@ -75,6 +88,7 @@ func (r *productRepository) FindByID(ctx context.Context, id uuid.UUID) (*models
 	return &product, nil
 }
 
+// FindBySlug retrieves a product by its URL-friendly slug.
 func (r *productRepository) FindBySlug(ctx context.Context, slug string) (*models.Product, error) {
 	var product models.Product
 	err := r.db.WithContext(ctx).Preload("Category").Preload("Supplier").Where("slug = ?", slug).First(&product).Error
@@ -84,6 +98,7 @@ func (r *productRepository) FindBySlug(ctx context.Context, slug string) (*model
 	return &product, nil
 }
 
+// FindBySKU retrieves a product by its SKU code.
 func (r *productRepository) FindBySKU(ctx context.Context, sku string) (*models.Product, error) {
 	var product models.Product
 	err := r.db.WithContext(ctx).Preload("Category").Preload("Supplier").Where("sku = ?", sku).First(&product).Error
@@ -93,6 +108,7 @@ func (r *productRepository) FindBySKU(ctx context.Context, sku string) (*models.
 	return &product, nil
 }
 
+// FindAll executes a listing query with dynamic filtering, preloading, and pagination.
 func (r *productRepository) FindAll(ctx context.Context, filter ProductListFilter) ([]models.Product, int64, error) {
 	var products []models.Product
 	var total int64

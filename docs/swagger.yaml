@@ -358,6 +358,52 @@ definitions:
       totalPages:
         type: integer
     type: object
+  dto.TransactionListResponse:
+    properties:
+      data:
+        items:
+          $ref: '#/definitions/dto.TransactionResponse'
+        type: array
+      limit:
+        type: integer
+      page:
+        type: integer
+      total:
+        type: integer
+      totalPages:
+        type: integer
+    type: object
+  dto.TransactionResponse:
+    properties:
+      createdAt:
+        type: string
+      id:
+        type: string
+      inventoryId:
+        type: string
+      product:
+        $ref: '#/definitions/models.Product'
+      productId:
+        type: string
+      quantityBalance:
+        type: integer
+      quantityChange:
+        type: integer
+      reason:
+        type: string
+      referenceId:
+        type: string
+      transactionType:
+        type: string
+      user:
+        $ref: '#/definitions/models.User'
+      userId:
+        type: string
+      warehouse:
+        $ref: '#/definitions/models.Warehouse'
+      warehouseId:
+        type: string
+    type: object
   dto.UpdateCategoryRequest:
     properties:
       description:
@@ -1551,8 +1597,12 @@ paths:
       produces:
       - application/json
       responses:
-        "204":
-          description: No content
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
         "400":
           description: Bad request
           schema:
@@ -1635,6 +1685,79 @@ paths:
       security:
       - Bearer: []
       summary: Reserve stock
+      tags:
+      - inventory
+  /inventory/transactions:
+    get:
+      description: Retrieve a global audit log of all stock movements with advanced
+        filters.
+      parameters:
+      - description: Filter by Inventory ID
+        in: query
+        name: inventoryId
+        type: string
+      - description: Filter by Product ID
+        in: query
+        name: productId
+        type: string
+      - description: Filter by Warehouse ID
+        in: query
+        name: warehouseId
+        type: string
+      - description: Filter by User ID
+        in: query
+        name: userId
+        type: string
+      - description: Filter by Type
+        in: query
+        name: transactionType
+        type: string
+      - description: Start date (ISO8601)
+        in: query
+        name: startDate
+        type: string
+      - description: End date (ISO8601)
+        in: query
+        name: endDate
+        type: string
+      - description: Page number
+        in: query
+        name: page
+        type: integer
+      - description: Items per page
+        in: query
+        name: limit
+        type: integer
+      - description: Sort field
+        in: query
+        name: sort
+        type: string
+      - description: Sort order (asc/desc)
+        in: query
+        name: order
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.TransactionListResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handlers.ProblemDetails'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/handlers.ProblemDetails'
+        "429":
+          description: Too many requests
+          schema:
+            $ref: '#/definitions/handlers.ProblemDetails'
+      security:
+      - Bearer: []
+      summary: Stock movement history
       tags:
       - inventory
   /products:

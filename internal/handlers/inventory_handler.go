@@ -342,3 +342,41 @@ func (h *InventoryHandler) DeleteInventory(c *gin.Context) {
 
 	c.Status(http.StatusNoContent)
 }
+
+// GetTransactionHistory Godoc
+// @Summary      Stock movement history
+// @Description  Retrieve a global audit log of all stock movements with advanced filters.
+// @Tags         inventory
+// @Produce      json
+// @Param        inventoryId query string false "Filter by Inventory ID"
+// @Param        productId query string false "Filter by Product ID"
+// @Param        warehouseId query string false "Filter by Warehouse ID"
+// @Param        userId query string false "Filter by User ID"
+// @Param        transactionType query string false "Filter by Type"
+// @Param        startDate query string false "Start date (ISO8601)"
+// @Param        endDate query string false "End date (ISO8601)"
+// @Param        page query int false "Page number"
+// @Param        limit query int false "Items per page"
+// @Param        sort query string false "Sort field"
+// @Param        order query string false "Sort order (asc/desc)"
+// @Success      200 {object} dto.TransactionListResponse
+// @Failure      401 {object} ProblemDetails "Unauthorized"
+// @Failure      403 {object} ProblemDetails "Forbidden"
+// @Failure      429 {object} ProblemDetails "Too many requests"
+// @Security     Bearer
+// @Router       /inventory/transactions [get]
+func (h *InventoryHandler) GetTransactionHistory(c *gin.Context) {
+	var req dto.TransactionListRequest
+	if err := c.ShouldBindQuery(&req); err != nil {
+		RespondWithError(c, ParseValidationError(err))
+		return
+	}
+
+	resp, err := h.inventoryService.GetTransactionHistory(c.Request.Context(), req)
+	if err != nil {
+		RespondWithError(c, err)
+		return
+	}
+
+	c.JSON(http.StatusOK, resp)
+}
