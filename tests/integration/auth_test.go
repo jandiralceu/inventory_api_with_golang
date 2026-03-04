@@ -3,6 +3,7 @@
 package integration
 
 import (
+	"fmt"
 	"net/http"
 	"testing"
 
@@ -65,17 +66,14 @@ func TestAuthFlowAndRBAC(t *testing.T) {
 		signUpUser(t, baseURL, "Op User", opEmail, password, operatorRole.ID.String())
 		opToken, _ := signInUser(t, baseURL, opEmail, password)
 
-		// Admin attempts to list roles
-		resp := authedRequest(t, "GET", baseURL+"/api/v1/roles", adminToken, nil)
-		assert.Equal(t, http.StatusOK, resp.StatusCode, "Admin should be able to list roles")
+		// Admin attempts to find role by ID (protected route)
+		resp := authedRequest(t, "GET", fmt.Sprintf("%s/api/v1/roles/%s", baseURL, adminRole.ID), adminToken, nil)
+		assert.Equal(t, http.StatusOK, resp.StatusCode, "Admin should be able to find role by ID")
 
-		var roles []models.Role
-		require.NoError(t, decodeResponse(resp, &roles))
-		assert.GreaterOrEqual(t, len(roles), 3, "Should have seeded roles")
-
-		// Operator attempts to list roles
-		resp = authedRequest(t, "GET", baseURL+"/api/v1/roles", opToken, nil)
-		assert.Equal(t, http.StatusForbidden, resp.StatusCode, "Operator should NOT be able to list roles")
+		// Operator attempts to create a role (protected route)
+		createReq := map[string]string{"name": "hacker", "description": "Should fail"}
+		resp = authedRequest(t, "POST", baseURL+"/api/v1/roles", opToken, createReq)
+		assert.Equal(t, http.StatusForbidden, resp.StatusCode, "Operator should NOT be able to create roles")
 	})
 
 	t.Run("RBAC: Accessing non-existent route returns 404 (with auth)", func(t *testing.T) {
@@ -88,8 +86,8 @@ func TestAuthFlowAndRBAC(t *testing.T) {
 		assert.Equal(t, http.StatusNotFound, resp.StatusCode)
 	})
 
-	t.Run("Auth: Request without token returns 401", func(t *testing.T) {
-		resp := authedRequest(t, "GET", baseURL+"/api/v1/roles", "", nil)
+	t.Run("Auth: Request without token to protected route returns 401", func(t *testing.T) {
+		resp := authedRequest(t, "GET", fmt.Sprintf("%s/api/v1/roles/%s", baseURL, adminRole.ID), "", nil)
 		assert.Equal(t, http.StatusUnauthorized, resp.StatusCode)
 	})
 }

@@ -118,7 +118,7 @@ func TestRoleManagementIntegration(t *testing.T) {
 	})
 
 	t.Run("Unauthorized access is blocked", func(t *testing.T) {
-		resp := authedRequest(t, "GET", baseURL+"/api/v1/roles", "", nil)
+		resp := authedRequest(t, "GET", fmt.Sprintf("%s/api/v1/roles/%s", baseURL, adminRole.ID), "", nil)
 		assert.Equal(t, http.StatusUnauthorized, resp.StatusCode)
 	})
 }
