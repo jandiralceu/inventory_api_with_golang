@@ -11,9 +11,10 @@ start: ## Start the application
 	@echo "Starting the application..."
 	go run cmd/api/main.go
 
-seed: ## Seed individual roles into the database (idempotent)
-	@echo "Seeding database..."
-	go run cmd/seed/main.go
+seed: ## Seed database using deployments/seed.sql (manual run)
+	@echo "Seeding database from deployments/seed.sql..."
+	@make db-restore file=deployments/seed.sql
+	@echo "Database seeded successfully."
 
 build: swagger ## Build the application
 	@echo "Building the application..."

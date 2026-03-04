@@ -1,7 +1,6 @@
-pg_dump: warning: there are circular foreign-key constraints on this table:
-pg_dump: detail: categories
-pg_dump: hint: You might not be able to restore the dump without using --disable-triggers or temporarily dropping the constraints.
-pg_dump: hint: Consider using a full dump instead of a --data-only dump to avoid this problem.
+-- Clean existing data before seeding
+TRUNCATE TABLE public.inventory_transactions, public.inventory, public.products, public.suppliers, public.categories, public.users, public.warehouses, public.roles CASCADE;
+
 --
 -- PostgreSQL database dump
 --
