@@ -67,11 +67,11 @@ docker-stop: ## Stop docker containers without removing them
 docker-down: ## Stop and remove docker containers
 	docker compose -f deployments/compose.yaml --profile all down
 
-db-dump: ## Dump database to deployments/seed.sql (override with file=path/to/file.sql)
+db-dump: ## Dump database DATA only to deployments/seed.sql (override with file=path/to/file.sql)
 	$(eval DUMP_FILE := $(if $(file),$(file),deployments/seed_$(shell date +%Y%m%d_%H%M%S).sql))
-	@echo "Creating database dump -> $(DUMP_FILE)"
-	@docker exec -t inventory-postgres pg_dump -U $(DB_USER) -d $(DB_NAME) --no-owner --no-acl > $(DUMP_FILE)
-	@echo "Dump saved to $(DUMP_FILE)"
+	@echo "Creating database data-only dump -> $(DUMP_FILE)"
+	@docker exec -t inventory-postgres pg_dump -U $(DB_USER) -d $(DB_NAME) --data-only --no-owner --no-acl > $(DUMP_FILE)
+	@echo "Data dump saved to $(DUMP_FILE)"
 
 db-restore: ## Restore database from a dump. Usage: make db-restore file=deployments/seed.sql
 	@if [ -z "$(file)" ]; then echo "Error: 'file' is required. Usage: make db-restore file=deployments/seed.sql"; exit 1; fi
