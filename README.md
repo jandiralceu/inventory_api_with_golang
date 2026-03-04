@@ -357,10 +357,13 @@ GitHub Actions workflows automate the entire delivery pipeline:
 
 The `compose.yaml` file contains **hardcoded database credentials** for local development convenience. RSA private keys (`*.pem`) and `.env` files are already **excluded from version control** via `.gitignore`, but are mounted into the Docker container as read-only volumes for local use.
 
+The `deployments/seed.sql` file is committed to the repository **exclusively for development and testing purposes**, providing sample data to quickly populate the database. It should **never** be used in a production environment.
+
 In a production environment you **must**:
 
 - Store database credentials, Redis passwords, and API keys in a secrets manager (e.g., AWS Secrets Manager, GCP Secret Manager, HashiCorp Vault) or inject them via environment variables at deploy time.
 - Provision RSA key pairs through your CI/CD pipeline or secrets manager instead of generating them locally.
+- Remove or ignore the `seed.sql` file entirely — production data should be managed through proper data pipelines or admin interfaces.
 
 ## License
 
