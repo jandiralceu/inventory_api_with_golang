@@ -170,16 +170,6 @@ c4a8982f-f814-4b35-a0b1-1bc671c032bf	2106c55c-d40e-437f-ba7f-92edd48f9e3a	34d59b
 836333a6-baa7-41e4-8a0e-291561e25b1e	2e9df62e-c2b2-4da7-8191-d5af30368fcc	8f9fd4c0-6535-4ccb-8202-144cc44283c2	5f60421d-3cab-4a5f-b29d-a953f566e59a	\N	8	16	OPENING		Initial stock setup	2026-03-04 02:25:04.034159+00
 \.
 
-
---
--- Data for Name: schema_migrations; Type: TABLE DATA; Schema: public; Owner: -
---
-
-COPY public.schema_migrations (version, dirty) FROM stdin;
-8	f
-\.
-
-
 --
 -- PostgreSQL database dump complete
 --
