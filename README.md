@@ -162,6 +162,9 @@ make generate-keys
 
 # 3. Start all containers (builds the API image and runs migrations automatically)
 make docker-up-all
+
+# 4. (Optional) Seed the database with sample data
+make db-restore
 ```
 
 The API will be available at `http://localhost:8080` and Swagger docs at `http://localhost:8080/docs/index.html`.
@@ -190,11 +193,22 @@ cp .env.example .env
 go mod download
 
 # 6. (Optional) Seed the database with sample data
-make seed
+make db-restore
 
 # 7. Run the application
 make start
 ```
+
+### Test Users
+
+After running `make db-restore`, the following users are available for testing. All users share the same default password: `TesteHml1`
+
+| Name | Email | Role | Permissions |
+|---|---|---|---|
+| Dennis Rodman | `dennisrodman@email.com` | **admin** | Full access to all endpoints |
+| Lebron James | `lebronjames@email.com` | **manager** | CRUD on categories, suppliers, warehouses, products |
+
+> **Note:** No `operator` user is seeded by default. You can register one via the `POST /api/v1/auth/register` endpoint using the `operator` role.
 
 ### Available Makefile Commands
 
