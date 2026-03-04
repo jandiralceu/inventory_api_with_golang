@@ -87,7 +87,7 @@ func TestInventoryHandler_CreateInventory(t *testing.T) {
 	mockService := new(MockInventoryService)
 	handler := NewInventoryHandler(mockService)
 	router := setupRouter()
-	router.POST("/inventory", handler.CreateInventory)
+	router.POST("/inventories", handler.CreateInventory)
 
 	req := dto.CreateInventoryRequest{
 		ProductID:    uuid.New(),
@@ -99,7 +99,7 @@ func TestInventoryHandler_CreateInventory(t *testing.T) {
 
 	mockService.On("Create", mock.Anything, req).Return(expected, nil)
 
-	w := performRequest(router, "POST", "/inventory", req)
+	w := performRequest(router, "POST", "/inventories", req)
 
 	assert.Equal(t, http.StatusCreated, w.Code)
 	var resp models.Inventory
@@ -111,14 +111,14 @@ func TestInventoryHandler_FindInventoryByID(t *testing.T) {
 	mockService := new(MockInventoryService)
 	handler := NewInventoryHandler(mockService)
 	router := setupRouter()
-	router.GET("/inventory/:id", handler.FindInventoryByID)
+	router.GET("/inventories/:id", handler.FindInventoryByID)
 
 	id := uuid.New()
 	expected := &models.Inventory{ID: id, Quantity: 50}
 
 	mockService.On("FindByID", mock.Anything, id).Return(expected, nil)
 
-	w := performRequest(router, "GET", fmt.Sprintf("/inventory/%s", id), nil)
+	w := performRequest(router, "GET", fmt.Sprintf("/inventories/%s", id), nil)
 
 	assert.Equal(t, http.StatusOK, w.Code)
 	var resp models.Inventory
@@ -130,14 +130,14 @@ func TestInventoryHandler_AddStock(t *testing.T) {
 	mockService := new(MockInventoryService)
 	handler := NewInventoryHandler(mockService)
 	router := setupRouter()
-	router.POST("/inventory/:id/add", handler.AddStock)
+	router.POST("/inventories/:id/add", handler.AddStock)
 
 	id := uuid.New()
 	req := dto.StockOperationRequest{Quantity: 10}
 
 	mockService.On("AddStock", mock.Anything, id, 10).Return(nil)
 
-	w := performRequest(router, "POST", fmt.Sprintf("/inventory/%s/add", id), req)
+	w := performRequest(router, "POST", fmt.Sprintf("/inventories/%s/add", id), req)
 
 	assert.Equal(t, http.StatusOK, w.Code)
 }
@@ -146,7 +146,7 @@ func TestInventoryHandler_GetTransactionHistory(t *testing.T) {
 	mockService := new(MockInventoryService)
 	handler := NewInventoryHandler(mockService)
 	router := setupRouter()
-	router.GET("/inventory/transactions", handler.GetTransactionHistory)
+	router.GET("/inventories/transactions", handler.GetTransactionHistory)
 
 	expected := dto.TransactionListResponse{
 		PaginatedResponse: dto.PaginatedResponse[dto.TransactionResponse]{
@@ -159,7 +159,7 @@ func TestInventoryHandler_GetTransactionHistory(t *testing.T) {
 		return true
 	})).Return(expected, nil)
 
-	w := performRequest(router, "GET", "/inventory/transactions?page=1&limit=10", nil)
+	w := performRequest(router, "GET", "/inventories/transactions?page=1&limit=10", nil)
 
 	assert.Equal(t, http.StatusOK, w.Code)
 }
@@ -168,7 +168,7 @@ func TestInventoryHandler_UpdateInventory_Success(t *testing.T) {
 	mockService := new(MockInventoryService)
 	handler := NewInventoryHandler(mockService)
 	router := setupRouter()
-	router.PUT("/inventory/:id", handler.UpdateInventory)
+	router.PUT("/inventories/:id", handler.UpdateInventory)
 
 	id := uuid.New()
 	qty := 200
@@ -179,7 +179,7 @@ func TestInventoryHandler_UpdateInventory_Success(t *testing.T) {
 
 	mockService.On("Update", mock.Anything, id, req).Return(expected, nil)
 
-	w := performRequest(router, "PUT", fmt.Sprintf("/inventory/%s", id), req)
+	w := performRequest(router, "PUT", fmt.Sprintf("/inventories/%s", id), req)
 
 	assert.Equal(t, http.StatusOK, w.Code)
 	var resp models.Inventory
@@ -191,12 +191,12 @@ func TestInventoryHandler_DeleteInventory_Success(t *testing.T) {
 	mockService := new(MockInventoryService)
 	handler := NewInventoryHandler(mockService)
 	router := setupRouter()
-	router.DELETE("/inventory/:id", handler.DeleteInventory)
+	router.DELETE("/inventories/:id", handler.DeleteInventory)
 
 	id := uuid.New()
 	mockService.On("Delete", mock.Anything, id).Return(nil)
 
-	w := performRequest(router, "DELETE", fmt.Sprintf("/inventory/%s", id), nil)
+	w := performRequest(router, "DELETE", fmt.Sprintf("/inventories/%s", id), nil)
 
 	assert.Equal(t, http.StatusNoContent, w.Code)
 }
@@ -205,28 +205,28 @@ func TestInventoryHandler_StockOperations_Errors(t *testing.T) {
 	mockService := new(MockInventoryService)
 	handler := NewInventoryHandler(mockService)
 	router := setupRouter()
-	router.POST("/inventory/:id/remove", handler.RemoveStock)
-	router.POST("/inventory/:id/reserve", handler.ReserveStock)
-	router.POST("/inventory/:id/release", handler.ReleaseStock)
+	router.POST("/inventories/:id/remove", handler.RemoveStock)
+	router.POST("/inventories/:id/reserve", handler.ReserveStock)
+	router.POST("/inventories/:id/release", handler.ReleaseStock)
 
 	id := uuid.New()
 	req := dto.StockOperationRequest{Quantity: 100}
 
 	t.Run("RemoveStock_Insufficient", func(t *testing.T) {
 		mockService.On("RemoveStock", mock.Anything, id, 100).Return(apperrors.ErrInvalidInput).Once()
-		w := performRequest(router, "POST", fmt.Sprintf("/inventory/%s/remove", id), req)
+		w := performRequest(router, "POST", fmt.Sprintf("/inventories/%s/remove", id), req)
 		assert.Equal(t, http.StatusBadRequest, w.Code)
 	})
 
 	t.Run("ReserveStock_NotFound", func(t *testing.T) {
 		mockService.On("ReserveStock", mock.Anything, id, 100).Return(apperrors.ErrNotFound).Once()
-		w := performRequest(router, "POST", fmt.Sprintf("/inventory/%s/reserve", id), req)
+		w := performRequest(router, "POST", fmt.Sprintf("/inventories/%s/reserve", id), req)
 		assert.Equal(t, http.StatusNotFound, w.Code)
 	})
 
 	t.Run("ReleaseStock_Success", func(t *testing.T) {
 		mockService.On("ReleaseStock", mock.Anything, id, 100).Return(nil).Once()
-		w := performRequest(router, "POST", fmt.Sprintf("/inventory/%s/release", id), req)
+		w := performRequest(router, "POST", fmt.Sprintf("/inventories/%s/release", id), req)
 		assert.Equal(t, http.StatusOK, w.Code)
 	})
 }

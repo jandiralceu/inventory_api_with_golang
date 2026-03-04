@@ -551,7 +551,7 @@
                 }
             }
         },
-        "/inventory": {
+        "/inventories": {
             "get": {
                 "security": [
                     {
@@ -563,7 +563,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "inventory"
+                    "inventories"
                 ],
                 "summary": "List inventory records",
                 "parameters": [
@@ -651,7 +651,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "inventory"
+                    "inventories"
                 ],
                 "summary": "Create inventory record",
                 "parameters": [
@@ -711,7 +711,7 @@
                 }
             }
         },
-        "/inventory/transactions": {
+        "/inventories/transactions": {
             "get": {
                 "security": [
                     {
@@ -723,7 +723,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "inventory"
+                    "inventories"
                 ],
                 "summary": "Stock movement history",
                 "parameters": [
@@ -822,7 +822,7 @@
                 }
             }
         },
-        "/inventory/{id}": {
+        "/inventories/{id}": {
             "get": {
                 "security": [
                     {
@@ -834,7 +834,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "inventory"
+                    "inventories"
                 ],
                 "summary": "Get inventory by ID",
                 "parameters": [
@@ -899,7 +899,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "inventory"
+                    "inventories"
                 ],
                 "summary": "Update inventory record",
                 "parameters": [
@@ -976,7 +976,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "inventory"
+                    "inventories"
                 ],
                 "summary": "Delete inventory record",
                 "parameters": [
@@ -1025,7 +1025,7 @@
                 }
             }
         },
-        "/inventory/{id}/add": {
+        "/inventories/{id}/add": {
             "post": {
                 "security": [
                     {
@@ -1040,7 +1040,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "inventory"
+                    "inventories"
                 ],
                 "summary": "Inbound stock",
                 "parameters": [
@@ -1110,7 +1110,7 @@
                 }
             }
         },
-        "/inventory/{id}/release": {
+        "/inventories/{id}/release": {
             "post": {
                 "security": [
                     {
@@ -1125,7 +1125,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "inventory"
+                    "inventories"
                 ],
                 "summary": "Release reserved stock",
                 "parameters": [
@@ -1195,7 +1195,7 @@
                 }
             }
         },
-        "/inventory/{id}/remove": {
+        "/inventories/{id}/remove": {
             "post": {
                 "security": [
                     {
@@ -1210,7 +1210,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "inventory"
+                    "inventories"
                 ],
                 "summary": "Outbound stock",
                 "parameters": [
@@ -1280,7 +1280,7 @@
                 }
             }
         },
-        "/inventory/{id}/reserve": {
+        "/inventories/{id}/reserve": {
             "post": {
                 "security": [
                     {
@@ -1295,7 +1295,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "inventory"
+                    "inventories"
                 ],
                 "summary": "Reserve stock",
                 "parameters": [

@@ -227,12 +227,7 @@ func (s *inventoryService) FindAll(ctx context.Context, req dto.GetInventoryList
 	}
 
 	return &dto.InventoryListResponse{
-		PaginatedResponse: dto.PaginatedResponse[dto.InventoryResponse]{
-			Data:  responses,
-			Total: total,
-			Page:  page,
-			Limit: limit,
-		},
+		PaginatedResponse: dto.NewPaginatedResponse(responses, total, page, limit),
 	}, nil
 }
 

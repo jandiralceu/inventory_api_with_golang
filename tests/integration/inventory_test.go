@@ -45,7 +45,7 @@ func TestInventoryHistoryLifecycle(t *testing.T) {
 		Quantity:     100,
 		LocationCode: "A-01-01",
 	}
-	resp := authedRequest(t, "POST", ts.URL+"/api/v1/inventory", adminToken, invReq)
+	resp := authedRequest(t, "POST", ts.URL+"/api/v1/inventories", adminToken, invReq)
 	require.Equal(t, http.StatusCreated, resp.StatusCode)
 
 	var inv models.Inventory
@@ -54,17 +54,17 @@ func TestInventoryHistoryLifecycle(t *testing.T) {
 
 	// 3. Add Stock
 	stockReq := dto.StockOperationRequest{Quantity: 50}
-	resp = authedRequest(t, "POST", fmt.Sprintf("%s/api/v1/inventory/%s/add", ts.URL, invID), adminToken, stockReq)
+	resp = authedRequest(t, "POST", fmt.Sprintf("%s/api/v1/inventories/%s/add", ts.URL, invID), adminToken, stockReq)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 
 	// 4. Remove Stock
 	stockReq = dto.StockOperationRequest{Quantity: 30}
-	resp = authedRequest(t, "POST", fmt.Sprintf("%s/api/v1/inventory/%s/remove", ts.URL, invID), adminToken, stockReq)
+	resp = authedRequest(t, "POST", fmt.Sprintf("%s/api/v1/inventories/%s/remove", ts.URL, invID), adminToken, stockReq)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 
 	// 5. Verify Transaction History
 	// This is the "new case" the user is asking about.
-	resp = authedRequest(t, "GET", ts.URL+"/api/v1/inventory/transactions?inventory_id="+invID.String(), adminToken, nil)
+	resp = authedRequest(t, "GET", ts.URL+"/api/v1/inventories/transactions?inventory_id="+invID.String(), adminToken, nil)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 
 	var txHistory dto.TransactionListResponse

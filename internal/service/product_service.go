@@ -238,11 +238,6 @@ func (s *productService) FindAll(ctx context.Context, req dto.GetProductListRequ
 	}
 
 	return &dto.ProductListResponse{
-		PaginatedResponse: dto.PaginatedResponse[models.Product]{
-			Data:  products,
-			Total: total,
-			Page:  page,
-			Limit: limit,
-		},
+		PaginatedResponse: dto.NewPaginatedResponse(products, total, page, limit),
 	}, nil
 }

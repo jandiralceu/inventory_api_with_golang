@@ -129,20 +129,20 @@ func Setup(routeConfig *RouteConfig, config *config.Config, jwtManager *pkg.JWTM
 				products.DELETE("/:id", routeConfig.ProductHandler.DeleteProduct)
 			}
 
-			inventory := protected.Group("/inventory")
+			inventories := protected.Group("/inventories")
 			{
-				inventory.GET("", routeConfig.InventoryHandler.FindAllInventory)
-				inventory.GET("/transactions", routeConfig.InventoryHandler.GetTransactionHistory)
-				inventory.GET("/:id", routeConfig.InventoryHandler.FindInventoryByID)
-				inventory.POST("", routeConfig.InventoryHandler.CreateInventory)
-				inventory.PUT("/:id", routeConfig.InventoryHandler.UpdateInventory)
-				inventory.DELETE("/:id", routeConfig.InventoryHandler.DeleteInventory)
+				inventories.GET("", routeConfig.InventoryHandler.FindAllInventory)
+				inventories.GET("/transactions", routeConfig.InventoryHandler.GetTransactionHistory)
+				inventories.GET("/:id", routeConfig.InventoryHandler.FindInventoryByID)
+				inventories.POST("", routeConfig.InventoryHandler.CreateInventory)
+				inventories.PUT("/:id", routeConfig.InventoryHandler.UpdateInventory)
+				inventories.DELETE("/:id", routeConfig.InventoryHandler.DeleteInventory)
 
 				// Stock operations
-				inventory.POST("/:id/add", routeConfig.InventoryHandler.AddStock)
-				inventory.POST("/:id/remove", routeConfig.InventoryHandler.RemoveStock)
-				inventory.POST("/:id/reserve", routeConfig.InventoryHandler.ReserveStock)
-				inventory.POST("/:id/release", routeConfig.InventoryHandler.ReleaseStock)
+				inventories.POST("/:id/add", routeConfig.InventoryHandler.AddStock)
+				inventories.POST("/:id/remove", routeConfig.InventoryHandler.RemoveStock)
+				inventories.POST("/:id/reserve", routeConfig.InventoryHandler.ReserveStock)
+				inventories.POST("/:id/release", routeConfig.InventoryHandler.ReleaseStock)
 			}
 		}
 	}

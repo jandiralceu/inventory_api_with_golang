@@ -1233,7 +1233,7 @@ paths:
       summary: Update a category
       tags:
       - categories
-  /inventory:
+  /inventories:
     get:
       description: Retrieve a paginated list of inventory records with optional filters.
       parameters:
@@ -1288,7 +1288,7 @@ paths:
       - Bearer: []
       summary: List inventory records
       tags:
-      - inventory
+      - inventories
     post:
       consumes:
       - application/json
@@ -1335,8 +1335,8 @@ paths:
       - Bearer: []
       summary: Create inventory record
       tags:
-      - inventory
-  /inventory/{id}:
+      - inventories
+  /inventories/{id}:
     delete:
       description: Remove an inventory record from the system.
       parameters:
@@ -1374,7 +1374,7 @@ paths:
       - Bearer: []
       summary: Delete inventory record
       tags:
-      - inventory
+      - inventories
     get:
       description: Retrieve a single inventory record by its unique ID.
       parameters:
@@ -1414,7 +1414,7 @@ paths:
       - Bearer: []
       summary: Get inventory by ID
       tags:
-      - inventory
+      - inventories
     put:
       consumes:
       - application/json
@@ -1466,8 +1466,8 @@ paths:
       - Bearer: []
       summary: Update inventory record
       tags:
-      - inventory
-  /inventory/{id}/add:
+      - inventories
+  /inventories/{id}/add:
     post:
       consumes:
       - application/json
@@ -1521,8 +1521,8 @@ paths:
       - Bearer: []
       summary: Inbound stock
       tags:
-      - inventory
-  /inventory/{id}/release:
+      - inventories
+  /inventories/{id}/release:
     post:
       consumes:
       - application/json
@@ -1576,8 +1576,8 @@ paths:
       - Bearer: []
       summary: Release reserved stock
       tags:
-      - inventory
-  /inventory/{id}/remove:
+      - inventories
+  /inventories/{id}/remove:
     post:
       consumes:
       - application/json
@@ -1631,8 +1631,8 @@ paths:
       - Bearer: []
       summary: Outbound stock
       tags:
-      - inventory
-  /inventory/{id}/reserve:
+      - inventories
+  /inventories/{id}/reserve:
     post:
       consumes:
       - application/json
@@ -1686,8 +1686,8 @@ paths:
       - Bearer: []
       summary: Reserve stock
       tags:
-      - inventory
-  /inventory/transactions:
+      - inventories
+  /inventories/transactions:
     get:
       description: Retrieve a global audit log of all stock movements with advanced
         filters.
@@ -1759,7 +1759,7 @@ paths:
       - Bearer: []
       summary: Stock movement history
       tags:
-      - inventory
+      - inventories
   /products:
     get:
       description: Retrieve a paginated list of products with optional filters.

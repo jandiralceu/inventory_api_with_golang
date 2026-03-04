@@ -23,7 +23,7 @@ func NewInventoryHandler(inventoryService service.InventoryService) *InventoryHa
 // CreateInventory Godoc
 // @Summary      Create inventory record
 // @Description  Initialize a new inventory record for a product in a warehouse.
-// @Tags         inventory
+// @Tags         inventories
 // @Accept       json
 // @Produce      json
 // @Param        request body dto.CreateInventoryRequest true "Inventory data"
@@ -35,7 +35,7 @@ func NewInventoryHandler(inventoryService service.InventoryService) *InventoryHa
 // @Failure      409 {object} ProblemDetails "Conflict"
 // @Failure      429 {object} ProblemDetails "Too many requests"
 // @Security     Bearer
-// @Router       /inventory [post]
+// @Router       /inventories [post]
 func (h *InventoryHandler) CreateInventory(c *gin.Context) {
 	var req dto.CreateInventoryRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -55,7 +55,7 @@ func (h *InventoryHandler) CreateInventory(c *gin.Context) {
 // UpdateInventory Godoc
 // @Summary      Update inventory record
 // @Description  Update details like location code or inventory levels.
-// @Tags         inventory
+// @Tags         inventories
 // @Accept       json
 // @Produce      json
 // @Param        id path string true "Inventory ID (UUID)"
@@ -68,7 +68,7 @@ func (h *InventoryHandler) CreateInventory(c *gin.Context) {
 // @Failure      409 {object} ProblemDetails "Conflict"
 // @Failure      429 {object} ProblemDetails "Too many requests"
 // @Security     Bearer
-// @Router       /inventory/{id} [put]
+// @Router       /inventories/{id} [put]
 func (h *InventoryHandler) UpdateInventory(c *gin.Context) {
 	idStr := c.Param("id")
 	id, err := uuid.Parse(idStr)
@@ -95,7 +95,7 @@ func (h *InventoryHandler) UpdateInventory(c *gin.Context) {
 // FindAllInventory Godoc
 // @Summary      List inventory records
 // @Description  Retrieve a paginated list of inventory records with optional filters.
-// @Tags         inventory
+// @Tags         inventories
 // @Produce      json
 // @Param        productId query string false "Filter by Product ID"
 // @Param        warehouseId query string false "Filter by Warehouse ID"
@@ -109,7 +109,7 @@ func (h *InventoryHandler) UpdateInventory(c *gin.Context) {
 // @Failure      403 {object} ProblemDetails "Forbidden"
 // @Failure      429 {object} ProblemDetails "Too many requests"
 // @Security     Bearer
-// @Router       /inventory [get]
+// @Router       /inventories [get]
 func (h *InventoryHandler) FindAllInventory(c *gin.Context) {
 	var req dto.GetInventoryListRequest
 	if err := c.ShouldBindQuery(&req); err != nil {
@@ -129,7 +129,7 @@ func (h *InventoryHandler) FindAllInventory(c *gin.Context) {
 // FindInventoryByID Godoc
 // @Summary      Get inventory by ID
 // @Description  Retrieve a single inventory record by its unique ID.
-// @Tags         inventory
+// @Tags         inventories
 // @Produce      json
 // @Param        id path string true "Inventory ID (UUID)"
 // @Success      200 {object} models.Inventory
@@ -139,7 +139,7 @@ func (h *InventoryHandler) FindAllInventory(c *gin.Context) {
 // @Failure      404 {object} ProblemDetails "Not found"
 // @Failure      429 {object} ProblemDetails "Too many requests"
 // @Security     Bearer
-// @Router       /inventory/{id} [get]
+// @Router       /inventories/{id} [get]
 func (h *InventoryHandler) FindInventoryByID(c *gin.Context) {
 	idStr := c.Param("id")
 	id, err := uuid.Parse(idStr)
@@ -160,7 +160,7 @@ func (h *InventoryHandler) FindInventoryByID(c *gin.Context) {
 // AddStock Godoc
 // @Summary      Inbound stock
 // @Description  Add physical stock to a specific inventory record.
-// @Tags         inventory
+// @Tags         inventories
 // @Accept       json
 // @Produce      json
 // @Param        id path string true "Inventory ID (UUID)"
@@ -173,7 +173,7 @@ func (h *InventoryHandler) FindInventoryByID(c *gin.Context) {
 // @Failure      409 {object} ProblemDetails "Conflict"
 // @Failure      429 {object} ProblemDetails "Too many requests"
 // @Security     Bearer
-// @Router       /inventory/{id}/add [post]
+// @Router       /inventories/{id}/add [post]
 func (h *InventoryHandler) AddStock(c *gin.Context) {
 	idStr := c.Param("id")
 	id, err := uuid.Parse(idStr)
@@ -199,7 +199,7 @@ func (h *InventoryHandler) AddStock(c *gin.Context) {
 // RemoveStock Godoc
 // @Summary      Outbound stock
 // @Description  Remove physical stock from a specific inventory record.
-// @Tags         inventory
+// @Tags         inventories
 // @Accept       json
 // @Produce      json
 // @Param        id path string true "Inventory ID (UUID)"
@@ -212,7 +212,7 @@ func (h *InventoryHandler) AddStock(c *gin.Context) {
 // @Failure      409 {object} ProblemDetails "Conflict"
 // @Failure      429 {object} ProblemDetails "Too many requests"
 // @Security     Bearer
-// @Router       /inventory/{id}/remove [post]
+// @Router       /inventories/{id}/remove [post]
 func (h *InventoryHandler) RemoveStock(c *gin.Context) {
 	idStr := c.Param("id")
 	id, err := uuid.Parse(idStr)
@@ -238,7 +238,7 @@ func (h *InventoryHandler) RemoveStock(c *gin.Context) {
 // ReserveStock Godoc
 // @Summary      Reserve stock
 // @Description  Reserve a quantity of stock for a pending order.
-// @Tags         inventory
+// @Tags         inventories
 // @Accept       json
 // @Produce      json
 // @Param        id path string true "Inventory ID (UUID)"
@@ -251,7 +251,7 @@ func (h *InventoryHandler) RemoveStock(c *gin.Context) {
 // @Failure      409 {object} ProblemDetails "Conflict"
 // @Failure      429 {object} ProblemDetails "Too many requests"
 // @Security     Bearer
-// @Router       /inventory/{id}/reserve [post]
+// @Router       /inventories/{id}/reserve [post]
 func (h *InventoryHandler) ReserveStock(c *gin.Context) {
 	idStr := c.Param("id")
 	id, err := uuid.Parse(idStr)
@@ -277,7 +277,7 @@ func (h *InventoryHandler) ReserveStock(c *gin.Context) {
 // ReleaseStock Godoc
 // @Summary      Release reserved stock
 // @Description  Release a previously reserved stock quantity.
-// @Tags         inventory
+// @Tags         inventories
 // @Accept       json
 // @Produce      json
 // @Param        id path string true "Inventory ID (UUID)"
@@ -290,7 +290,7 @@ func (h *InventoryHandler) ReserveStock(c *gin.Context) {
 // @Failure      409 {object} ProblemDetails "Conflict"
 // @Failure      429 {object} ProblemDetails "Too many requests"
 // @Security     Bearer
-// @Router       /inventory/{id}/release [post]
+// @Router       /inventories/{id}/release [post]
 func (h *InventoryHandler) ReleaseStock(c *gin.Context) {
 	idStr := c.Param("id")
 	id, err := uuid.Parse(idStr)
@@ -316,7 +316,7 @@ func (h *InventoryHandler) ReleaseStock(c *gin.Context) {
 // DeleteInventory Godoc
 // @Summary      Delete inventory record
 // @Description  Remove an inventory record from the system.
-// @Tags         inventory
+// @Tags         inventories
 // @Produce      json
 // @Param        id path string true "Inventory ID (UUID)"
 // @Success      204 "No content"
@@ -326,7 +326,7 @@ func (h *InventoryHandler) ReleaseStock(c *gin.Context) {
 // @Failure      404 {object} ProblemDetails "Not found"
 // @Failure      429 {object} ProblemDetails "Too many requests"
 // @Security     Bearer
-// @Router       /inventory/{id} [delete]
+// @Router       /inventories/{id} [delete]
 func (h *InventoryHandler) DeleteInventory(c *gin.Context) {
 	idStr := c.Param("id")
 	id, err := uuid.Parse(idStr)
@@ -346,7 +346,7 @@ func (h *InventoryHandler) DeleteInventory(c *gin.Context) {
 // GetTransactionHistory Godoc
 // @Summary      Stock movement history
 // @Description  Retrieve a global audit log of all stock movements with advanced filters.
-// @Tags         inventory
+// @Tags         inventories
 // @Produce      json
 // @Param        inventoryId query string false "Filter by Inventory ID"
 // @Param        productId query string false "Filter by Product ID"
@@ -364,7 +364,7 @@ func (h *InventoryHandler) DeleteInventory(c *gin.Context) {
 // @Failure      403 {object} ProblemDetails "Forbidden"
 // @Failure      429 {object} ProblemDetails "Too many requests"
 // @Security     Bearer
-// @Router       /inventory/transactions [get]
+// @Router       /inventories/transactions [get]
 func (h *InventoryHandler) GetTransactionHistory(c *gin.Context) {
 	var req dto.TransactionListRequest
 	if err := c.ShouldBindQuery(&req); err != nil {

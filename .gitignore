@@ -15,3 +15,6 @@ vendor/
 *.swo
 coverage*
 TODO.mdmain
+# Database dumps
+deployments/seed.sql
+deployments/*.sql

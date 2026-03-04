@@ -55,11 +55,11 @@ func TestErrorMappingIntegration(t *testing.T) {
 		}
 
 		// First create (Success)
-		resp1 := authedRequest(t, "POST", baseURL+"/api/v1/inventory", token, body)
+		resp1 := authedRequest(t, "POST", baseURL+"/api/v1/inventories", token, body)
 		assert.Equal(t, http.StatusCreated, resp1.StatusCode)
 
 		// Second create (Conflict)
-		resp2 := authedRequest(t, "POST", baseURL+"/api/v1/inventory", token, body)
+		resp2 := authedRequest(t, "POST", baseURL+"/api/v1/inventories", token, body)
 		assert.Equal(t, http.StatusConflict, resp2.StatusCode)
 	})
 
@@ -76,7 +76,7 @@ func TestErrorMappingIntegration(t *testing.T) {
 		db.Exec("INSERT INTO warehouses (id, name, slug, code) VALUES (?, ?, ?, ?)", whID2, "Integration WH 2", "integration-wh-2", "WH-ERR-02")
 		body["warehouseId"] = whID2
 
-		resp := authedRequest(t, "POST", baseURL+"/api/v1/inventory", token, body)
+		resp := authedRequest(t, "POST", baseURL+"/api/v1/inventories", token, body)
 		assert.Equal(t, http.StatusBadRequest, resp.StatusCode)
 	})
 
@@ -90,7 +90,7 @@ func TestErrorMappingIntegration(t *testing.T) {
 			"quantity":    10,
 		}
 
-		resp := authedRequest(t, "POST", baseURL+"/api/v1/inventory", token, body)
+		resp := authedRequest(t, "POST", baseURL+"/api/v1/inventories", token, body)
 		// If DTO validation catches it, it's 400. If DB catches it, it's also 400 now!
 		assert.Equal(t, http.StatusBadRequest, resp.StatusCode)
 	})

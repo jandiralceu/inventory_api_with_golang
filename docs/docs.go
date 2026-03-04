@@ -557,7 +557,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/inventory": {
+        "/inventories": {
             "get": {
                 "security": [
                     {
@@ -569,7 +569,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "inventory"
+                    "inventories"
                 ],
                 "summary": "List inventory records",
                 "parameters": [
@@ -657,7 +657,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "inventory"
+                    "inventories"
                 ],
                 "summary": "Create inventory record",
                 "parameters": [
@@ -717,7 +717,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/inventory/transactions": {
+        "/inventories/transactions": {
             "get": {
                 "security": [
                     {
@@ -729,7 +729,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "inventory"
+                    "inventories"
                 ],
                 "summary": "Stock movement history",
                 "parameters": [
@@ -828,7 +828,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/inventory/{id}": {
+        "/inventories/{id}": {
             "get": {
                 "security": [
                     {
@@ -840,7 +840,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "inventory"
+                    "inventories"
                 ],
                 "summary": "Get inventory by ID",
                 "parameters": [
@@ -905,7 +905,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "inventory"
+                    "inventories"
                 ],
                 "summary": "Update inventory record",
                 "parameters": [
@@ -982,7 +982,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "inventory"
+                    "inventories"
                 ],
                 "summary": "Delete inventory record",
                 "parameters": [
@@ -1031,7 +1031,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/inventory/{id}/add": {
+        "/inventories/{id}/add": {
             "post": {
                 "security": [
                     {
@@ -1046,7 +1046,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "inventory"
+                    "inventories"
                 ],
                 "summary": "Inbound stock",
                 "parameters": [
@@ -1116,7 +1116,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/inventory/{id}/release": {
+        "/inventories/{id}/release": {
             "post": {
                 "security": [
                     {
@@ -1131,7 +1131,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "inventory"
+                    "inventories"
                 ],
                 "summary": "Release reserved stock",
                 "parameters": [
@@ -1201,7 +1201,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/inventory/{id}/remove": {
+        "/inventories/{id}/remove": {
             "post": {
                 "security": [
                     {
@@ -1216,7 +1216,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "inventory"
+                    "inventories"
                 ],
                 "summary": "Outbound stock",
                 "parameters": [
@@ -1286,7 +1286,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/inventory/{id}/reserve": {
+        "/inventories/{id}/reserve": {
             "post": {
                 "security": [
                     {
@@ -1301,7 +1301,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "inventory"
+                    "inventories"
                 ],
                 "summary": "Reserve stock",
                 "parameters": [
